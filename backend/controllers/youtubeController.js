@@ -202,6 +202,9 @@ export const getYoutubeAnalytics = async (req, res) => {
       videos: videosData,
     });
   } catch (error) {
+    if (error.message === 'YouTube not connected') {
+      return res.status(400).json({ error: error.message });
+    }
     console.error('Analytics Fetch Error:', error);
     res.status(500).json({ error: error.message });
   }
@@ -250,7 +253,53 @@ export const getVideoAnalytics = async (req, res) => {
       },
     });
   } catch (error) {
+    if (error.message === 'YouTube not connected') {
+      return res.status(400).json({ error: error.message });
+    }
     console.error('Video Analytics Error:', error);
     res.status(500).json({ error: error.message });
   }
 };
+
+// 5. Get video comments
+export const getVideoComments = async (req, res) => {
+  const { videoId } = req.query;
+  if (!videoId) return res.status(400).json({ error: 'Video ID required' });
+
+  try {
+    const { youtube } = await getAuthenticatedClients(req.user._id);
+
+    const response = await youtube.commentThreads.list({
+      part: 'snippet',
+      videoId: videoId,
+      maxResults: 20,
+      order: 'relevance',
+    });
+
+    const comments = response.data.items?.map((item) => {
+      const topComment = item.snippet.topLevelComment.snippet;
+      return {
+        id: item.id,
+        author: topComment.authorDisplayName,
+        authorAvatar: topComment.authorProfileImageUrl,
+        text: topComment.textDisplay,
+        likes: topComment.likeCount,
+        publishedAt: topComment.publishedAt,
+        replyCount: item.snippet.totalReplyCount,
+      };
+    }) || [];
+
+    res.json({ comments });
+  } catch (error) {
+    if (error.message === 'YouTube not connected') {
+      return res.status(400).json({ error: error.message });
+    }
+    // Handle comments disabled by video owner (typical YouTube API error: commentThreadsDisabled)
+    if (error.errors?.[0]?.reason === 'commentsDisabled' || error.message?.includes('commentsDisabled')) {
+      return res.json({ comments: [], commentsDisabled: true });
+    }
+    console.error('Video Comments Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+

@@ -24,7 +24,7 @@ function formatNumber(n) {
 }
 
 export default function Dashboard() {
-  const { user } = useAuthStore();
+  const { user, getYoutubeAuthUrl } = useAuthStore();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,6 +32,10 @@ export default function Dashboard() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [videoAnalytics, setVideoAnalytics] = useState(null);
   const [loadingVideo, setLoadingVideo] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [commentsError, setCommentsError] = useState(null);
+  const [commentsDisabled, setCommentsDisabled] = useState(false);
 
   // ---------- Initial fetch ----------
   useEffect(() => {
@@ -52,15 +56,46 @@ export default function Dashboard() {
     if (selectedVideo?.id === video.id) {
       setSelectedVideo(null);
       setVideoAnalytics(null);
+      setComments([]);
+      setCommentsError(null);
+      setCommentsDisabled(false);
       return;
     }
     setSelectedVideo(video);
     setLoadingVideo(true);
-    try {
-      const res = await fetch(`http://localhost:5000/api/youtube/video-analytics?videoId=${video.id}`, { credentials: 'include' });
-      setVideoAnalytics(await res.json());
-    } catch (e) { console.error(e); }
-    finally { setLoadingVideo(false); }
+    setLoadingComments(true);
+    setCommentsError(null);
+    setCommentsDisabled(false);
+
+    // Fetch video-analytics
+    const fetchAnalyticsPromise = fetch(`http://localhost:5000/api/youtube/video-analytics?videoId=${video.id}`, { credentials: 'include' })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('Failed to fetch video analytics');
+        const data = await res.json();
+        setVideoAnalytics(data);
+      })
+      .catch((e) => console.error(e))
+      .finally(() => setLoadingVideo(false));
+
+    // Fetch comments
+    const fetchCommentsPromise = fetch(`http://localhost:5000/api/youtube/video-comments?videoId=${video.id}`, { credentials: 'include' })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('Failed to fetch comments');
+        const result = await res.json();
+        if (result.commentsDisabled) {
+          setCommentsDisabled(true);
+          setComments([]);
+        } else {
+          setComments(result.comments || []);
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+        setCommentsError('Failed to load comments');
+      })
+      .finally(() => setLoadingComments(false));
+
+    await Promise.all([fetchAnalyticsPromise, fetchCommentsPromise]);
   };
 
   // ---------- Loading / Error states ----------
@@ -71,15 +106,48 @@ export default function Dashboard() {
     </div>
   );
 
-  if (error) return (
-    <div className="profile-container">
-      <div className="auth-card" style={{ textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--error)' }}>Analytics Error</h2>
-        <p style={{ margin: '1rem 0', color: 'var(--text-muted)' }}>{error}</p>
-        <button className="auth-btn primary-btn" onClick={() => window.location.reload()}>Retry</button>
+  if (error) {
+    if (error === 'YouTube not connected') {
+      return (
+        <div className="dashboard-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <div className="auth-card" style={{ textAlign: 'center', maxWidth: '500px', padding: '2.5rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', marginBottom: '1.5rem' }}>
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </div>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.75rem' }}>Connect YouTube Channel</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', lineHeight: '1.6' }}>
+              Link your YouTube channel to access real-time analytics, subscriber growth, viewer demographics, and video performance metrics.
+            </p>
+            <button 
+              className="auth-btn youtube-btn" 
+              onClick={async () => {
+                const url = await getYoutubeAuthUrl();
+                if (url) window.location.href = url;
+              }}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              Connect YouTube Channel
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="profile-container">
+        <div className="auth-card" style={{ textAlign: 'center' }}>
+          <h2 style={{ color: 'var(--error)' }}>Analytics Error</h2>
+          <p style={{ margin: '1rem 0', color: 'var(--text-muted)' }}>{error}</p>
+          <button className="auth-btn primary-btn" onClick={() => window.location.reload()}>Retry</button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   // ---------- Data processing ----------
   // Factual stats from YouTube Data API v3 (exact numbers shown on YouTube)
@@ -175,7 +243,7 @@ export default function Dashboard() {
           </div>
         </div>
         {selectedVideo && (
-          <button className="nav-btn" onClick={() => { setSelectedVideo(null); setVideoAnalytics(null); }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button className="nav-btn" onClick={() => { setSelectedVideo(null); setVideoAnalytics(null); setComments([]); setCommentsError(null); setCommentsDisabled(false); }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <ArrowLeft size={18} /> Back to Overview
           </button>
         )}
@@ -333,6 +401,72 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* ───── Comments Row (when a video is selected) ───── */}
+      {selectedVideo && (
+        <div className="comments-section-wrapper" style={{ marginTop: '2rem' }}>
+          <div className="chart-wrapper" style={{ padding: '2rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '1.5rem', fontSize: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+              <MessageCircle size={22} className="text-primary" /> 
+              <span>Video Comments</span>
+              <span style={{ fontSize: '0.85rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', padding: '0.2rem 0.6rem', borderRadius: '9999px', fontWeight: 600, marginLeft: '0.5rem' }}>
+                {comments.length} Top Threads
+              </span>
+            </h3>
+
+            {loadingComments ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '3rem 0' }}>
+                <div className="shimmer-loader" style={{ width: '150px' }}></div>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Loading comment threads…</span>
+              </div>
+            ) : commentsError ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--error)' }}>
+                <p>{commentsError}</p>
+              </div>
+            ) : commentsDisabled ? (
+              <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-muted)' }}>
+                <MessageCircle size={40} style={{ opacity: 0.3, marginBottom: '1rem' }} style={{ display: 'block', margin: '0 auto 1rem auto', opacity: 0.3 }} />
+                <p style={{ fontSize: '0.95rem' }}>Comments are disabled for this video.</p>
+              </div>
+            ) : comments.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-muted)' }}>
+                <MessageCircle size={40} style={{ display: 'block', margin: '0 auto 1rem auto', opacity: 0.3 }} />
+                <p style={{ fontSize: '0.95rem' }}>No comments found on this video.</p>
+              </div>
+            ) : (
+              <div className="comments-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '500px', overflowY: 'auto', paddingRight: '1rem' }}>
+                {comments.map((comment) => (
+                  <div key={comment.id} style={{ display: 'flex', gap: '1.25rem', paddingBottom: '1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <img 
+                      src={comment.authorAvatar || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'} 
+                      alt={comment.author} 
+                      style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid var(--border)', flexShrink: 0 }} 
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text)' }}>{comment.author}</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{new Date(comment.publishedAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}</span>
+                      </div>
+                      <p style={{ fontSize: '0.925rem', color: '#cbd5e1', lineHeight: '1.5' }} dangerouslySetInnerHTML={{ __html: comment.text }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.75rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <ThumbsUp size={13} />
+                          <span>{comment.likes.toLocaleString()}</span>
+                        </span>
+                        {comment.replyCount > 0 && (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(255, 255, 255, 0.05)', padding: '0.1rem 0.5rem', borderRadius: '4px' }}>
+                            <span>{comment.replyCount} {comment.replyCount === 1 ? 'reply' : 'replies'}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
