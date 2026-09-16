@@ -1,0 +1,79 @@
+﻿# ==========================================
+# Root .gitignore for Final Year Project
+# ==========================================
+
+# --- Environment & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Python & Virtual Environments ---
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+**/venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+*.pt
+*.pth
+*.bin
+*.safetensors
+.cache/
+**/.cache/
+
+# --- Node & Frontend / Backend ---
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+dist-ssr/
+**/dist-ssr/
+build/
+**/build/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- Temporary & Scratch Files ---
+*.tmp
+*.temp
+temp_export.mjs
+sentiment_service/temp_export.mjs
+demo_batch_sentiment_results.json
+sentiment_service/demo_batch_sentiment_results.json
+
+# --- OS & IDEs ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+.idea/
+**/.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+
+# --- Logs ---
+logs/
+**/logs/
+*.log

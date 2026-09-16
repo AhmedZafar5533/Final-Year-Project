@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function LoginPage() {
@@ -12,6 +12,14 @@ export default function LoginPage() {
     const [successMessage, setSuccessMessage] = useState('');
     
     const { login, signup } = useAuthStore();
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const errParam = params.get('error');
+        if (errParam) {
+            setError(errParam);
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

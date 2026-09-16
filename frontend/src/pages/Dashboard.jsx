@@ -36,6 +36,8 @@ export default function Dashboard() {
   const [loadingComments, setLoadingComments] = useState(false);
   const [commentsError, setCommentsError] = useState(null);
   const [commentsDisabled, setCommentsDisabled] = useState(false);
+  const [chartInterval, setChartInterval] = useState('day');
+  const [totalCommentsCount, setTotalCommentsCount] = useState(0);
 
   // ---------- Initial fetch ----------
   useEffect(() => {
@@ -59,6 +61,7 @@ export default function Dashboard() {
       setComments([]);
       setCommentsError(null);
       setCommentsDisabled(false);
+      setTotalCommentsCount(0);
       return;
     }
     setSelectedVideo(video);
@@ -85,8 +88,10 @@ export default function Dashboard() {
         if (result.commentsDisabled) {
           setCommentsDisabled(true);
           setComments([]);
+          setTotalCommentsCount(0);
         } else {
           setComments(result.comments || []);
+          setTotalCommentsCount(result.totalComments || (result.comments?.length || 0));
         }
       })
       .catch((e) => {
@@ -173,7 +178,69 @@ export default function Dashboard() {
 
   const dailyChartData = mapAnalyticsRows(data?.daily?.headers, data?.daily?.rows);
   const videoDailyChart = selectedVideo ? mapAnalyticsRows(videoAnalytics?.daily?.headers, videoAnalytics?.daily?.rows) : [];
-  const activeChartData = selectedVideo ? videoDailyChart : dailyChartData;
+  const rawChartData = selectedVideo ? videoDailyChart : dailyChartData;
+
+  // Helper to dynamically aggregate daily data into day, week, month, and year intervals
+  const getAggregatedChartData = (rawData, interval) => {
+    if (!rawData || rawData.length === 0) return [];
+    const sorted = [...rawData].sort((a, b) => new Date(a.day) - new Date(b.day));
+
+    if (interval === 'day') {
+      return sorted.slice(-30); // show last 30 days
+    }
+
+    const aggregated = {};
+    sorted.forEach((item) => {
+      let groupKey;
+      const date = new Date(item.day);
+      if (isNaN(date.getTime())) return;
+
+      if (interval === 'week') {
+        const tempDate = new Date(date.valueOf());
+        tempDate.setHours(0, 0, 0, 0);
+        tempDate.setDate(tempDate.getDate() + 4 - (tempDate.getDay() || 7));
+        const yearStart = new Date(tempDate.getFullYear(), 0, 1);
+        const weekNo = Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
+        groupKey = `${tempDate.getFullYear()}-W${weekNo.toString().padStart(2, '0')}`;
+      } else if (interval === 'month') {
+        groupKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      } else if (interval === 'year') {
+        groupKey = `${date.getFullYear()}`;
+      }
+
+      if (!aggregated[groupKey]) {
+        aggregated[groupKey] = {
+          day: groupKey,
+          views: 0,
+          likes: 0,
+          dislikes: 0,
+          comments: 0,
+          shares: 0,
+          watchMinutes: 0,
+          estimatedMinutesWatched: 0,
+          subscribersGained: 0,
+          subscribersLost: 0
+        };
+      }
+
+      aggregated[groupKey].views += parseInt(item.views || 0);
+      aggregated[groupKey].likes += parseInt(item.likes || 0);
+      aggregated[groupKey].dislikes += parseInt(item.dislikes || 0);
+      aggregated[groupKey].comments += parseInt(item.comments || 0);
+      aggregated[groupKey].shares += parseInt(item.shares || 0);
+      aggregated[groupKey].watchMinutes += parseInt(item.watchMinutes || item.estimatedMinutesWatched || 0);
+      aggregated[groupKey].estimatedMinutesWatched += parseInt(item.estimatedMinutesWatched || 0);
+      aggregated[groupKey].subscribersGained += parseInt(item.subscribersGained || 0);
+      aggregated[groupKey].subscribersLost += parseInt(item.subscribersLost || 0);
+    });
+
+    const result = Object.values(aggregated).sort((a, b) => a.day.localeCompare(b.day));
+    if (interval === 'week') return result.slice(-26); // last 26 weeks
+    if (interval === 'month') return result.slice(-24); // last 24 months
+    return result; 
+  };
+
+  const activeChartData = getAggregatedChartData(rawChartData, chartInterval);
 
   const channelCountries = mapAnalyticsRows(data?.countries?.headers, data?.countries?.rows);
   const videoCountries = selectedVideo ? mapAnalyticsRows(videoAnalytics?.countries?.headers, videoAnalytics?.countries?.rows) : [];
@@ -209,6 +276,48 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
 
+      {/* ───── Demo Mode Banner ───── */}
+      {data?.isDemo && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)',
+          border: '1px solid rgba(99, 102, 241, 0.3)',
+          borderRadius: '1.25rem',
+          padding: '1.5rem 2rem',
+          marginBottom: '2.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '1.5rem',
+          flexWrap: 'wrap',
+          boxShadow: '0 8px 32px 0 rgba(99, 102, 241, 0.05)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
+        }}>
+          <div style={{ flex: '1', minWidth: '280px' }}>
+            <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'white', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px #34d399' }} />
+              Viewing Demo Channel ("Antigravity Studio")
+            </h4>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              You are currently exploring simulated data representing a space and physics channel. Connect your own YouTube Channel to analyze your live videos, subscriber growth, and actual performance.
+            </p>
+          </div>
+          <button 
+            className="auth-btn youtube-btn" 
+            onClick={async () => {
+              const url = await getYoutubeAuthUrl();
+              if (url) window.location.href = url;
+            }}
+            style={{ width: 'auto', padding: '0.65rem 1.5rem', flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+            Connect Your Channel
+          </button>
+        </div>
+      )}
+
       {/* ───── Header ───── */}
       <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -243,7 +352,7 @@ export default function Dashboard() {
           </div>
         </div>
         {selectedVideo && (
-          <button className="nav-btn" onClick={() => { setSelectedVideo(null); setVideoAnalytics(null); setComments([]); setCommentsError(null); setCommentsDisabled(false); }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button className="nav-btn" onClick={() => { setSelectedVideo(null); setVideoAnalytics(null); setComments([]); setCommentsError(null); setCommentsDisabled(false); setTotalCommentsCount(0); }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <ArrowLeft size={18} /> Back to Overview
           </button>
         )}
@@ -296,11 +405,41 @@ export default function Dashboard() {
 
         {/* Main chart area */}
         <div className="chart-wrapper main-chart">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 style={{ marginBottom: 0 }}>
-              {selectedVideo ? 'Video Views Over Time' : 'Channel Views Over Time'}
-            </h3>
-            {loadingVideo && <span style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>Loading…</span>}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <h3 style={{ marginBottom: 0 }}>
+                {selectedVideo ? 'Video Views Over Time' : 'Channel Views Over Time'}
+              </h3>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                *Note: Charts show historical Analytics API data (lifetime), which lags behind live views by 24–48 hours.
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {/* Interval Aggregation Buttons */}
+              <div style={{ display: 'flex', gap: '0.25rem', background: 'rgba(255, 255, 255, 0.05)', padding: '0.25rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                {['day', 'week', 'month', 'year'].map((interval) => (
+                  <button
+                    key={interval}
+                    onClick={() => setChartInterval(interval)}
+                    style={{
+                      background: chartInterval === interval ? 'var(--primary)' : 'transparent',
+                      color: chartInterval === interval ? 'white' : 'var(--text-muted)',
+                      border: 'none',
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: '6px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      textTransform: 'capitalize',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {interval}
+                  </button>
+                ))}
+              </div>
+              {loadingVideo && <span style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>Loading…</span>}
+            </div>
           </div>
 
           <div className="chart-h">
@@ -314,7 +453,20 @@ export default function Dashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                 <XAxis dataKey="day" stroke="#94a3b8" fontSize={11}
-                  tickFormatter={(s) => { const p = s?.split('-'); return p ? `${p[1]}/${p[2]}` : ''; }} />
+                  tickFormatter={(s) => {
+                    if (!s) return '';
+                    if (chartInterval === 'year') return s;
+                    if (chartInterval === 'month') {
+                      const p = s.split('-');
+                      return p[1] ? `${p[1]}/${p[0].substring(2)}` : s;
+                    }
+                    if (chartInterval === 'week') {
+                      const p = s.split('-W');
+                      return p[1] ? `W${p[1]}/${p[0].substring(2)}` : s;
+                    }
+                    const p = s.split('-');
+                    return p[1] && p[2] ? `${p[1]}/${p[2]}` : s;
+                  }} />
                 <YAxis stroke="#94a3b8" fontSize={11} tickFormatter={formatNumber} />
                 <Tooltip {...tooltipStyle} formatter={(v) => v.toLocaleString()} />
                 <Area type="monotone" dataKey="views" stroke="#6366f1" fillOpacity={1} fill="url(#gViews)" name="Views" />
@@ -410,7 +562,7 @@ export default function Dashboard() {
               <MessageCircle size={22} className="text-primary" /> 
               <span>Video Comments</span>
               <span style={{ fontSize: '0.85rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', padding: '0.2rem 0.6rem', borderRadius: '9999px', fontWeight: 600, marginLeft: '0.5rem' }}>
-                {comments.length} Top Threads
+                {totalCommentsCount > comments.length ? `Showing ${comments.length} of ${totalCommentsCount.toLocaleString()}` : `${totalCommentsCount.toLocaleString()} Comments`}
               </span>
             </h3>
 

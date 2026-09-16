@@ -10,7 +10,10 @@ export const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecret');
-    req.user = await User.findById(decoded.id).select('-__v');
+    req.user = await User.findById(decoded.id).select('-password -__v');
+    if (!req.user) {
+      return res.status(401).json({ error: 'User no longer exists' });
+    }
     next();
   } catch (error) {
     res.status(401).json({ error: 'Not authorized, token failed' });
