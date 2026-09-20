@@ -1,49 +1,63 @@
-# Environment variables & secrets
+# Environment & Secrets
 .env
-.env.local
-.env.*.local
+.env.*
 !.env.example
+*.pem
+*.key
 
-# Node.js / Package Managers
+# Python & Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+**/venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+*.pt
+*.pth
+*.bin
+*.safetensors
+.cache/
+**/.cache/
+
+# Node & Package Managers
 node_modules/
+**/node_modules/
+dist/
+**/dist/
+dist-ssr/
+**/dist-ssr/
+build/
+**/build/
+*.out
+*.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Build & Output Directories
-dist/
-dist-ssr/
-build/
-*.out
-
-# Python / Virtual Environments & Caches
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-.venv/
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/
-.ruff_cache/
-.venv
-
-# Backups & Temporary Files
+# Backups & Temporary / Scratch Files
 *_backup/
 *.bak
 *.tmp
 *.temp
-*.swp
-*.swo
+temp_export.mjs
+sentiment_service/temp_export.mjs
+demo_batch_sentiment_results.json
+sentiment_service/demo_batch_sentiment_results.json
+*.sw?
 *~
 
 # Operating System Files
@@ -54,6 +68,7 @@ htmlcov/
 .Trashes
 ehthumbs.db
 Thumbs.db
+[Dd]esktop.ini
 
 # IDEs & Editors
 .vscode/*
@@ -61,7 +76,13 @@ Thumbs.db
 !.vscode/settings.json
 !.vscode/launch.json
 .idea/
+**/.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
+
+# Logs
+logs/
+**/logs/
+*.log

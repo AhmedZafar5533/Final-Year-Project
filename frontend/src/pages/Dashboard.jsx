@@ -79,55 +79,58 @@ const Dashboard = () => {
         sparklineData: analytics?.watchTimeSparkline,
       },
     ],
-    [analytics],
+    [analytics]
   );
+
+  const selectedDateRangeLabel = useMemo(
+    () => dateRanges.find((r) => r.value === dateRange)?.label || "Custom",
+    [dateRange]
+  );
+
+  const handleDateRangeChange = useCallback((value) => {
+    setDateRange(value);
+    setIsDatePickerOpen(false);
+  }, []);
 
   const handleRefresh = useCallback(() => {
     refreshData();
   }, [refreshData]);
-
-  const selectedRange = dateRanges.find((r) => r.value === dateRange);
 
   if (isLoading) {
     return <DashboardSkeleton />;
   }
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header Section */}
-      <div className="relative">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl sm:text-4xl font-bold text-text-primary">
-                Dashboard
+      <div className="bg-surface-card rounded-2xl p-6 lg:p-8 border border-surface-border shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5 mb-1">
+              <h1 className="text-2xl lg:text-3xl font-bold text-text-heading tracking-tight">
+                Analytics Dashboard
               </h1>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-success-100 text-success-700">
-                <span className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-150 text-primary-800">
+                <IoSparkles className="w-3 h-3" />
                 Live
               </span>
             </div>
-            <p className="text-text-muted flex items-center gap-2">
-              <IoSparkles className="w-4 h-4 text-warning-500" />
-              Welcome back! Your channel is growing{" "}
-              <span className="text-success-600 font-semibold">
-                +{analytics?.viewsChange || 12.5}%
-              </span>{" "}
-              this month
+            <p className="text-sm text-text-light">
+              Track your channel performance, audience engagement, and content insights
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Date Range Picker */}
+          {/* Action Controls */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Date Range Selector Dropdown */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-dark-surface border border-surface-400 dark:border-dark-border rounded-xl shadow-sm hover:shadow-md hover:border-primary-900 dark:hover:border-primary-500 transition-all duration-200"
+                className="flex items-center gap-2 px-4 py-2.5 bg-surface-base text-text-heading rounded-xl border border-surface-border hover:border-primary-400 transition-colors text-sm font-medium shadow-sm"
               >
-                <IoCalendarOutline className="w-4 h-4 text-text-muted" />
-                <span className="text-sm font-medium text-text-primary">
-                  {selectedRange?.label}
-                </span>
+                <IoCalendarOutline className="w-4 h-4 text-text-light" />
+                <span>{selectedDateRangeLabel}</span>
                 <IoChevronDown
                   className={`w-4 h-4 text-text-light transition-transform duration-200 ${
                     isDatePickerOpen ? "rotate-180" : ""
@@ -138,26 +141,25 @@ const Dashboard = () => {
               {isDatePickerOpen && (
                 <>
                   <div
-                    className="fixed inset-0 z-40"
+                    className="fixed inset-0 z-10"
                     onClick={() => setIsDatePickerOpen(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-surface border border-surface-400 dark:border-dark-border rounded-xl shadow-xl z-50 overflow-hidden animate-slide-down">
-                    {dateRanges.map((range) => (
-                      <button
-                        key={range.value}
-                        onClick={() => {
-                          setDateRange(range.value);
-                          setIsDatePickerOpen(false);
-                        }}
-                        className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
-                          dateRange === range.value
-                            ? "bg-primary-100 dark:bg-primary-900/30 text-primary-900 dark:text-primary-300 font-semibold"
-                            : "text-text-primary dark:text-dark-text hover:bg-surface-100 dark:hover:bg-dark-surface-light"
-                        }`}
-                      >
-                        {range.label}
-                      </button>
-                    ))}
+                  <div className="absolute right-0 mt-2 w-48 bg-surface-card rounded-xl border border-surface-border shadow-lg z-20 py-1 divide-y divide-surface-border">
+                    <div className="py-1">
+                      {dateRanges.map((range) => (
+                        <button
+                          key={range.value}
+                          onClick={() => handleDateRangeChange(range.value)}
+                          className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                            dateRange === range.value
+                              ? "bg-primary-150 text-primary-800 font-medium"
+                              : "text-text-body hover:bg-surface-base"
+                          }`}
+                        >
+                          {range.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}
@@ -165,6 +167,7 @@ const Dashboard = () => {
 
             {/* Refresh Button */}
             <button
+              type="button"
               onClick={handleRefresh}
               className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl shadow-md hover:bg-primary-800 hover:shadow-lg transition-all duration-200 active:scale-95"
             >
@@ -200,11 +203,11 @@ const Dashboard = () => {
           <PerformanceChart data={analytics?.viewsOverTime || []} />
         </div>
         <div>
-          <EngagementChart data={analytics?.engagementBreakdown} />
+          <EngagementChart data={analytics?.engagementOverTime || []} />
         </div>
       </div>
 
-      {/* Bottom Section */}
+      {/* Content Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <VideoTable videos={videos} onSelectVideo={setSelectedVideo} />

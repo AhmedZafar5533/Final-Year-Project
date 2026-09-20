@@ -103,7 +103,6 @@ def get_video_transcript(videoId: str, languages: Optional[str] = "en"):
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Transcript unavailable: {str(e)}")
 
-
 @app.post("/analyze")
 def analyze_single(req: SingleTextRequest):
     if not sentiment_pipeline:
@@ -113,7 +112,6 @@ def analyze_single(req: SingleTextRequest):
     if not clean_text:
         raise HTTPException(status_code=400, detail="Text cannot be empty")
     
-    # Truncate to 512 chars for speed and model context length limits
     truncated_text = clean_text[:512]
     raw_results = sentiment_pipeline([truncated_text])[0]
     
@@ -145,10 +143,7 @@ def analyze_batch(req: BatchCommentsRequest):
             "comments": []
         }
     
-    # Extract truncated texts
     texts = [c.text[:512] for c in req.comments]
-    
-    # Run batch inference through PyTorch / RoBERTa
     batch_results = sentiment_pipeline(texts)
     
     analyzed_comments = []

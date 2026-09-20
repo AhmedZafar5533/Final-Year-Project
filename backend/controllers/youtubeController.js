@@ -167,8 +167,6 @@ export const getYoutubeAnalytics = async (req, res) => {
     }
 
     // ---------- Aggregate totals from daily analytics rows ----------
-    // Column order matches the metrics string above:
-    // day, views, likes, dislikes, comments, shares, subscribersGained, subscribersLost, estimatedMinutesWatched, averageViewDuration
     const rows = dailyAnalytics.data.rows || [];
     const aggregated = rows.reduce(
       (acc, row) => ({
@@ -195,31 +193,20 @@ export const getYoutubeAnalytics = async (req, res) => {
 
     // ---------- Send response ----------
     res.json({
-      // Pre-computed totals so the frontend doesn't have to re-sum
       totals: aggregated,
-
-      // Raw daily rows + column headers for charting
       daily: {
         headers: dailyAnalytics.data.columnHeaders?.map((h) => h.name) || [],
         rows: dailyAnalytics.data.rows || [],
       },
-
-      // Country data
       countries: {
         headers: countryAnalytics.data.columnHeaders?.map((h) => h.name) || [],
         rows: countryAnalytics.data.rows || [],
       },
-
-      // Demographics
       demographics: {
         rows: demographicsResult.data.rows || [],
       },
-
-      // Channel metadata from Data API
       channel: channel?.snippet || null,
       channelStats: channel?.statistics || null,
-
-      // All videos with lifetime stats from Data API
       videos: videosData,
     });
   } catch (error) {
@@ -428,7 +415,6 @@ export const getVideoComments = async (req, res) => {
       const { comments: enrichedComments, sentimentSummary } = await getCommentsSentiment(comments, videoId);
       return res.json({ comments: enrichedComments, totalComments, sentimentSummary });
     }
-    // Handle comments disabled by video owner (typical YouTube API error: commentThreadsDisabled)
     if (error.errors?.[0]?.reason === 'commentsDisabled' || error.message?.includes('commentsDisabled')) {
       return res.json({ comments: [], commentsDisabled: true, sentimentSummary: null });
     }
@@ -468,7 +454,6 @@ export const getVideoInsights = async (req, res) => {
       const sentimentResult = await getCommentsSentiment(rawMockComments, videoId);
       comments = sentimentResult.comments;
     } else {
-      // Live video from YouTube Data API
       try {
         const { youtube } = await getAuthenticatedClients(req.user._id);
         const videoResponse = await youtube.videos.list({
@@ -506,14 +491,10 @@ export const getVideoInsights = async (req, res) => {
       }
     }
 
-    // 1. Get transcript & chapters
     const transcriptData = await getVideoTranscriptData(videoId);
     const transcriptText = transcriptData.transcript.map(t => t.text).join(' ');
-
-    // 2. Extract timestamp sentiments mapped to chapters
     const chaptersWithSentiment = extractTimestampSentiments(comments, transcriptData.chapters);
 
-    // 3. Compute sentiment summary
     const total = comments.length;
     const posCount = comments.filter(c => c.sentiment?.label?.includes('POS')).length;
     const neuCount = comments.filter(c => c.sentiment?.label?.includes('NEU')).length;
@@ -528,7 +509,6 @@ export const getVideoInsights = async (req, res) => {
       total
     };
 
-    // 4. Generate DeepSeek intelligence
     const deepseekInsights = await generateVideoIntelligence({
       videoId,
       title: videoTitle,
@@ -608,21 +588,18 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
     }
   }
 
-  // STEP A: Detect Channel Niche & Persona
   const detectedNiche = await detectChannelNiche({
     channel: channelMeta,
     channelStats: channelMeta,
     sampleVideos: targetVideos
   });
 
-  // STEP B: Fetch & Synthesize Market Trends (Niche-Specific Macro Velocity)
   const marketTrends = await fetchAndSynthesizeMarketTrends({
     niche: detectedNiche,
     youtubeClient: liveYoutubeClient,
     isDemo
   });
 
-  // STEP C: Deep Individual Video Analyses (Up to 5 latest videos in parallel)
   const videoPromises = targetVideos.slice(0, 5).map(async (video) => {
     try {
       let rawComments = [];
@@ -654,7 +631,6 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
         }
       }
 
-      // Concurrently process sentiment and transcript data
       const [sentimentResult, transcriptData] = await Promise.all([
         getCommentsSentiment(rawComments, videoId),
         getVideoTranscriptData(videoId)
@@ -676,7 +652,6 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
   const rawAnalyses = await Promise.all(videoPromises);
   const videoAnalyses = rawAnalyses.filter(Boolean);
 
-  // STEP D: Master Channel Synthesis & Triple-Categorized Video Recommendations
   const masterSummary = await generateMasterChannelSynthesis({
     channel: channelMeta,
     niche: detectedNiche,
@@ -698,7 +673,6 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
     status: 'completed'
   };
 
-  // Persist to MongoDB if connected, or memory cache
   if (mongoose.connection.readyState === 1) {
     try {
       const updated = await ChannelIntelligence.findOneAndUpdate(
@@ -715,7 +689,7 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
   return payload;
 };
 
-// 8. Get Channel Intelligence (Niche, Video Analyses, Master Synthesis & Recommendations)
+// 8. Get Channel Intelligence
 export const getChannelIntelligence = async (req, res) => {
   const { refresh } = req.query;
   const userId = req.user?._id;
@@ -734,7 +708,6 @@ export const getChannelIntelligence = async (req, res) => {
 
   const channelId = isDemo ? 'demo-antigravity-studio' : `channel-${userId}`;
 
-  // Check cache / DB first if not forced refresh
   if (refresh !== 'true') {
     if (mongoose.connection.readyState === 1) {
       try {
@@ -749,7 +722,6 @@ export const getChannelIntelligence = async (req, res) => {
     }
   }
 
-  // Execute pipeline
   try {
     const intelligence = await executeChannelAnalysisPipeline(userId, isDemo);
     res.json(intelligence);

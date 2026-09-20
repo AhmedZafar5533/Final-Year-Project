@@ -790,6 +790,7 @@ export const getMockComments = (videoId, count = 100) => {
   } else if (videoId === 'vid5') {
     comments = formatCommentList('vid5', vid5RawComments, '2026-03-15');
   } else {
+  } else {
     // Default to Video 1
     comments = formatCommentList('vid1', vid1RawComments, '2026-05-15');
   }
