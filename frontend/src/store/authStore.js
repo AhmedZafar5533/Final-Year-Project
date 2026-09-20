@@ -84,5 +84,21 @@ export const useAuthStore = create((set) => ({
       console.error('Error fetching YouTube auth URL:', err);
       return null;
     }
+  },
+  disconnectYoutube: async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/youtube/disconnect', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        await useAuthStore.getState().checkAuth();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error disconnecting YouTube:', err);
+      return false;
+    }
   }
 }));

@@ -1,12 +1,18 @@
 import { useAuthStore } from '../store/authStore';
 
 export default function ProfilePage() {
-    const { user, logout, getYoutubeAuthUrl } = useAuthStore();
+    const { user, logout, getYoutubeAuthUrl, disconnectYoutube } = useAuthStore();
 
     const handleConnectYoutube = async () => {
         const url = await getYoutubeAuthUrl();
         if (url) {
             window.location.href = url;
+        }
+    };
+
+    const handleDisconnectYoutube = async () => {
+        if (window.confirm("Are you sure you want to disconnect your YouTube Channel?")) {
+            await disconnectYoutube();
         }
     };
 
@@ -51,9 +57,14 @@ export default function ProfilePage() {
                             Connect YouTube Channel
                         </button>
                     ) : (
-                        <button className="auth-btn analytics-btn" onClick={() => window.location.href='/dashboard'}>
-                            View YouTube Analytics
-                        </button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <button className="auth-btn analytics-btn" onClick={() => window.location.href='/dashboard'}>
+                                View YouTube Analytics
+                            </button>
+                            <button className="auth-btn logout-btn" onClick={handleDisconnectYoutube} style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}>
+                                Disconnect YouTube Channel
+                            </button>
+                        </div>
                     )}
                 </div>
 

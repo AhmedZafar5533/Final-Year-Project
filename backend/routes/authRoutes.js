@@ -7,8 +7,10 @@ const router = express.Router();
 router.get('/login', login);
 router.post('/signup', emailSignup);
 router.post('/signin', emailSignin);
+router.post('/login', emailSignin);
 router.get('/callback', callback);
 router.post('/logout', logout);
 router.get('/me', protect, getCurrentUser);
+router.get('/verify', protect, getCurrentUser);
 
 export default router;

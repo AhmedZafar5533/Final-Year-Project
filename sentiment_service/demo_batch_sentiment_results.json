@@ -1,0 +1,4089 @@
+{
+  "video_1": {
+    "video_id": "vid1",
+    "title": "How Close Are We to Real Antigravity Technology?",
+    "total_comments": 100,
+    "positive_count": 66,
+    "neutral_count": 27,
+    "negative_count": 7,
+    "positive_percentage": 66.0,
+    "neutral_percentage": 27.0,
+    "negative_percentage": 7.0,
+    "top_positive": [
+      {
+        "id": "vid1-c-100",
+        "author": "Antigravity_Studio_Team",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AGStudio",
+        "text": "PINNED COMMENT: Thank you all so much for the incredible response to this video! We spent over 3 weeks researching the literature and animating the stress-energy tensor graphics.  Drop your suggestions below for our next episode! Are you more interested in Wormhole Physics or Planetary Astrobiology on Kepler-186f?",
+        "likes": 3450,
+        "publishedAt": "2026-05-26T07:51:30.996Z",
+        "replyCount": 142,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9627,
+          "scores": {
+            "POSITIVE": 0.9627,
+            "NEUTRAL": 0.0344,
+            "NEGATIVE": 0.0029
+          }
+        }
+      },
+      {
+        "id": "vid1-c-82",
+        "author": "Elena_K_89",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ElenaK89",
+        "text": "I showed this video to my 70-year-old grandfather who worked as an electrical engineer on Apollo-era tracking radar systems. He sat in complete silence for 14 minutes, then turned to me and said:  'In my day, we thought getting a 3-stage rocket off the pad was magic. These young scientists thinking about warping space itself make me wish I was 20 again.'  Thank you for creating content that connects generations through wonder!",
+        "likes": 1890,
+        "publishedAt": "2026-05-15T22:49:55.320Z",
+        "replyCount": 45,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7173,
+          "scores": {
+            "POSITIVE": 0.7173,
+            "NEUTRAL": 0.273,
+            "NEGATIVE": 0.0097
+          }
+        }
+      },
+      {
+        "id": "vid1-c-71",
+        "author": "Dr. Alistair Finch",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AlFinch",
+        "text": "As an astrophysicist specializing in General Relativity, I want to compliment you on how accurately you handled the Stress-Energy Tensor (T\u03bc\u03bd) at 09:15.  Most pop-science channels simplify gravity down to 'mass attracts mass,' but you correctly pointed out that pressure, momentum density, and energy density ALL contribute to gravitational curvature. When you mentioned that negative pressure can create repulsive gravitational effects (which is precisely how inflation and dark energy work in cosmology), you gave the audience a real insight into modern physics.  Keep up this standard of science communication. It's rare to find videos that balance accessibility with true mathematical honesty.",
+        "likes": 1420,
+        "publishedAt": "2026-05-15T23:34:25.943Z",
+        "replyCount": 38,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.702,
+          "scores": {
+            "POSITIVE": 0.702,
+            "NEUTRAL": 0.2694,
+            "NEGATIVE": 0.0286
+          }
+        }
+      },
+      {
+        "id": "vid1-c-73",
+        "author": "Prof. Timothy Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TimVance",
+        "text": "The discussion surrounding the Bondi 'Runway Effect' (1957) at 11:45 was brilliant.  For those unaware: If you have a positive mass (+m) and a negative mass (-m), the negative mass repels the positive mass, while the positive mass attracts the negative mass. The result? Both objects accelerate in the SAME direction endlessly, gaining kinetic energy!  At first glance, this looks like it violates conservation of energy. But because the negative mass has negative kinetic energy (-1/2 m v^2), the net kinetic energy of the system remains EXACTLY ZERO at all times! Physics is utterly bizarre when you push the equations to their limits.",
+        "likes": 1150,
+        "publishedAt": "2026-05-16T13:04:13.387Z",
+        "replyCount": 31,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.753,
+          "scores": {
+            "POSITIVE": 0.753,
+            "NEUTRAL": 0.2348,
+            "NEGATIVE": 0.0122
+          }
+        }
+      },
+      {
+        "id": "vid1-c-95",
+        "author": "Tom_Hardy_Voice",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TomHVoice",
+        "text": "Ah, you think gravity is your ally? You merely adopted the spacetime curve. I was born in it, molded by it... I didn't see negative mass until I was already a man!  (Awesome video mate, loved every second!).",
+        "likes": 1100,
+        "publishedAt": "2026-05-17T04:55:11.729Z",
+        "replyCount": 33,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.537,
+          "scores": {
+            "POSITIVE": 0.537,
+            "NEUTRAL": 0.3493,
+            "NEGATIVE": 0.1138
+          }
+        }
+      }
+    ],
+    "top_neutral": [
+      {
+        "id": "vid1-c-78",
+        "author": "Math_Enthusiast_99",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Math99",
+        "text": "Timestamp breakdown for anyone taking study notes:  0:00 - Introduction & Historical Context 1:45 - Newton vs Einstein: What IS Gravity? 3:50 - The Equivalence Principle & Mass Types 6:10 - Magnetic Levitation vs True Antigravity 8:30 - Negative Mass & Einstein's Field Equations 10:45 - The Bondi Runway Effect Paradox 12:10 - CERN ALPHA-g Experiment Results 13:40 - Future Outlook & Summary  Hope this helps fellow physics students!",
+        "likes": 1530,
+        "publishedAt": "2026-05-15T14:20:06.064Z",
+        "replyCount": 28,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8289,
+          "scores": {
+            "NEUTRAL": 0.8289,
+            "POSITIVE": 0.1621,
+            "NEGATIVE": 0.0089
+          }
+        }
+      },
+      {
+        "id": "vid1-c-87",
+        "author": "Brian_T_Engineering",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BrianTEng",
+        "text": "Let's talk about the economic implications of 1g continuous acceleration:  If you have a 1g antigravity/propulsion drive: - Earth to the Moon: 3.5 hours - Earth to Mars (at closest approach): 39 hours! - Earth to Pluto: 16 days!  You don't even need relativistic speeds to colonize the entire Solar System in weeks. The moment we eliminate the tyranny of the rocket equation, the solar system becomes as accessible as Earth was in the 19th century.",
+        "likes": 1120,
+        "publishedAt": "2026-05-15T14:26:22.849Z",
+        "replyCount": 29,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.5964,
+          "scores": {
+            "NEUTRAL": 0.5964,
+            "POSITIVE": 0.3821,
+            "NEGATIVE": 0.0215
+          }
+        }
+      },
+      {
+        "id": "vid1-c-91",
+        "author": "Physics_Tutor_Dan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=PhysTutor",
+        "text": "For students watching this video to prepare for exams, here are the key concepts you MUST remember:  1. Invariant Mass vs Relativistic Mass 2. The 4 Energy Conditions in GR (Weak, Strong, Dominant, Null) 3. Difference between Electromagnetic forces (q1q2/r^2) and Gravitational curvature (G\u03bc\u03bd = 8\u03c0T\u03bc\u03bd) 4. Why Casimir Effect proves negative local energy density exists in QFT.  Save this comment for review time!",
+        "likes": 930,
+        "publishedAt": "2026-05-17T12:22:22.541Z",
+        "replyCount": 21,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8946,
+          "scores": {
+            "NEUTRAL": 0.8946,
+            "POSITIVE": 0.0742,
+            "NEGATIVE": 0.0312
+          }
+        }
+      },
+      {
+        "id": "vid1-c-72",
+        "author": "Quantum_Mechanic_88",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=QM88",
+        "text": "Here is a breakdown for anyone confused about why Quantum Levitation (Type II Superconductors) is NOT true antigravity:  1. Magnetism vs Gravity: Quantum levitation relies on the Meissner effect and flux pinning. Superconductors expel magnetic field lines, locking them in place over a magnetic track. 2. Energy Requirements: It requires external magnetic fields and cryogenic temperatures (liquid nitrogen/helium). 3. Scale: It only acts against magnetic fields, NOT spacetime curvature itself.  True antigravity would require modifying the gravitational metric itself (g\u03bc\u03bd) or generating negative active gravitational mass. Great video for making this distinction clear around the 6-minute mark!",
+        "likes": 890,
+        "publishedAt": "2026-05-16T04:01:47.579Z",
+        "replyCount": 24,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6319,
+          "scores": {
+            "NEUTRAL": 0.6319,
+            "NEGATIVE": 0.3459,
+            "POSITIVE": 0.0222
+          }
+        }
+      },
+      {
+        "id": "vid1-c-89",
+        "author": "Astro_Girl_2026",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AstroG26",
+        "text": "I remember when people laughed at the idea of heavier-than-air flight, then 66 years after the Wright Brothers we landed on the Moon.  Right now, antigravity feels like science fiction. But looking at the rate of progress in quantum computing, high-temperature superconductors, and metamaterial synthesis, who knows where we'll be in 2076?  Never stop dreaming, and never stop doing the rigorous math!",
+        "likes": 670,
+        "publishedAt": "2026-05-16T08:18:18.017Z",
+        "replyCount": 13,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6005,
+          "scores": {
+            "NEUTRAL": 0.6005,
+            "NEGATIVE": 0.2449,
+            "POSITIVE": 0.1546
+          }
+        }
+      }
+    ],
+    "top_negative": [
+      {
+        "id": "vid1-c-65",
+        "author": "Isaac Newton_Ghost",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=IsaN",
+        "text": "Sir, I demand an explanation for why my apple is currently floating upwards in your diagram at 7:40!",
+        "likes": 1250,
+        "publishedAt": "2026-05-15T01:22:06.620Z",
+        "replyCount": 54,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.742,
+          "scores": {
+            "NEGATIVE": 0.742,
+            "NEUTRAL": 0.241,
+            "POSITIVE": 0.0169
+          }
+        }
+      },
+      {
+        "id": "vid1-c-66",
+        "author": "Jack Sparrow",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JackS",
+        "text": "Not all treasure is silver and gold, mate. Some of it is negative mass energy tensors!",
+        "likes": 620,
+        "publishedAt": "2026-05-15T03:26:58.584Z",
+        "replyCount": 20,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.5576,
+          "scores": {
+            "NEGATIVE": 0.5576,
+            "NEUTRAL": 0.3906,
+            "POSITIVE": 0.0519
+          }
+        }
+      },
+      {
+        "id": "vid1-c-76",
+        "author": "Engineer_Dan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EngDan",
+        "text": "Aerospace engineer perspective here: Even if we discovered a material with negative mass tomorrow, building a commercial vehicle out of it would present insane structural challenges.  Think about it: how do you bolt down a component that is actively pushing away from the chassis with negative inertia? Every structural joint would experience shear forces in reverse. You'd need novel composite materials just to contain the engine housing without it tearing the ship apart.  It's easy to look at sci-fi movies and think 'oh we just turn on the antigravity drive,' but the mechanical engineering hurdles are just as massive as the physics hurdles!",
+        "likes": 540,
+        "publishedAt": "2026-05-17T14:08:27.034Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.5278,
+          "scores": {
+            "NEGATIVE": 0.5278,
+            "NEUTRAL": 0.4441,
+            "POSITIVE": 0.0281
+          }
+        }
+      },
+      {
+        "id": "vid1-c-68",
+        "author": "Leonardo DaVinci",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LeoDV",
+        "text": "My flying machine designs would have been much simpler with one of these negative energy devices!",
+        "likes": 510,
+        "publishedAt": "2026-05-18T20:02:30.481Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.651,
+          "scores": {
+            "NEGATIVE": 0.651,
+            "NEUTRAL": 0.2784,
+            "POSITIVE": 0.0706
+          }
+        }
+      },
+      {
+        "id": "vid1-c-36",
+        "author": "Chloe Zhang",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ChloeZ",
+        "text": "Can we talk about the power requirement problem? Even if negative mass is mathematically valid, requiring the mass-energy equivalent of Jupiter to levitate a car makes it practically impossible for centuries.",
+        "likes": 290,
+        "publishedAt": "2026-05-15T06:03:25.585Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.6773,
+          "scores": {
+            "NEGATIVE": 0.6773,
+            "NEUTRAL": 0.3053,
+            "POSITIVE": 0.0175
+          }
+        }
+      }
+    ],
+    "all_analyzed": [
+      {
+        "id": "vid1-c-1",
+        "author": "Elena Rostova",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ElenaR",
+        "text": "Mind-blowing video! The explanation at 4:15 finally made quantum levitation click for me.",
+        "likes": 342,
+        "publishedAt": "2026-05-15T00:31:00.035Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9816,
+          "scores": {
+            "POSITIVE": 0.9816,
+            "NEUTRAL": 0.0156,
+            "NEGATIVE": 0.0028
+          }
+        }
+      },
+      {
+        "id": "vid1-c-2",
+        "author": "Marcus Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcusV",
+        "text": "Brilliant breakdown. Antigravity Studio never disappoints!",
+        "likes": 215,
+        "publishedAt": "2026-05-18T06:53:17.553Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9794,
+          "scores": {
+            "POSITIVE": 0.9794,
+            "NEUTRAL": 0.0153,
+            "NEGATIVE": 0.0053
+          }
+        }
+      },
+      {
+        "id": "vid1-c-3",
+        "author": "Quantum_Surfer",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Surfer99",
+        "text": "Wait, so negative mass really is theoretically allowed by Einstein's equations?",
+        "likes": 189,
+        "publishedAt": "2026-05-15T02:58:56.159Z",
+        "replyCount": 12,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7871,
+          "scores": {
+            "NEUTRAL": 0.7871,
+            "NEGATIVE": 0.1537,
+            "POSITIVE": 0.0592
+          }
+        }
+      },
+      {
+        "id": "vid1-c-4",
+        "author": "Sarah Jenkins",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SarahJ",
+        "text": "Subscribed immediately. The animation quality is insane.",
+        "likes": 95,
+        "publishedAt": "2026-05-16T10:25:34.220Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9613,
+          "scores": {
+            "POSITIVE": 0.9613,
+            "NEUTRAL": 0.0309,
+            "NEGATIVE": 0.0078
+          }
+        }
+      },
+      {
+        "id": "vid1-c-5",
+        "author": "David K.",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DavidK",
+        "text": "Me watching this at 2 AM instead of studying for my physics midterms \ud83d\ude05",
+        "likes": 512,
+        "publishedAt": "2026-05-15T16:18:36.443Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6872,
+          "scores": {
+            "NEUTRAL": 0.6872,
+            "POSITIVE": 0.166,
+            "NEGATIVE": 0.1468
+          }
+        }
+      },
+      {
+        "id": "vid1-c-6",
+        "author": "TechExplorer",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TechEx",
+        "text": "Could the Casimir effect be scaled up for macroscopic repulsive forces?",
+        "likes": 142,
+        "publishedAt": "2026-05-20T04:13:49.392Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8197,
+          "scores": {
+            "NEUTRAL": 0.8197,
+            "NEGATIVE": 0.141,
+            "POSITIVE": 0.0393
+          }
+        }
+      },
+      {
+        "id": "vid1-c-7",
+        "author": "Dr. Aris Thorne",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ArisThorne",
+        "text": "Great video! As a condensed matter physicist, I really appreciated your nuance around room-temp superconductors.",
+        "likes": 420,
+        "publishedAt": "2026-05-16T06:15:12.620Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9764,
+          "scores": {
+            "POSITIVE": 0.9764,
+            "NEUTRAL": 0.021,
+            "NEGATIVE": 0.0026
+          }
+        }
+      },
+      {
+        "id": "vid1-c-8",
+        "author": "Claire Bennett",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ClaireB",
+        "text": "The editing at 8:30 was clean AF.",
+        "likes": 67,
+        "publishedAt": "2026-05-21T02:36:59.733Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9003,
+          "scores": {
+            "POSITIVE": 0.9003,
+            "NEUTRAL": 0.0881,
+            "NEGATIVE": 0.0117
+          }
+        }
+      },
+      {
+        "id": "vid1-c-9",
+        "author": "CosmicVoyager",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=CosmicV",
+        "text": "If we ever crack antigravity, space exploration will change overnight.",
+        "likes": 280,
+        "publishedAt": "2026-05-18T19:14:39.458Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.5579,
+          "scores": {
+            "NEUTRAL": 0.5579,
+            "POSITIVE": 0.3755,
+            "NEGATIVE": 0.0666
+          }
+        }
+      },
+      {
+        "id": "vid1-c-10",
+        "author": "Brian Peterson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BrianP",
+        "text": "Awesome job simplifying General Relativity without losing the math.",
+        "likes": 88,
+        "publishedAt": "2026-05-23T07:56:50.680Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9175,
+          "scores": {
+            "POSITIVE": 0.9175,
+            "NEUTRAL": 0.0686,
+            "NEGATIVE": 0.0139
+          }
+        }
+      },
+      {
+        "id": "vid1-c-11",
+        "author": "Samantha Wu",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SamWu",
+        "text": "Wait, wouldn't negative mass move TOWARDS you when you push it away?",
+        "likes": 310,
+        "publishedAt": "2026-05-16T15:52:26.125Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.5722,
+          "scores": {
+            "NEUTRAL": 0.5722,
+            "NEGATIVE": 0.4105,
+            "POSITIVE": 0.0174
+          }
+        }
+      },
+      {
+        "id": "vid1-c-12",
+        "author": "Liam O'Connor",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LiamOC",
+        "text": "This channel is underrated. Deserves 1M subscribers ASAP.",
+        "likes": 175,
+        "publishedAt": "2026-05-18T17:21:10.253Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8744,
+          "scores": {
+            "POSITIVE": 0.8744,
+            "NEUTRAL": 0.1053,
+            "NEGATIVE": 0.0203
+          }
+        }
+      },
+      {
+        "id": "vid1-c-13",
+        "author": "AstroNerd99",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AstroN99",
+        "text": "Loved the timestamp breakdown in the description. Very helpful!",
+        "likes": 45,
+        "publishedAt": "2026-05-24T02:43:05.060Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9787,
+          "scores": {
+            "POSITIVE": 0.9787,
+            "NEUTRAL": 0.0177,
+            "NEGATIVE": 0.0035
+          }
+        }
+      },
+      {
+        "id": "vid1-c-14",
+        "author": "Prof_Holloway",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Holloway",
+        "text": "I'm assigning this video to my undergraduate physics class this semester.",
+        "likes": 630,
+        "publishedAt": "2026-05-15T11:09:26.960Z",
+        "replyCount": 18,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8907,
+          "scores": {
+            "NEUTRAL": 0.8907,
+            "POSITIVE": 0.0944,
+            "NEGATIVE": 0.0149
+          }
+        }
+      },
+      {
+        "id": "vid1-c-15",
+        "author": "GamerPhysics",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=GamerP",
+        "text": "Imagine antigravity hoverboards... 2015 Back to the Future promised us this!",
+        "likes": 220,
+        "publishedAt": "2026-05-23T17:46:20.922Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7985,
+          "scores": {
+            "POSITIVE": 0.7985,
+            "NEUTRAL": 0.1817,
+            "NEGATIVE": 0.0198
+          }
+        }
+      },
+      {
+        "id": "vid1-c-16",
+        "author": "Nadia Khan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=NadiaK",
+        "text": "Super clear explanation of the equivalence principle!",
+        "likes": 78,
+        "publishedAt": "2026-05-16T01:37:17.796Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9137,
+          "scores": {
+            "POSITIVE": 0.9137,
+            "NEUTRAL": 0.0781,
+            "NEGATIVE": 0.0082
+          }
+        }
+      },
+      {
+        "id": "vid1-c-17",
+        "author": "VectorSpace",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=VectorS",
+        "text": "The negative energy density requirement is the real bottleneck here.",
+        "likes": 156,
+        "publishedAt": "2026-05-19T23:03:57.686Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.6705,
+          "scores": {
+            "NEGATIVE": 0.6705,
+            "NEUTRAL": 0.3117,
+            "POSITIVE": 0.0178
+          }
+        }
+      },
+      {
+        "id": "vid1-c-18",
+        "author": "Kevin Miller",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=KevinM",
+        "text": "Can you do a follow-up video on Alcubierre Warp Drives?",
+        "likes": 340,
+        "publishedAt": "2026-05-15T16:32:18.627Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.9309,
+          "scores": {
+            "NEUTRAL": 0.9309,
+            "POSITIVE": 0.0611,
+            "NEGATIVE": 0.008
+          }
+        }
+      },
+      {
+        "id": "vid1-c-19",
+        "author": "Laura Martinez",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LauraM",
+        "text": "I had to rewatch 11:20 three times, but now I get it. Wow.",
+        "likes": 92,
+        "publishedAt": "2026-05-18T03:15:39.566Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8709,
+          "scores": {
+            "POSITIVE": 0.8709,
+            "NEUTRAL": 0.1137,
+            "NEGATIVE": 0.0154
+          }
+        }
+      },
+      {
+        "id": "vid1-c-20",
+        "author": "Hyperion_01",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Hyp01",
+        "text": "Pure science gold. No clickbait, just solid physics.",
+        "likes": 198,
+        "publishedAt": "2026-05-17T04:44:07.252Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.933,
+          "scores": {
+            "POSITIVE": 0.933,
+            "NEUTRAL": 0.0565,
+            "NEGATIVE": 0.0104
+          }
+        }
+      },
+      {
+        "id": "vid1-c-21",
+        "author": "Dr. Julian Hays",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JulianH",
+        "text": "I loved how you discussed electrogravity experiments from the 1950s vs modern quantum field theory. Most popular science creators completely ignore the history of failed attempts, but showing why Biefeld-Brown effect turned out to just be ion wind was crucial context!",
+        "likes": 485,
+        "publishedAt": "2026-05-16T00:05:51.545Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5517,
+          "scores": {
+            "POSITIVE": 0.5517,
+            "NEUTRAL": 0.3512,
+            "NEGATIVE": 0.0971
+          }
+        }
+      },
+      {
+        "id": "vid1-c-22",
+        "author": "Maya Lin",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MayaLin",
+        "text": "The distinction between shielding gravity and creating repulsive gravity at 6:45 was spot on. People always confuse magnetic levitation with actual gravitational manipulation. High quality content as always!",
+        "likes": 275,
+        "publishedAt": "2026-05-18T06:33:17.535Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5918,
+          "scores": {
+            "POSITIVE": 0.5918,
+            "NEUTRAL": 0.3074,
+            "NEGATIVE": 0.1008
+          }
+        }
+      },
+      {
+        "id": "vid1-c-23",
+        "author": "Chris Gallagher",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ChrisG",
+        "text": "If exotic matter with negative mass requires negative energy densities, wouldn't that violate the Weak Energy Condition? I'd love to hear your thoughts on how quantum field theory allows temporary local violations via quantum squeezing.",
+        "likes": 312,
+        "publishedAt": "2026-05-15T02:13:57.356Z",
+        "replyCount": 19,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7741,
+          "scores": {
+            "NEUTRAL": 0.7741,
+            "NEGATIVE": 0.1449,
+            "POSITIVE": 0.0811
+          }
+        }
+      },
+      {
+        "id": "vid1-c-24",
+        "author": "Aethelgard",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Aethel",
+        "text": "At 10:15 when you showed the stress-energy tensor diagram, everything clicked! General relativity makes so much more sense when you visualize gravity as spacetime curvature rather than a Newtonian pulling force.",
+        "likes": 195,
+        "publishedAt": "2026-05-19T06:58:16.076Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8851,
+          "scores": {
+            "POSITIVE": 0.8851,
+            "NEUTRAL": 0.1088,
+            "NEGATIVE": 0.006
+          }
+        }
+      },
+      {
+        "id": "vid1-c-25",
+        "author": "Jessica Reed",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JessR",
+        "text": "My engineering team is actually researching high-temperature superconducting bearings right now. Flux pinning (quantum levitation) is already being used in flywheel energy storage! Antigravity might be far, but levitation tech is happening right now.",
+        "likes": 410,
+        "publishedAt": "2026-05-17T13:05:25.794Z",
+        "replyCount": 10,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8358,
+          "scores": {
+            "POSITIVE": 0.8358,
+            "NEUTRAL": 0.16,
+            "NEGATIVE": 0.0042
+          }
+        }
+      },
+      {
+        "id": "vid1-c-26",
+        "author": "Tomasz Nowak",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TomN",
+        "text": "What really blew my mind was the runway effect if you paired positive and negative mass together. Both objects would accelerate indefinitely without violating momentum conservation because total mass is zero! Nature is weird.",
+        "likes": 520,
+        "publishedAt": "2026-05-15T06:52:34.375Z",
+        "replyCount": 22,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.4431,
+          "scores": {
+            "NEUTRAL": 0.4431,
+            "NEGATIVE": 0.4343,
+            "POSITIVE": 0.1226
+          }
+        }
+      },
+      {
+        "id": "vid1-c-27",
+        "author": "Rachel Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RachV",
+        "text": "Honestly, the production value on this channel is approaching Kurzgesagt levels. The custom 3D animations of the graviton interaction models were breathtaking.",
+        "likes": 165,
+        "publishedAt": "2026-05-15T05:27:35.825Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9471,
+          "scores": {
+            "POSITIVE": 0.9471,
+            "NEUTRAL": 0.0426,
+            "NEGATIVE": 0.0103
+          }
+        }
+      },
+      {
+        "id": "vid1-c-28",
+        "author": "Derek Foster",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DerekF",
+        "text": "Question for anyone in the comments: If an object had negative mass, would light deflect AWAY from it instead of lensing around it? Gravitational repulsive lensing would look insane through a telescope!",
+        "likes": 230,
+        "publishedAt": "2026-05-16T12:47:10.727Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.5515,
+          "scores": {
+            "NEGATIVE": 0.5515,
+            "NEUTRAL": 0.419,
+            "POSITIVE": 0.0295
+          }
+        }
+      },
+      {
+        "id": "vid1-c-29",
+        "author": "Priya Sharma",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=PriyaS",
+        "text": "I really appreciated that you didn't overpromise. So many YouTube videos title things 'Antigravity Discovered!' when it's just a magnet over liquid nitrogen. Thank you for staying scientifically rigorous.",
+        "likes": 380,
+        "publishedAt": "2026-05-16T07:54:45.632Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8736,
+          "scores": {
+            "POSITIVE": 0.8736,
+            "NEUTRAL": 0.1092,
+            "NEGATIVE": 0.0171
+          }
+        }
+      },
+      {
+        "id": "vid1-c-30",
+        "author": "Lucas Dubois",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LucasD",
+        "text": "The breakdown of CERN's ALPHA-g experiment at 12:40 was amazing. Seeing that antimatter actually falls DOWN toward Earth instead of up pretty much ruled out simple antimatter antigravity, right?",
+        "likes": 490,
+        "publishedAt": "2026-05-16T19:05:16.965Z",
+        "replyCount": 16,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9317,
+          "scores": {
+            "POSITIVE": 0.9317,
+            "NEUTRAL": 0.0611,
+            "NEGATIVE": 0.0073
+          }
+        }
+      },
+      {
+        "id": "vid1-c-31",
+        "author": "Oliver Queen",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=OliQ",
+        "text": "Does the Casimir effect between conducting plates count as a measurable negative energy density? And if so, why can't we stack micro-cavities to create a net repulsive force?",
+        "likes": 145,
+        "publishedAt": "2026-05-18T15:18:58.326Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.5641,
+          "scores": {
+            "NEUTRAL": 0.5641,
+            "NEGATIVE": 0.4205,
+            "POSITIVE": 0.0154
+          }
+        }
+      },
+      {
+        "id": "vid1-c-32",
+        "author": "Hannah Abbott",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=HannahA",
+        "text": "I'm a high school physics teacher and I just used your segment on the Equivalence Principle in my class today. The students were completely engaged! Thank you for creating such accessible resources.",
+        "likes": 310,
+        "publishedAt": "2026-05-19T17:45:22.588Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9838,
+          "scores": {
+            "POSITIVE": 0.9838,
+            "NEUTRAL": 0.0141,
+            "NEGATIVE": 0.0022
+          }
+        }
+      },
+      {
+        "id": "vid1-c-33",
+        "author": "Xavier Dupont",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=XavD",
+        "text": "Great video, but I think you slightly understated the engineering difficulties of maintaining stable Cooper pairs in superconductors at scale. Still, a fantastic overview!",
+        "likes": 120,
+        "publishedAt": "2026-05-15T06:31:13.348Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7525,
+          "scores": {
+            "POSITIVE": 0.7525,
+            "NEUTRAL": 0.1891,
+            "NEGATIVE": 0.0584
+          }
+        }
+      },
+      {
+        "id": "vid1-c-34",
+        "author": "Sophia Rossi",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SophR",
+        "text": "The intro graphics with the levitating sphere gave me goosebumps! Also, what was the background music track around 5:30? It sounded so futuristic.",
+        "likes": 85,
+        "publishedAt": "2026-05-16T06:06:16.358Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9573,
+          "scores": {
+            "POSITIVE": 0.9573,
+            "NEUTRAL": 0.038,
+            "NEGATIVE": 0.0047
+          }
+        }
+      },
+      {
+        "id": "vid1-c-35",
+        "author": "Marcus Aurelius",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcAur",
+        "text": "If we ever build a vehicle using spacetime distortion, G-forces wouldn't even affect the passengers inside because the whole frame is moving with the local inertial frame! That's the real magic of warp/antigravity tech.",
+        "likes": 450,
+        "publishedAt": "2026-05-16T16:45:51.173Z",
+        "replyCount": 13,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5974,
+          "scores": {
+            "POSITIVE": 0.5974,
+            "NEUTRAL": 0.3535,
+            "NEGATIVE": 0.0491
+          }
+        }
+      },
+      {
+        "id": "vid1-c-36",
+        "author": "Chloe Zhang",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ChloeZ",
+        "text": "Can we talk about the power requirement problem? Even if negative mass is mathematically valid, requiring the mass-energy equivalent of Jupiter to levitate a car makes it practically impossible for centuries.",
+        "likes": 290,
+        "publishedAt": "2026-05-15T06:03:25.585Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.6773,
+          "scores": {
+            "NEGATIVE": 0.6773,
+            "NEUTRAL": 0.3053,
+            "POSITIVE": 0.0175
+          }
+        }
+      },
+      {
+        "id": "vid1-c-37",
+        "author": "Daniel Kim",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DanK",
+        "text": "The explanation of how frame dragging works near rotating massive bodies was super intuitive. Spinning superconductors and Gravito-electromagnetism (GEM) is such a fascinating field of research.",
+        "likes": 175,
+        "publishedAt": "2026-05-17T16:50:07.964Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9443,
+          "scores": {
+            "POSITIVE": 0.9443,
+            "NEUTRAL": 0.0512,
+            "NEGATIVE": 0.0045
+          }
+        }
+      },
+      {
+        "id": "vid1-c-38",
+        "author": "Emily Watson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EmWat",
+        "text": "I've been a subscriber since video #1 and watching this channel grow has been awesome. The quality boost in graphics and scripting over the past year is incredible!",
+        "likes": 110,
+        "publishedAt": "2026-05-27T10:55:24.478Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9876,
+          "scores": {
+            "POSITIVE": 0.9876,
+            "NEUTRAL": 0.0093,
+            "NEGATIVE": 0.0031
+          }
+        }
+      },
+      {
+        "id": "vid1-c-39",
+        "author": "Gabriel Silva",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=GabS",
+        "text": "Is it possible that Dark Energy is essentially a cosmic-scale manifestation of negative gravitational pressure? That would mean antigravity is already driving the expansion of the universe!",
+        "likes": 365,
+        "publishedAt": "2026-05-15T10:14:53.573Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7833,
+          "scores": {
+            "NEUTRAL": 0.7833,
+            "NEGATIVE": 0.1187,
+            "POSITIVE": 0.098
+          }
+        }
+      },
+      {
+        "id": "vid1-c-40",
+        "author": "Zoe Kravitz",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ZoeK",
+        "text": "Loved the timestamp links! Made it super easy to jump back to the math section when I wanted to take notes.",
+        "likes": 55,
+        "publishedAt": "2026-05-19T04:18:38.640Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9456,
+          "scores": {
+            "POSITIVE": 0.9456,
+            "NEUTRAL": 0.0495,
+            "NEGATIVE": 0.0048
+          }
+        }
+      },
+      {
+        "id": "vid1-c-41",
+        "author": "Arthur Pendelton",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ArtP",
+        "text": "Could quantum gravity theories like Loop Quantum Gravity or String Theory predict new force carriers that couple negatively to mass? Standard Model obviously doesn't, but Unified Theories might!",
+        "likes": 210,
+        "publishedAt": "2026-05-18T21:58:46.028Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8244,
+          "scores": {
+            "NEUTRAL": 0.8244,
+            "POSITIVE": 0.1103,
+            "NEGATIVE": 0.0653
+          }
+        }
+      },
+      {
+        "id": "vid1-c-42",
+        "author": "Victoria Secret_Agent",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=VicSec",
+        "text": "The section explaining why gyroscopic precession isn't antigravity saved me from a 3-hour internet rabbit hole. Thank you for debunking that common misconception!",
+        "likes": 330,
+        "publishedAt": "2026-05-17T15:31:33.167Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.6751,
+          "scores": {
+            "POSITIVE": 0.6751,
+            "NEUTRAL": 0.2335,
+            "NEGATIVE": 0.0914
+          }
+        }
+      },
+      {
+        "id": "vid1-c-43",
+        "author": "Ian MacLeod",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=IanMac",
+        "text": " Scottish Highlander here watching physics at midnight! Absolutely top tier video lad. Keep 'em coming!",
+        "likes": 140,
+        "publishedAt": "2026-05-27T15:44:13.562Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9734,
+          "scores": {
+            "POSITIVE": 0.9734,
+            "NEUTRAL": 0.0226,
+            "NEGATIVE": 0.004
+          }
+        }
+      },
+      {
+        "id": "vid1-c-44",
+        "author": "Natalie Portman_Fan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=NatPort",
+        "text": "Wait, if gravity is just geometry of spacetime, then 'antigravity' is really just geometric engineering. We aren't pushing against a force, we're reshaping the ground under our feet!",
+        "likes": 285,
+        "publishedAt": "2026-05-18T16:43:10.537Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6687,
+          "scores": {
+            "NEUTRAL": 0.6687,
+            "NEGATIVE": 0.2329,
+            "POSITIVE": 0.0983
+          }
+        }
+      },
+      {
+        "id": "vid1-c-45",
+        "author": "Oscar Isaac",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=OscI",
+        "text": "The distinction between passive gravitational mass, active gravitational mass, and inertial mass at 3:10 was so clean. Most textbook explanations drag that out for 30 pages.",
+        "likes": 240,
+        "publishedAt": "2026-05-21T18:09:38.044Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.4901,
+          "scores": {
+            "POSITIVE": 0.4901,
+            "NEUTRAL": 0.4578,
+            "NEGATIVE": 0.0521
+          }
+        }
+      },
+      {
+        "id": "vid1-c-46",
+        "author": "Penelope Cruz",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=PenC",
+        "text": "I shared this in our university physics Discord server and it sparked a 2-hour debate on the Energy Conditions in GR. Super engaging content!",
+        "likes": 195,
+        "publishedAt": "2026-05-22T16:11:37.883Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9622,
+          "scores": {
+            "POSITIVE": 0.9622,
+            "NEUTRAL": 0.0357,
+            "NEGATIVE": 0.0022
+          }
+        }
+      },
+      {
+        "id": "vid1-c-47",
+        "author": "Quentin Tarantino",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=QuenT",
+        "text": "Needs more feet... just kidding! Fantastic video on theoretical propulsion systems.",
+        "likes": 890,
+        "publishedAt": "2026-05-15T07:10:51.433Z",
+        "replyCount": 42,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.948,
+          "scores": {
+            "POSITIVE": 0.948,
+            "NEUTRAL": 0.0438,
+            "NEGATIVE": 0.0082
+          }
+        }
+      },
+      {
+        "id": "vid1-c-48",
+        "author": "Riley Reid_Academic",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RilR",
+        "text": "The breakdown of Podkletnov's rotating superconducting disk experiment from 1992 was very fair. Acknowledging that NASA couldn't replicate it while explaining why people got excited was great science communication.",
+        "likes": 320,
+        "publishedAt": "2026-05-21T19:51:27.816Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7696,
+          "scores": {
+            "POSITIVE": 0.7696,
+            "NEUTRAL": 0.2063,
+            "NEGATIVE": 0.0241
+          }
+        }
+      },
+      {
+        "id": "vid1-c-49",
+        "author": "Sebastian Stan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SebS",
+        "text": "What software do you use for these 3D orbital and field visualizations? Manim, Blender, or custom WebGL scripts?",
+        "likes": 150,
+        "publishedAt": "2026-05-18T12:25:01.998Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8953,
+          "scores": {
+            "NEUTRAL": 0.8953,
+            "POSITIVE": 0.0829,
+            "NEGATIVE": 0.0218
+          }
+        }
+      },
+      {
+        "id": "vid1-c-50",
+        "author": "Tessa Thompson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TessT",
+        "text": "The analogy of the bowling ball on a trampoline vs an inverted cone for negative mass was so simple yet effective. Really helped my brain picture it.",
+        "likes": 175,
+        "publishedAt": "2026-05-18T04:40:11.406Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.824,
+          "scores": {
+            "POSITIVE": 0.824,
+            "NEUTRAL": 0.1574,
+            "NEGATIVE": 0.0186
+          }
+        }
+      },
+      {
+        "id": "vid1-c-51",
+        "author": "Ulysses Grant",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=UlyG",
+        "text": "Could a superdense neutron star or black hole accretion disk produce measurable frame-dragging effects that simulate antigravity corridors?",
+        "likes": 130,
+        "publishedAt": "2026-05-17T13:55:06.320Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8955,
+          "scores": {
+            "NEUTRAL": 0.8955,
+            "POSITIVE": 0.0613,
+            "NEGATIVE": 0.0432
+          }
+        }
+      },
+      {
+        "id": "vid1-c-52",
+        "author": "Valerie F.",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ValF",
+        "text": "Always look forward to your uploads on Friday afternoons! Perfect weekend watching.",
+        "likes": 70,
+        "publishedAt": "2026-05-23T20:06:17.114Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9877,
+          "scores": {
+            "POSITIVE": 0.9877,
+            "NEUTRAL": 0.0104,
+            "NEGATIVE": 0.002
+          }
+        }
+      },
+      {
+        "id": "vid1-c-53",
+        "author": "Winston Smith",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=WinS",
+        "text": "Is there any theoretical limit to how strong a quantum levitation flux tube can be? Could a room-temp superconductor hold up a 10-ton building?",
+        "likes": 260,
+        "publishedAt": "2026-05-18T03:01:56.082Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8261,
+          "scores": {
+            "NEUTRAL": 0.8261,
+            "POSITIVE": 0.1069,
+            "NEGATIVE": 0.067
+          }
+        }
+      },
+      {
+        "id": "vid1-c-54",
+        "author": "Xena Warrior_Physicist",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=XenP",
+        "text": "Quantum squeezing of vacuum fluctuations seems like our best bet for generating T00 < 0 stress tensor components locally. Glad you mentioned it at the end!",
+        "likes": 310,
+        "publishedAt": "2026-05-16T19:48:13.806Z",
+        "replyCount": 10,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8562,
+          "scores": {
+            "POSITIVE": 0.8562,
+            "NEUTRAL": 0.136,
+            "NEGATIVE": 0.0077
+          }
+        }
+      },
+      {
+        "id": "vid1-c-55",
+        "author": "Yusuf Demir",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=YusD",
+        "text": "Watching from Istanbul! Love how science brings people together from all across the planet.",
+        "likes": 205,
+        "publishedAt": "2026-05-19T18:45:54.197Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9844,
+          "scores": {
+            "POSITIVE": 0.9844,
+            "NEUTRAL": 0.0129,
+            "NEGATIVE": 0.0027
+          }
+        }
+      },
+      {
+        "id": "vid1-c-56",
+        "author": "Zara Larson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ZarL",
+        "text": "The audio mix is super crisp. Crisp narration, perfect background volume, clear graphics. 10/10 production.",
+        "likes": 95,
+        "publishedAt": "2026-05-17T15:29:34.986Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9782,
+          "scores": {
+            "POSITIVE": 0.9782,
+            "NEUTRAL": 0.0163,
+            "NEGATIVE": 0.0055
+          }
+        }
+      },
+      {
+        "id": "vid1-c-57",
+        "author": "Aaron Paul",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AarP",
+        "text": "Science Bitch! (Had to say it). Incredible breakdown of Einstein's field equations!",
+        "likes": 740,
+        "publishedAt": "2026-05-16T19:55:55.879Z",
+        "replyCount": 25,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8071,
+          "scores": {
+            "POSITIVE": 0.8071,
+            "NEUTRAL": 0.1405,
+            "NEGATIVE": 0.0523
+          }
+        }
+      },
+      {
+        "id": "vid1-c-58",
+        "author": "Bella Hadid",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BelH",
+        "text": "I didn't expect to watch a 14-minute video on electrogravity today, but here I am, completely fascinated.",
+        "likes": 180,
+        "publishedAt": "2026-05-15T06:27:57.231Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9087,
+          "scores": {
+            "POSITIVE": 0.9087,
+            "NEUTRAL": 0.079,
+            "NEGATIVE": 0.0123
+          }
+        }
+      },
+      {
+        "id": "vid1-c-59",
+        "author": "Charles Darwin",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=CharD",
+        "text": "Humanity's intellectual evolution from thinking objects fall because of their 'nature' to understanding spacetime geometry is astounding.",
+        "likes": 290,
+        "publishedAt": "2026-05-19T00:29:31.475Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6211,
+          "scores": {
+            "NEUTRAL": 0.6211,
+            "POSITIVE": 0.2364,
+            "NEGATIVE": 0.1425
+          }
+        }
+      },
+      {
+        "id": "vid1-c-60",
+        "author": "Diana Prince",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DiaP",
+        "text": "If we ever achieve antigravity, how would it affect atmospheric pressure around low-flying craft? Wouldn't it push the air away and create a vacuum acoustic boom?",
+        "likes": 215,
+        "publishedAt": "2026-05-20T16:38:27.167Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.788,
+          "scores": {
+            "NEUTRAL": 0.788,
+            "NEGATIVE": 0.1679,
+            "POSITIVE": 0.0442
+          }
+        }
+      },
+      {
+        "id": "vid1-c-61",
+        "author": "Edward Norton",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EdN",
+        "text": "First rule of Antigravity Club: You do not talk about violating Newton's Third Law (unless total system momentum is zero!).",
+        "likes": 430,
+        "publishedAt": "2026-05-16T05:32:46.663Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.5385,
+          "scores": {
+            "NEUTRAL": 0.5385,
+            "NEGATIVE": 0.4081,
+            "POSITIVE": 0.0534
+          }
+        }
+      },
+      {
+        "id": "vid1-c-62",
+        "author": "Fiona Gallagher",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=FioG",
+        "text": "The pacing was spot on. Never felt rushed, but didn't drag either. Subscribed!",
+        "likes": 65,
+        "publishedAt": "2026-05-22T10:49:58.332Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9626,
+          "scores": {
+            "POSITIVE": 0.9626,
+            "NEUTRAL": 0.0301,
+            "NEGATIVE": 0.0073
+          }
+        }
+      },
+      {
+        "id": "vid1-c-63",
+        "author": "George St-Pierre",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=GeoSP",
+        "text": "I am not impressed by your performance... I am EXTREMELY impressed! Fantastic physics video!",
+        "likes": 350,
+        "publishedAt": "2026-05-17T07:58:16.723Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9637,
+          "scores": {
+            "POSITIVE": 0.9637,
+            "NEUTRAL": 0.0269,
+            "NEGATIVE": 0.0094
+          }
+        }
+      },
+      {
+        "id": "vid1-c-64",
+        "author": "Helena Bonham",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=HelB",
+        "text": "The dark aesthetic of the video thumbnails and intro sequences fits the channel theme so well.",
+        "likes": 110,
+        "publishedAt": "2026-05-23T17:55:06.497Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7645,
+          "scores": {
+            "POSITIVE": 0.7645,
+            "NEUTRAL": 0.2223,
+            "NEGATIVE": 0.0132
+          }
+        }
+      },
+      {
+        "id": "vid1-c-65",
+        "author": "Isaac Newton_Ghost",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=IsaN",
+        "text": "Sir, I demand an explanation for why my apple is currently floating upwards in your diagram at 7:40!",
+        "likes": 1250,
+        "publishedAt": "2026-05-15T01:22:06.620Z",
+        "replyCount": 54,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.742,
+          "scores": {
+            "NEGATIVE": 0.742,
+            "NEUTRAL": 0.241,
+            "POSITIVE": 0.0169
+          }
+        }
+      },
+      {
+        "id": "vid1-c-66",
+        "author": "Jack Sparrow",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JackS",
+        "text": "Not all treasure is silver and gold, mate. Some of it is negative mass energy tensors!",
+        "likes": 620,
+        "publishedAt": "2026-05-15T03:26:58.584Z",
+        "replyCount": 20,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.5576,
+          "scores": {
+            "NEGATIVE": 0.5576,
+            "NEUTRAL": 0.3906,
+            "POSITIVE": 0.0519
+          }
+        }
+      },
+      {
+        "id": "vid1-c-67",
+        "author": "Katherine Johnson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=KathJ",
+        "text": "Math is the language of the universe. Thank you for showing the actual equations on screen rather than just hand-waving!",
+        "likes": 480,
+        "publishedAt": "2026-05-18T06:31:35.752Z",
+        "replyCount": 12,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8654,
+          "scores": {
+            "POSITIVE": 0.8654,
+            "NEUTRAL": 0.1226,
+            "NEGATIVE": 0.0119
+          }
+        }
+      },
+      {
+        "id": "vid1-c-68",
+        "author": "Leonardo DaVinci",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LeoDV",
+        "text": "My flying machine designs would have been much simpler with one of these negative energy devices!",
+        "likes": 510,
+        "publishedAt": "2026-05-18T20:02:30.481Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.651,
+          "scores": {
+            "NEGATIVE": 0.651,
+            "NEUTRAL": 0.2784,
+            "POSITIVE": 0.0706
+          }
+        }
+      },
+      {
+        "id": "vid1-c-69",
+        "author": "Margot Robbie",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarR",
+        "text": "Loved this! Can you make a video on quantum entanglement next?",
+        "likes": 290,
+        "publishedAt": "2026-05-18T04:27:07.549Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9841,
+          "scores": {
+            "POSITIVE": 0.9841,
+            "NEUTRAL": 0.0138,
+            "NEGATIVE": 0.002
+          }
+        }
+      },
+      {
+        "id": "vid1-c-70",
+        "author": "Nikola Tesla_Fan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=NikT",
+        "text": "Tesla believed in dynamic gravity theories back in the day. It's awesome seeing how modern QFT approaches the problem now.",
+        "likes": 370,
+        "publishedAt": "2026-05-16T23:50:31.106Z",
+        "replyCount": 13,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8986,
+          "scores": {
+            "POSITIVE": 0.8986,
+            "NEUTRAL": 0.0912,
+            "NEGATIVE": 0.0101
+          }
+        }
+      },
+      {
+        "id": "vid1-c-71",
+        "author": "Dr. Alistair Finch",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AlFinch",
+        "text": "As an astrophysicist specializing in General Relativity, I want to compliment you on how accurately you handled the Stress-Energy Tensor (T\u03bc\u03bd) at 09:15.  Most pop-science channels simplify gravity down to 'mass attracts mass,' but you correctly pointed out that pressure, momentum density, and energy density ALL contribute to gravitational curvature. When you mentioned that negative pressure can create repulsive gravitational effects (which is precisely how inflation and dark energy work in cosmology), you gave the audience a real insight into modern physics.  Keep up this standard of science communication. It's rare to find videos that balance accessibility with true mathematical honesty.",
+        "likes": 1420,
+        "publishedAt": "2026-05-15T23:34:25.943Z",
+        "replyCount": 38,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.702,
+          "scores": {
+            "POSITIVE": 0.702,
+            "NEUTRAL": 0.2694,
+            "NEGATIVE": 0.0286
+          }
+        }
+      },
+      {
+        "id": "vid1-c-72",
+        "author": "Quantum_Mechanic_88",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=QM88",
+        "text": "Here is a breakdown for anyone confused about why Quantum Levitation (Type II Superconductors) is NOT true antigravity:  1. Magnetism vs Gravity: Quantum levitation relies on the Meissner effect and flux pinning. Superconductors expel magnetic field lines, locking them in place over a magnetic track. 2. Energy Requirements: It requires external magnetic fields and cryogenic temperatures (liquid nitrogen/helium). 3. Scale: It only acts against magnetic fields, NOT spacetime curvature itself.  True antigravity would require modifying the gravitational metric itself (g\u03bc\u03bd) or generating negative active gravitational mass. Great video for making this distinction clear around the 6-minute mark!",
+        "likes": 890,
+        "publishedAt": "2026-05-16T04:01:47.579Z",
+        "replyCount": 24,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6319,
+          "scores": {
+            "NEUTRAL": 0.6319,
+            "NEGATIVE": 0.3459,
+            "POSITIVE": 0.0222
+          }
+        }
+      },
+      {
+        "id": "vid1-c-73",
+        "author": "Prof. Timothy Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TimVance",
+        "text": "The discussion surrounding the Bondi 'Runway Effect' (1957) at 11:45 was brilliant.  For those unaware: If you have a positive mass (+m) and a negative mass (-m), the negative mass repels the positive mass, while the positive mass attracts the negative mass. The result? Both objects accelerate in the SAME direction endlessly, gaining kinetic energy!  At first glance, this looks like it violates conservation of energy. But because the negative mass has negative kinetic energy (-1/2 m v^2), the net kinetic energy of the system remains EXACTLY ZERO at all times! Physics is utterly bizarre when you push the equations to their limits.",
+        "likes": 1150,
+        "publishedAt": "2026-05-16T13:04:13.387Z",
+        "replyCount": 31,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.753,
+          "scores": {
+            "POSITIVE": 0.753,
+            "NEUTRAL": 0.2348,
+            "NEGATIVE": 0.0122
+          }
+        }
+      },
+      {
+        "id": "vid1-c-74",
+        "author": "Sarah_LabTech",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SarahLT",
+        "text": "I work in an optics lab working with squeezed vacuum states, and seeing quantum optics mentioned in a video about propulsion was a pleasant surprise!  When you squeeze the quantum vacuum, you reduce the uncertainty in one observable (like phase) at the cost of increasing uncertainty in another (like photon number). In certain localized regions of a squeezed state, the energy density can actually drop below the zero-point energy of the unperturbed vacuum, creating a fleeting region of T00 < 0.  We are nowhere near making this macroscopically useful for spacecraft, but the fundamental physics is 100% real and verified in laboratories every day.",
+        "likes": 670,
+        "publishedAt": "2026-05-15T14:27:12.191Z",
+        "replyCount": 17,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9179,
+          "scores": {
+            "POSITIVE": 0.9179,
+            "NEUTRAL": 0.0778,
+            "NEGATIVE": 0.0043
+          }
+        }
+      },
+      {
+        "id": "vid1-c-75",
+        "author": "Christopher Nolan_Fan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=CNolan",
+        "text": "This video felt like a deleted scene from Interstellar where Kip Thorne explains the gravity equations to Murph.  The way you connected: - General Relativity (Spacetime Curvature) - The Equivalence Principle (Inertial vs Gravitational Mass) - Quantum Field Theory (Vacuum Energy & Negative Tensors) - Engineering Feasibility (Superconductors & Casimir Effects)  Made the entire 14 minutes feel like a masterclass. I've rewatched this twice already. Please do a full series on speculative propulsion technologies!",
+        "likes": 980,
+        "publishedAt": "2026-05-15T19:13:46.015Z",
+        "replyCount": 22,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5611,
+          "scores": {
+            "POSITIVE": 0.5611,
+            "NEUTRAL": 0.4249,
+            "NEGATIVE": 0.0141
+          }
+        }
+      },
+      {
+        "id": "vid1-c-76",
+        "author": "Engineer_Dan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EngDan",
+        "text": "Aerospace engineer perspective here: Even if we discovered a material with negative mass tomorrow, building a commercial vehicle out of it would present insane structural challenges.  Think about it: how do you bolt down a component that is actively pushing away from the chassis with negative inertia? Every structural joint would experience shear forces in reverse. You'd need novel composite materials just to contain the engine housing without it tearing the ship apart.  It's easy to look at sci-fi movies and think 'oh we just turn on the antigravity drive,' but the mechanical engineering hurdles are just as massive as the physics hurdles!",
+        "likes": 540,
+        "publishedAt": "2026-05-17T14:08:27.034Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "NEGATIVE",
+          "confidence": 0.5278,
+          "scores": {
+            "NEGATIVE": 0.5278,
+            "NEUTRAL": 0.4441,
+            "POSITIVE": 0.0281
+          }
+        }
+      },
+      {
+        "id": "vid1-c-77",
+        "author": "Julian_Cosmology",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JulCosmo",
+        "text": "One detail I'm glad you included: the ALPHA-g experiment at CERN.  For decades, sci-fi writers hypothesized that antimatter might have negative gravitational mass and fall UP. But in late 2023, CERN published their results proving that antihydrogen atoms fall DOWN with an acceleration consistent with 1g (within experimental error).  That single experiment ruled out a huge category of naive 'antimatter antigravity' theories. Science progresses just as much by ruling out false paths as it does by discovering new ones!",
+        "likes": 760,
+        "publishedAt": "2026-05-17T20:51:39.293Z",
+        "replyCount": 19,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.667,
+          "scores": {
+            "POSITIVE": 0.667,
+            "NEUTRAL": 0.3156,
+            "NEGATIVE": 0.0174
+          }
+        }
+      },
+      {
+        "id": "vid1-c-78",
+        "author": "Math_Enthusiast_99",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Math99",
+        "text": "Timestamp breakdown for anyone taking study notes:  0:00 - Introduction & Historical Context 1:45 - Newton vs Einstein: What IS Gravity? 3:50 - The Equivalence Principle & Mass Types 6:10 - Magnetic Levitation vs True Antigravity 8:30 - Negative Mass & Einstein's Field Equations 10:45 - The Bondi Runway Effect Paradox 12:10 - CERN ALPHA-g Experiment Results 13:40 - Future Outlook & Summary  Hope this helps fellow physics students!",
+        "likes": 1530,
+        "publishedAt": "2026-05-15T14:20:06.064Z",
+        "replyCount": 28,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8289,
+          "scores": {
+            "NEUTRAL": 0.8289,
+            "POSITIVE": 0.1621,
+            "NEGATIVE": 0.0089
+          }
+        }
+      },
+      {
+        "id": "vid1-c-79",
+        "author": "Dr. Rebecca Sterling",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RebecS",
+        "text": "Excellent presentation. I wanted to add a brief note on the Weak Energy Condition (WEC).  In classical GR, the WEC states that for any timelike vector v\u03bc, T\u03bc\u03bd v\u03bc v\u03bd \u2265 0. This essentially says that any real observer will always measure a non-negative energy density.  However, in Quantum Field Theory, the WEC is known to be violated globally and locally by quantum states (like Casimir energy or Hawking radiation near black hole horizons). This means that quantum mechanics intrinsically permits conditions that classical GR forbids! That intersection between QFT and GR is where true antigravity physics will ultimately be born.",
+        "likes": 820,
+        "publishedAt": "2026-05-18T19:45:14.553Z",
+        "replyCount": 20,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.6083,
+          "scores": {
+            "POSITIVE": 0.6083,
+            "NEUTRAL": 0.3625,
+            "NEGATIVE": 0.0292
+          }
+        }
+      },
+      {
+        "id": "vid1-c-80",
+        "author": "Starbound_Pioneer",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=StarPio",
+        "text": "Imagine what human civilization will look like in 500 years if we solve this.  - No more expensive rocket launches burning thousands of tons of kerosene just to escape Earth's gravity well. - Floating sky cities in the upper atmosphere of Venus where atmospheric pressure and temperature match Earth. - Mining asteroids by simply nudging them into stable orbits with minimal propellant. - Interstellar probes accelerating at constant 1g without crushing biological payloads.  Videos like this remind me why I chose to major in aerospace engineering. The future is worth fighting for.",
+        "likes": 610,
+        "publishedAt": "2026-05-17T16:35:47.786Z",
+        "replyCount": 16,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6461,
+          "scores": {
+            "NEUTRAL": 0.6461,
+            "POSITIVE": 0.2016,
+            "NEGATIVE": 0.1523
+          }
+        }
+      },
+      {
+        "id": "vid1-c-81",
+        "author": "Marcus_Physics_Grad",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcPG",
+        "text": "Great video! One question regarding the Biefeld-Brown effect mentioned at 05:20:  You correctly noted that in a vacuum, the thrust drops to zero, proving it's an electrohydrodynamic (EHD) ion wind effect rather than electrogravity.  My question is: Have there been any recent tests in ultra-high vacuum environments using asymmetric high-voltage capacitors with GHz AC frequencies instead of DC? I read a paper from 2021 suggesting high-frequency AC might induce non-linear dielectric stress in the quantum vacuum. Would love to hear if you've stumbled across that research!",
+        "likes": 340,
+        "publishedAt": "2026-05-15T04:07:01.464Z",
+        "replyCount": 12,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.6978,
+          "scores": {
+            "POSITIVE": 0.6978,
+            "NEUTRAL": 0.2906,
+            "NEGATIVE": 0.0116
+          }
+        }
+      },
+      {
+        "id": "vid1-c-82",
+        "author": "Elena_K_89",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ElenaK89",
+        "text": "I showed this video to my 70-year-old grandfather who worked as an electrical engineer on Apollo-era tracking radar systems. He sat in complete silence for 14 minutes, then turned to me and said:  'In my day, we thought getting a 3-stage rocket off the pad was magic. These young scientists thinking about warping space itself make me wish I was 20 again.'  Thank you for creating content that connects generations through wonder!",
+        "likes": 1890,
+        "publishedAt": "2026-05-15T22:49:55.320Z",
+        "replyCount": 45,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7173,
+          "scores": {
+            "POSITIVE": 0.7173,
+            "NEUTRAL": 0.273,
+            "NEGATIVE": 0.0097
+          }
+        }
+      },
+      {
+        "id": "vid1-c-83",
+        "author": "SciFi_Writer_Alex",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SciFiAlex",
+        "text": "As a hard sci-fi novelist, this video is a goldmine.  I was writing a chapter involving a ship utilizing negative mass propulsion, but I couldn't figure out how to describe the inertial dampening. Your explanation at 07:15 about how an object in a warp/antigravity bubble remains in freefall relative to its local spacetime frame solved my plot hole instantly!  No artificial gravity belts needed \u2014 the crew just floats comfortably because the ship and the crew share the exact same geodesic trajectory. Incredible work!",
+        "likes": 430,
+        "publishedAt": "2026-05-22T23:26:59.700Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.545,
+          "scores": {
+            "POSITIVE": 0.545,
+            "NEUTRAL": 0.3399,
+            "NEGATIVE": 0.1152
+          }
+        }
+      },
+      {
+        "id": "vid1-c-84",
+        "author": "Prof_David_Holloway",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DaveHoll",
+        "text": "Re-watching this for the 3rd time to prep lecture slides on Special vs General Relativity.  What makes this video superior to 99% of science channels is the refusal to use misleading analogies without clarifying their limitations. For instance, explaining that the 'rubber sheet' model breaks down because it relies on Earth's gravity to pull the ball down into the well was a masterclass in critical teaching.  Keep setting the standard for scientific accuracy on YouTube!",
+        "likes": 720,
+        "publishedAt": "2026-05-18T17:02:02.324Z",
+        "replyCount": 18,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8065,
+          "scores": {
+            "POSITIVE": 0.8065,
+            "NEUTRAL": 0.1768,
+            "NEGATIVE": 0.0166
+          }
+        }
+      },
+      {
+        "id": "vid1-c-85",
+        "author": "Quantum_Foam_Researcher",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=QFoam",
+        "text": "A quick note on Wheeler's Quantum Foam model: At the Planck scale (~10^-35 meters), spacetime topology is believed to fluctuate wildly, creating micro-wormholes and virtual black holes that form and evaporate in 10^-43 seconds.  Some theoretical physicists hypothesize that if we could coherentize these Planck-scale vacuum fluctuations (similar to how a laser coherentizes light photons), we could induce macroscopic negative energy regions.  We are currently missing the experimental tools to probe 10^-35m, but the math does not forbid it!",
+        "likes": 510,
+        "publishedAt": "2026-05-16T12:05:19.904Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8944,
+          "scores": {
+            "NEUTRAL": 0.8944,
+            "NEGATIVE": 0.0612,
+            "POSITIVE": 0.0444
+          }
+        }
+      },
+      {
+        "id": "vid1-c-86",
+        "author": "Samantha_Space_Art",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SamSpace",
+        "text": "The visual design in this video is top tier!  The color palette choices \u2014 using deep neon indigo for positive energy curvature and glowing infrared crimson for negative mass distortion \u2014 made intuitive sense immediately.  As a visual designer who loves science, I really appreciate when creators invest effort into diagrammatic clarity. It makes abstract 4D mathematical concepts accessible to visual learners like me!",
+        "likes": 290,
+        "publishedAt": "2026-05-21T20:24:19.851Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.967,
+          "scores": {
+            "POSITIVE": 0.967,
+            "NEUTRAL": 0.0258,
+            "NEGATIVE": 0.0071
+          }
+        }
+      },
+      {
+        "id": "vid1-c-87",
+        "author": "Brian_T_Engineering",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BrianTEng",
+        "text": "Let's talk about the economic implications of 1g continuous acceleration:  If you have a 1g antigravity/propulsion drive: - Earth to the Moon: 3.5 hours - Earth to Mars (at closest approach): 39 hours! - Earth to Pluto: 16 days!  You don't even need relativistic speeds to colonize the entire Solar System in weeks. The moment we eliminate the tyranny of the rocket equation, the solar system becomes as accessible as Earth was in the 19th century.",
+        "likes": 1120,
+        "publishedAt": "2026-05-15T14:26:22.849Z",
+        "replyCount": 29,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.5964,
+          "scores": {
+            "NEUTRAL": 0.5964,
+            "POSITIVE": 0.3821,
+            "NEGATIVE": 0.0215
+          }
+        }
+      },
+      {
+        "id": "vid1-c-88",
+        "author": "Dr. Kenji Sato",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=KenjiSato",
+        "text": "Greetings from RIKEN research institute in Japan! We enjoyed watching your summary of quantum levitation and gravito-electromagnetism during our lunch break.  Your explanation of the Lense-Thirring effect (frame dragging) was very concise. We often find that students struggle to understand how a massive rotating cylinder can drag spacetime along with it, but your animated vector grid illustrated the tensor field beautifully.  Arigato gozaimasu for making science education engaging!",
+        "likes": 850,
+        "publishedAt": "2026-05-19T02:23:34.275Z",
+        "replyCount": 16,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9467,
+          "scores": {
+            "POSITIVE": 0.9467,
+            "NEUTRAL": 0.0503,
+            "NEGATIVE": 0.003
+          }
+        }
+      },
+      {
+        "id": "vid1-c-89",
+        "author": "Astro_Girl_2026",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AstroG26",
+        "text": "I remember when people laughed at the idea of heavier-than-air flight, then 66 years after the Wright Brothers we landed on the Moon.  Right now, antigravity feels like science fiction. But looking at the rate of progress in quantum computing, high-temperature superconductors, and metamaterial synthesis, who knows where we'll be in 2076?  Never stop dreaming, and never stop doing the rigorous math!",
+        "likes": 670,
+        "publishedAt": "2026-05-16T08:18:18.017Z",
+        "replyCount": 13,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6005,
+          "scores": {
+            "NEUTRAL": 0.6005,
+            "NEGATIVE": 0.2449,
+            "POSITIVE": 0.1546
+          }
+        }
+      },
+      {
+        "id": "vid1-c-90",
+        "author": "Victor_Hugo_Physics",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=VicHugo",
+        "text": "My favorite quote regarding this topic: 'Nothing is more powerful than an idea whose time has come.' - Victor Hugo.  We may be in the 'steam engine' era of quantum gravity research right now \u2014 crude experiments, incomplete equations, and lots of skepticism. But once the foundational theory of Quantum Gravity is solved, technological applications will follow at exponential speeds.",
+        "likes": 410,
+        "publishedAt": "2026-05-18T10:26:26.957Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8392,
+          "scores": {
+            "POSITIVE": 0.8392,
+            "NEUTRAL": 0.1492,
+            "NEGATIVE": 0.0116
+          }
+        }
+      },
+      {
+        "id": "vid1-c-91",
+        "author": "Physics_Tutor_Dan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=PhysTutor",
+        "text": "For students watching this video to prepare for exams, here are the key concepts you MUST remember:  1. Invariant Mass vs Relativistic Mass 2. The 4 Energy Conditions in GR (Weak, Strong, Dominant, Null) 3. Difference between Electromagnetic forces (q1q2/r^2) and Gravitational curvature (G\u03bc\u03bd = 8\u03c0T\u03bc\u03bd) 4. Why Casimir Effect proves negative local energy density exists in QFT.  Save this comment for review time!",
+        "likes": 930,
+        "publishedAt": "2026-05-17T12:22:22.541Z",
+        "replyCount": 21,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8946,
+          "scores": {
+            "NEUTRAL": 0.8946,
+            "POSITIVE": 0.0742,
+            "NEGATIVE": 0.0312
+          }
+        }
+      },
+      {
+        "id": "vid1-c-92",
+        "author": "Clara_Oswald_Space",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ClaraOsw",
+        "text": "Runway effect at 10:45 explained so well! I always thought negative mass was just a sci-fi trope like kryptonite, but learning it's a valid mathematical solution to Einstein's Field Equations blew my mind.  Sure, we don't know if exotic matter exists in nature, but the fact that the laws of physics don't explicitly forbid it leaves the door wide open!",
+        "likes": 380,
+        "publishedAt": "2026-05-27T13:38:32.425Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7613,
+          "scores": {
+            "POSITIVE": 0.7613,
+            "NEUTRAL": 0.1971,
+            "NEGATIVE": 0.0416
+          }
+        }
+      },
+      {
+        "id": "vid1-c-93",
+        "author": "David_C_Aerospace",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DaveCAero",
+        "text": "Has anyone calculated the gravitational wave signature of a rapidly oscillating negative mass dipole?  If you had a device that rapidly shifted local energy density between positive and negative values, it should emit high-frequency gravitational waves (HFGWs). That could theoretically be used for interstellar communication that passes right through planets without attenuation!",
+        "likes": 270,
+        "publishedAt": "2026-05-24T16:45:12.866Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.83,
+          "scores": {
+            "NEUTRAL": 0.83,
+            "POSITIVE": 0.1404,
+            "NEGATIVE": 0.0296
+          }
+        }
+      },
+      {
+        "id": "vid1-c-94",
+        "author": "Nora_Al_Mansoori",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=NoraAlM",
+        "text": "Watching from the UAE! Science communication channels like Antigravity Studio are inspiring a whole new generation of engineers and researchers across the Middle East.  The clarity of your explanations makes complex graduate-level physics accessible to anyone willing to listen. Keep up the phenomenal work!",
+        "likes": 490,
+        "publishedAt": "2026-05-16T05:37:23.026Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9806,
+          "scores": {
+            "POSITIVE": 0.9806,
+            "NEUTRAL": 0.0167,
+            "NEGATIVE": 0.0027
+          }
+        }
+      },
+      {
+        "id": "vid1-c-95",
+        "author": "Tom_Hardy_Voice",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TomHVoice",
+        "text": "Ah, you think gravity is your ally? You merely adopted the spacetime curve. I was born in it, molded by it... I didn't see negative mass until I was already a man!  (Awesome video mate, loved every second!).",
+        "likes": 1100,
+        "publishedAt": "2026-05-17T04:55:11.729Z",
+        "replyCount": 33,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.537,
+          "scores": {
+            "POSITIVE": 0.537,
+            "NEUTRAL": 0.3493,
+            "NEGATIVE": 0.1138
+          }
+        }
+      },
+      {
+        "id": "vid1-c-96",
+        "author": "Rachel_Green_Physics",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RachGreen",
+        "text": "The animation of the light geodesics bending near the negative mass at 09:40 was mesmerizing.  Usually, light bends TOWARD a massive body (gravitational lensing). Seeing the light rays diverge away from the negative energy region looked like a cosmic concave lens! Imagine telescoping through a negative mass galaxy!",
+        "likes": 320,
+        "publishedAt": "2026-05-29T04:45:36.290Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8825,
+          "scores": {
+            "POSITIVE": 0.8825,
+            "NEUTRAL": 0.1086,
+            "NEGATIVE": 0.0089
+          }
+        }
+      },
+      {
+        "id": "vid1-c-97",
+        "author": "Kevin_Space_Geek",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=KevSpGeek",
+        "text": "14 minutes of pure unadulterated science. No sponsored mobile game ads in the middle, no 3-minute filler intros, just straight-to-the-point physics.  This is why I support your channel on Patreon. Quality over clickbait every single time!",
+        "likes": 780,
+        "publishedAt": "2026-05-16T00:48:55.198Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9109,
+          "scores": {
+            "POSITIVE": 0.9109,
+            "NEUTRAL": 0.0782,
+            "NEGATIVE": 0.0109
+          }
+        }
+      },
+      {
+        "id": "vid1-c-98",
+        "author": "Dr. Henrik Lindqvist",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=HenrikL",
+        "text": "Greetings from Uppsala University!  We recently discussed the implications of the Heim Theory and Extended Heim Theory in our seminar. While Heim's proposed 6-dimensional formulation for gravitophoton coupling remains controversial, your video did a great job sticking to standard GR and QFT without straying into unverified alternative frameworks.  Rigorous, balanced, and deeply educational.",
+        "likes": 410,
+        "publishedAt": "2026-05-18T14:40:53.134Z",
+        "replyCount": 10,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8569,
+          "scores": {
+            "POSITIVE": 0.8569,
+            "NEUTRAL": 0.1397,
+            "NEGATIVE": 0.0034
+          }
+        }
+      },
+      {
+        "id": "vid1-c-99",
+        "author": "Zoe_W_Astronomy",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ZoeWAstro",
+        "text": "I love how at the end of the video, you reminded us that 100 years ago, quantum mechanics sounded like magic to classical physicists.  We are likely in the exact same position today with quantum gravity. We're staring at pieces of a puzzle (black hole information paradox, dark energy, singularity resolution) without knowing how they fit together yet. The future of physics is bright!",
+        "likes": 560,
+        "publishedAt": "2026-05-19T00:43:53.209Z",
+        "replyCount": 12,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9004,
+          "scores": {
+            "POSITIVE": 0.9004,
+            "NEUTRAL": 0.0882,
+            "NEGATIVE": 0.0114
+          }
+        }
+      },
+      {
+        "id": "vid1-c-100",
+        "author": "Antigravity_Studio_Team",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AGStudio",
+        "text": "PINNED COMMENT: Thank you all so much for the incredible response to this video! We spent over 3 weeks researching the literature and animating the stress-energy tensor graphics.  Drop your suggestions below for our next episode! Are you more interested in Wormhole Physics or Planetary Astrobiology on Kepler-186f?",
+        "likes": 3450,
+        "publishedAt": "2026-05-26T07:51:30.996Z",
+        "replyCount": 142,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9627,
+          "scores": {
+            "POSITIVE": 0.9627,
+            "NEUTRAL": 0.0344,
+            "NEGATIVE": 0.0029
+          }
+        }
+      }
+    ]
+  },
+  "video_2": {
+    "video_id": "vid2",
+    "title": "Exploring the Kepler-186f Exoplanet (Earth 2.0)",
+    "total_comments": 100,
+    "positive_count": 65,
+    "neutral_count": 35,
+    "negative_count": 0,
+    "positive_percentage": 65.0,
+    "neutral_percentage": 35.0,
+    "negative_percentage": 0.0,
+    "top_positive": [
+      {
+        "id": "vid2-c-100",
+        "author": "Antigravity_Studio_Team",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AGStudio2",
+        "text": "PINNED COMMENT: Thank you all for watching! Which exoplanet would you like us to explore next? TRAPPIST-1e, K2-18b (the ocean world), or Proxima Centauri b?",
+        "likes": 2950,
+        "publishedAt": "2026-05-18T04:41:41.373Z",
+        "replyCount": 118,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8128,
+          "scores": {
+            "POSITIVE": 0.8128,
+            "NEUTRAL": 0.1847,
+            "NEGATIVE": 0.0024
+          }
+        }
+      },
+      {
+        "id": "vid2-c-69",
+        "author": "Dr. Aris Thorne",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ArisThorne2",
+        "text": "As an exoplanet climatologist, I want to applaud the accuracy of your atmospheric modeling segment at 11:30.  Because Kepler-186f receives 32% of Earth's insolation from an M1 dwarf, maintaining an average surface temperature above freezing requires a greenhouse effect driven by roughly 0.5 to 2 bars of CO2 (assuming a 1-bar N2 background atmosphere).  If the planet possesses an active carbon-silicate cycle (volcanism + weathering), climate feedbacks would naturally regulate CO2 levels to keep oceans liquid! This is why Kepler-186f remains one of our most promising targets for terrestrial habitability studies.",
+        "likes": 1280,
+        "publishedAt": "2026-05-01T11:25:44.775Z",
+        "replyCount": 32,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8055,
+          "scores": {
+            "POSITIVE": 0.8055,
+            "NEUTRAL": 0.184,
+            "NEGATIVE": 0.0105
+          }
+        }
+      },
+      {
+        "id": "vid2-c-63",
+        "author": "Isaac Newton_Ghost",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=IsaN2",
+        "text": "My Law of Universal Gravitation (F = G m1 m2 / r^2) holds true even 490 light-years away on Kepler-186f! Marvelous!",
+        "likes": 980,
+        "publishedAt": "2026-05-01T13:58:09.261Z",
+        "replyCount": 34,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9265,
+          "scores": {
+            "POSITIVE": 0.9265,
+            "NEUTRAL": 0.0697,
+            "NEGATIVE": 0.0038
+          }
+        }
+      },
+      {
+        "id": "vid2-c-75",
+        "author": "Cosmo_Explorer_99",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=CosmoEx99",
+        "text": "Think about the sheer scale of the Kepler Mission:  Kepler monitored a single tiny patch of sky in the Cygnus/Lyra constellations \u2014 roughly the size of your hand held at arm's length! In that tiny sliver of space, it discovered over 2,600 confirmed exoplanets.  If you extrapolate those results to the entire sky, statistical analysis indicates there are more PLANETS than STARS in our galaxy, and billions of Earth-sized planets in habitable zones. We are living in the golden age of discovery!",
+        "likes": 870,
+        "publishedAt": "2026-05-01T15:28:17.391Z",
+        "replyCount": 21,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7167,
+          "scores": {
+            "POSITIVE": 0.7167,
+            "NEUTRAL": 0.2751,
+            "NEGATIVE": 0.0082
+          }
+        }
+      },
+      {
+        "id": "vid2-c-71",
+        "author": "Prof. Marcus Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcVance2",
+        "text": "The discussion surrounding Tidal Locking vs Spin-Orbit Resonance at 14:15 was top tier.  Because Kepler-186f orbits at 0.432 AU from its star, it is far enough out that it is NOT necessarily tidally locked into a permanent day/night hemisphere! It could easily exist in a 3:2 spin-orbit resonance (like Mercury), giving it actual day/night cycles across its entire surface.  This is huge for habitability because permanent tidal locking creates extreme temperature gradients (eyeball Earth scenarios), whereas a rotating planet distributes heat much more evenly through atmospheric wind patterns.",
+        "likes": 810,
+        "publishedAt": "2026-05-02T21:01:02.735Z",
+        "replyCount": 19,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5388,
+          "scores": {
+            "POSITIVE": 0.5388,
+            "NEUTRAL": 0.4463,
+            "NEGATIVE": 0.0149
+          }
+        }
+      }
+    ],
+    "top_neutral": [
+      {
+        "id": "vid2-c-73",
+        "author": "Elena_K_89",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ElenaK89_2",
+        "text": "Timestamp breakdown for anyone studying exoplanets or preparing class slides:  0:00 - Introduction to the Kepler-186 System 2:10 - How Kepler Discovered Kepler-186f (Transit Photometry) 4:45 - The Habitable Zone & Stellar Flux Calculation 7:15 - Alien Plants: Black Forests Under a Red Dwarf 9:50 - Atmospheric Composition & Greenhouse Models 12:30 - Surface Environment 3D Renders & Gravity Estimates 15:10 - Stellar Flares & Magnetic Shielding Requirements 17:05 - Future Telescopes (ELT, HWO) & Biosignature Search  Hope this helps!",
+        "likes": 1410,
+        "publishedAt": "2026-05-01T05:08:50.677Z",
+        "replyCount": 25,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.9342,
+          "scores": {
+            "NEUTRAL": 0.9342,
+            "POSITIVE": 0.0493,
+            "NEGATIVE": 0.0165
+          }
+        }
+      },
+      {
+        "id": "vid2-c-84",
+        "author": "Brian_T_Engineering",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BrianTEng2",
+        "text": "Let's do the math on relativistic travel to Kepler-186 (490 light-years):  - At 0.1c (10% speed of light): 4,900 years journey - At 0.5c: 980 years journey - At 0.99c (gamma = 7.09): 495 years Earth time, but only 70 years ship time for passengers due to time dilation!  With constant 1g acceleration, a ship could reach Kepler-186 in just ~12 years of ship time! Relativity is the ultimate interstellar ticket.",
+        "likes": 1250,
+        "publishedAt": "2026-05-01T17:16:49.159Z",
+        "replyCount": 31,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6751,
+          "scores": {
+            "NEUTRAL": 0.6751,
+            "POSITIVE": 0.295,
+            "NEGATIVE": 0.03
+          }
+        }
+      },
+      {
+        "id": "vid2-c-72",
+        "author": "JWST_Data_Analyst",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JWSTData",
+        "text": "Working with transit spectroscopy data daily, I want to clarify how we detect atmospheres on planets like Kepler-186f:  When the planet transits its star, a tiny fraction of the starlight filters through the outer edge of the planet's atmosphere. Chemical elements in the atmosphere absorb specific wavelengths, leaving narrow dark absorption lines in the star's spectrum.  For a planet 490 light-years away with a stellar transit depth of 0.04%, retrieving a high signal-to-noise spectrum requires stacking dozens of transits over several years. JWST Cycle 3 and Cycle 4 proposals are actively targeting this system!",
+        "likes": 1150,
+        "publishedAt": "2026-05-02T14:17:08.702Z",
+        "replyCount": 29,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.9184,
+          "scores": {
+            "NEUTRAL": 0.9184,
+            "POSITIVE": 0.0606,
+            "NEGATIVE": 0.021
+          }
+        }
+      },
+      {
+        "id": "vid2-c-88",
+        "author": "Physics_Tutor_Dan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=PhysTutor2",
+        "text": "Key takeaway summary for astronomy students:  1. Exoplanet: Kepler-186f 2. Distance: ~490 light-years (150 parsecs) 3. Host Star: Kepler-186 (M1V dwarf star, ~0.54 Solar mass) 4. Planet Radius: 1.17 Earth radii 5. Orbital Period: 129.9 days 6. Flux Received: 32% of Earth's solar irradiance 7. Significance: First Earth-sized planet discovered in the conservative habitable zone of its star!",
+        "likes": 1120,
+        "publishedAt": "2026-05-02T03:45:57.633Z",
+        "replyCount": 22,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8261,
+          "scores": {
+            "NEUTRAL": 0.8261,
+            "POSITIVE": 0.1648,
+            "NEGATIVE": 0.0091
+          }
+        }
+      },
+      {
+        "id": "vid2-c-78",
+        "author": "Julian_Cosmology",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JulCosmo2",
+        "text": "A quick note on the Kepler-186 star's age:  Kepler-186 is estimated to be roughly 4 billion years old \u2014 very similar in age to our Sun (~4.6 billion years). Because M-dwarf stars burn their nuclear fuel extremely slowly, Kepler-186 will remain on the main sequence for several HUNDRED BILLION years!  Long after our Sun expands into a red giant and incinerates Earth in 5 billion years, Kepler-186f will still be sitting quietly in its habitable zone. Red dwarf systems are the true marathon runners of the cosmos.",
+        "likes": 990,
+        "publishedAt": "2026-05-02T14:26:44.457Z",
+        "replyCount": 28,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7888,
+          "scores": {
+            "NEUTRAL": 0.7888,
+            "POSITIVE": 0.193,
+            "NEGATIVE": 0.0182
+          }
+        }
+      }
+    ],
+    "top_negative": [],
+    "all_analyzed": [
+      {
+        "id": "vid2-c-1",
+        "author": "Astro_Liam",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AstroLiam",
+        "text": "Kepler-186f has been my favorite exoplanet since it was confirmed in 2014!",
+        "likes": 290,
+        "publishedAt": "2026-05-01T03:35:59.336Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9775,
+          "scores": {
+            "POSITIVE": 0.9775,
+            "NEUTRAL": 0.0202,
+            "NEGATIVE": 0.0023
+          }
+        }
+      },
+      {
+        "id": "vid2-c-2",
+        "author": "Dr. Maya Lin",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MayaLin2",
+        "text": "Fantastic astrobiology breakdown! The red dwarf radiation problem was handled brilliantly.",
+        "likes": 410,
+        "publishedAt": "2026-05-01T19:17:45.422Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9753,
+          "scores": {
+            "POSITIVE": 0.9753,
+            "NEUTRAL": 0.0192,
+            "NEGATIVE": 0.0054
+          }
+        }
+      },
+      {
+        "id": "vid2-c-3",
+        "author": "Stargazer_99",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=StarG99",
+        "text": "Plants with black or dark violet leaves because of red-shifted light? That visual at 7:15 was breathtaking!",
+        "likes": 620,
+        "publishedAt": "2026-05-01T12:37:14.900Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8613,
+          "scores": {
+            "POSITIVE": 0.8613,
+            "NEUTRAL": 0.1283,
+            "NEGATIVE": 0.0104
+          }
+        }
+      },
+      {
+        "id": "vid2-c-4",
+        "author": "Carlos Rodriguez",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=CarlosR",
+        "text": "490 light-years away... so close yet so impossibly far with current rockets.",
+        "likes": 180,
+        "publishedAt": "2026-05-04T19:03:02.637Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.4877,
+          "scores": {
+            "NEUTRAL": 0.4877,
+            "NEGATIVE": 0.3704,
+            "POSITIVE": 0.1419
+          }
+        }
+      },
+      {
+        "id": "vid2-c-5",
+        "author": "Emily Thorne",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EmThorne",
+        "text": "Imagine looking up at noon and seeing a massive dim red sun in a crimson sky. Spooky and beautiful.",
+        "likes": 350,
+        "publishedAt": "2026-05-01T01:12:50.111Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7378,
+          "scores": {
+            "POSITIVE": 0.7378,
+            "NEUTRAL": 0.2268,
+            "NEGATIVE": 0.0355
+          }
+        }
+      },
+      {
+        "id": "vid2-c-6",
+        "author": "SpaceCadet_Dan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SpaceDan",
+        "text": "JWST atmospheric spectroscopy is literally changing astronomy in real time.",
+        "likes": 210,
+        "publishedAt": "2026-05-05T03:25:34.783Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5033,
+          "scores": {
+            "POSITIVE": 0.5033,
+            "NEUTRAL": 0.4498,
+            "NEGATIVE": 0.0469
+          }
+        }
+      },
+      {
+        "id": "vid2-c-7",
+        "author": "Nadia Petrov",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=NadiaP",
+        "text": "Wait, is Kepler-186f tidally locked to its host star or not?",
+        "likes": 145,
+        "publishedAt": "2026-05-01T11:00:44.993Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.921,
+          "scores": {
+            "NEUTRAL": 0.921,
+            "NEGATIVE": 0.0575,
+            "POSITIVE": 0.0215
+          }
+        }
+      },
+      {
+        "id": "vid2-c-8",
+        "author": "Kevin Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=KevVance",
+        "text": "Another masterpiece from Antigravity Studio! Best space channel on YouTube.",
+        "likes": 95,
+        "publishedAt": "2026-05-05T05:01:30.398Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9842,
+          "scores": {
+            "POSITIVE": 0.9842,
+            "NEUTRAL": 0.0124,
+            "NEGATIVE": 0.0034
+          }
+        }
+      },
+      {
+        "id": "vid2-c-9",
+        "author": "BioPhysicist_Sarah",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BioSarah",
+        "text": "Retinal-based pigments vs Chlorophyll under M-dwarf spectrum is my favorite topic!",
+        "likes": 310,
+        "publishedAt": "2026-05-01T00:04:32.981Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.937,
+          "scores": {
+            "POSITIVE": 0.937,
+            "NEUTRAL": 0.0605,
+            "NEGATIVE": 0.0025
+          }
+        }
+      },
+      {
+        "id": "vid2-c-10",
+        "author": "Alex Mercer",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AlexMercer",
+        "text": "The 3D render of the planetary surface at 12:30 looked like a sci-fi movie scene.",
+        "likes": 175,
+        "publishedAt": "2026-05-08T20:59:51.874Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7469,
+          "scores": {
+            "NEUTRAL": 0.7469,
+            "POSITIVE": 0.1285,
+            "NEGATIVE": 0.1246
+          }
+        }
+      },
+      {
+        "id": "vid2-c-11",
+        "author": "Hannah Abbott",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=HannahAb",
+        "text": "490 light years means the light we see from Kepler-186f today left the planet during the Renaissance!",
+        "likes": 540,
+        "publishedAt": "2026-05-01T00:57:18.455Z",
+        "replyCount": 16,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8469,
+          "scores": {
+            "NEUTRAL": 0.8469,
+            "POSITIVE": 0.1266,
+            "NEGATIVE": 0.0265
+          }
+        }
+      },
+      {
+        "id": "vid2-c-12",
+        "author": "Marcus Brody",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcBrody",
+        "text": "Would gravity on Kepler-186f feel the same as Earth?",
+        "likes": 88,
+        "publishedAt": "2026-05-02T09:29:09.931Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.9066,
+          "scores": {
+            "NEUTRAL": 0.9066,
+            "NEGATIVE": 0.0507,
+            "POSITIVE": 0.0427
+          }
+        }
+      },
+      {
+        "id": "vid2-c-13",
+        "author": "Jessica Taylor",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JessTay",
+        "text": "I could listen to this narrator talk about exoplanets for hours. So soothing.",
+        "likes": 120,
+        "publishedAt": "2026-05-05T23:47:47.107Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9618,
+          "scores": {
+            "POSITIVE": 0.9618,
+            "NEUTRAL": 0.0308,
+            "NEGATIVE": 0.0073
+          }
+        }
+      },
+      {
+        "id": "vid2-c-14",
+        "author": "Quantum_Leap",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=QLeap",
+        "text": "Could a strong magnetosphere shield Kepler-186f from M-dwarf stellar flares?",
+        "likes": 190,
+        "publishedAt": "2026-05-04T15:13:11.373Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8515,
+          "scores": {
+            "NEUTRAL": 0.8515,
+            "POSITIVE": 0.1027,
+            "NEGATIVE": 0.0458
+          }
+        }
+      },
+      {
+        "id": "vid2-c-15",
+        "author": "Brian O'Conner",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BrianOC",
+        "text": "Earth 2.0 is such a cool nickname, but it really is its own unique world.",
+        "likes": 80,
+        "publishedAt": "2026-05-07T07:36:45.366Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9374,
+          "scores": {
+            "POSITIVE": 0.9374,
+            "NEUTRAL": 0.0548,
+            "NEGATIVE": 0.0078
+          }
+        }
+      },
+      {
+        "id": "vid2-c-16",
+        "author": "Rachel Zane",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RachZane",
+        "text": "Loved the breakdown of the habitable zone calculation at 4:10!",
+        "likes": 160,
+        "publishedAt": "2026-05-04T14:37:58.824Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9658,
+          "scores": {
+            "POSITIVE": 0.9658,
+            "NEUTRAL": 0.0309,
+            "NEGATIVE": 0.0033
+          }
+        }
+      },
+      {
+        "id": "vid2-c-17",
+        "author": "David Miller",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DaveMill",
+        "text": "Subscribed! Can you do a video on TRAPPIST-1e next?",
+        "likes": 290,
+        "publishedAt": "2026-05-02T03:13:06.325Z",
+        "replyCount": 10,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7204,
+          "scores": {
+            "POSITIVE": 0.7204,
+            "NEUTRAL": 0.2772,
+            "NEGATIVE": 0.0024
+          }
+        }
+      },
+      {
+        "id": "vid2-c-18",
+        "author": "Laura Croft_Space",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LauraCroft",
+        "text": "Walking under a red dwarf sun would feel like eternal twilight. Eerie!",
+        "likes": 230,
+        "publishedAt": "2026-05-05T14:18:03.469Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8146,
+          "scores": {
+            "POSITIVE": 0.8146,
+            "NEUTRAL": 0.1718,
+            "NEGATIVE": 0.0136
+          }
+        }
+      },
+      {
+        "id": "vid2-c-19",
+        "author": "Ian Malcolm",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=IanMalc",
+        "text": "Life... uh... finds a way! Especially on habitable zone exoplanets.",
+        "likes": 670,
+        "publishedAt": "2026-05-03T04:47:46.061Z",
+        "replyCount": 21,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8533,
+          "scores": {
+            "POSITIVE": 0.8533,
+            "NEUTRAL": 0.1362,
+            "NEGATIVE": 0.0105
+          }
+        }
+      },
+      {
+        "id": "vid2-c-20",
+        "author": "Sophia Loren",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SophLoren",
+        "text": "The music selection in the ocean rendering segment was pure magic.",
+        "likes": 115,
+        "publishedAt": "2026-05-10T15:01:58.982Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9633,
+          "scores": {
+            "POSITIVE": 0.9633,
+            "NEUTRAL": 0.0305,
+            "NEGATIVE": 0.0062
+          }
+        }
+      },
+      {
+        "id": "vid2-c-21",
+        "author": "Dr. Alistair Finch",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AlFinch2",
+        "text": "Kepler-186f receives about 32% of the stellar flux that Earth receives from the Sun. That puts it right near the outer edge of its star's habitable zone. If it has a dense CO2 greenhouse atmosphere, liquid water oceans are extremely plausible!",
+        "likes": 490,
+        "publishedAt": "2026-05-01T20:11:14.177Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.4988,
+          "scores": {
+            "NEUTRAL": 0.4988,
+            "POSITIVE": 0.4889,
+            "NEGATIVE": 0.0123
+          }
+        }
+      },
+      {
+        "id": "vid2-c-22",
+        "author": "Elena Rostova",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ElenaR2",
+        "text": "What fascinated me most was the explanation of retinal photosystems at 8:45. On Earth, plants use chlorophyll which reflects green light. But under an M-dwarf star emitting mostly near-infrared, alien flora would absorb almost all visible light, appearing jet-black or deep violet!",
+        "likes": 380,
+        "publishedAt": "2026-05-02T11:36:15.081Z",
+        "replyCount": 12,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5675,
+          "scores": {
+            "POSITIVE": 0.5675,
+            "NEUTRAL": 0.4232,
+            "NEGATIVE": 0.0093
+          }
+        }
+      },
+      {
+        "id": "vid2-c-23",
+        "author": "Christopher Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ChrisVance",
+        "text": "The orbital period is 129.9 days! Imagine celebrating your birthday every 4 months. Plus, being 1.17 times the radius of Earth means surface gravity would be roughly 1.05g to 1.2g depending on core density. You'd barely feel heavier!",
+        "likes": 310,
+        "publishedAt": "2026-05-03T18:30:24.378Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.6629,
+          "scores": {
+            "POSITIVE": 0.6629,
+            "NEUTRAL": 0.3068,
+            "NEGATIVE": 0.0303
+          }
+        }
+      },
+      {
+        "id": "vid2-c-24",
+        "author": "Sarah_Astrobiology",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SarahAstro",
+        "text": "M-dwarf stars are notorious for extreme coronal mass ejections and UV flares during their first billion years. For Kepler-186f to harbor life, it MUST have had a powerful intrinsic magnetic dynamo to prevent atmospheric stripping.",
+        "likes": 275,
+        "publishedAt": "2026-05-05T08:25:09.677Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.559,
+          "scores": {
+            "NEUTRAL": 0.559,
+            "NEGATIVE": 0.4123,
+            "POSITIVE": 0.0288
+          }
+        }
+      },
+      {
+        "id": "vid2-c-25",
+        "author": "Tomasz Nowak",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TomN2",
+        "text": "The transit method explanation at 3:15 was the clearest visual representation of light curve dips I've seen. Showing how Kepler detected a 0.04% drop in brightness as the planet crossed the star was brilliant.",
+        "likes": 195,
+        "publishedAt": "2026-05-06T09:13:44.932Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8082,
+          "scores": {
+            "POSITIVE": 0.8082,
+            "NEUTRAL": 0.1779,
+            "NEGATIVE": 0.0139
+          }
+        }
+      },
+      {
+        "id": "vid2-c-26",
+        "author": "Priya Sharma",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=PriyaS2",
+        "text": "If humanity ever builds a light-sail probe array accelerated by orbital lasers (like Breakthrough Starshot), sending a flyby probe to Kepler-186 at 20% light speed would still take 2,450 years. Space is mind-bogglingly huge.",
+        "likes": 450,
+        "publishedAt": "2026-05-01T02:12:39.698Z",
+        "replyCount": 18,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6461,
+          "scores": {
+            "NEUTRAL": 0.6461,
+            "POSITIVE": 0.1881,
+            "NEGATIVE": 0.1658
+          }
+        }
+      },
+      {
+        "id": "vid2-c-27",
+        "author": "Lucas Dubois",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LucasD2",
+        "text": "One detail often overlooked: Kepler-186 is an M1-type dwarf star, which is much calmer and less prone to superflares than smaller M4 or M8 red dwarfs like Proxima Centauri! That makes 186f far more hospitable for long-term evolution.",
+        "likes": 340,
+        "publishedAt": "2026-05-03T16:35:48.836Z",
+        "replyCount": 10,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8371,
+          "scores": {
+            "POSITIVE": 0.8371,
+            "NEUTRAL": 0.156,
+            "NEGATIVE": 0.0069
+          }
+        }
+      },
+      {
+        "id": "vid2-c-28",
+        "author": "Rachel Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RachV2",
+        "text": "The rendering of the sunset on Kepler-186f at 16:20 gave me chills. The star would appear 20% larger in the sky than our Sun, but glowing with a warm, deep amber hue. Absolutely stunning artwork!",
+        "likes": 290,
+        "publishedAt": "2026-05-02T02:00:06.796Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9488,
+          "scores": {
+            "POSITIVE": 0.9488,
+            "NEUTRAL": 0.0452,
+            "NEGATIVE": 0.006
+          }
+        }
+      },
+      {
+        "id": "vid2-c-29",
+        "author": "Derek Foster",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DerekF2",
+        "text": "Could Kepler-186f have large moons? If a super-Earth formed with a large moon, the tidal interactions could help keep its mantle hot enough for plate tectonics and a stable carbon-silicate cycle!",
+        "likes": 160,
+        "publishedAt": "2026-05-04T09:38:52.922Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6039,
+          "scores": {
+            "NEUTRAL": 0.6039,
+            "POSITIVE": 0.3858,
+            "NEGATIVE": 0.0103
+          }
+        }
+      },
+      {
+        "id": "vid2-c-30",
+        "author": "Hannah Abbott",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=HannahA2",
+        "text": "I'm showing this video to my astronomy club tonight. The breakdown of planetary radius vs mass estimates using radial velocity constraints was top notch.",
+        "likes": 140,
+        "publishedAt": "2026-05-07T19:39:04.488Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9506,
+          "scores": {
+            "POSITIVE": 0.9506,
+            "NEUTRAL": 0.0467,
+            "NEGATIVE": 0.0027
+          }
+        }
+      },
+      {
+        "id": "vid2-c-31",
+        "author": "Xavier Dupont",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=XavD2",
+        "text": "Atmospheric transmission spectroscopy with JWST and the upcoming ELT (Extremely Large Telescope) will hopefully detect biosignatures like oxygen, ozone, or methane in the coming decade. Exciting times to be alive!",
+        "likes": 380,
+        "publishedAt": "2026-05-02T12:50:32.954Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9464,
+          "scores": {
+            "POSITIVE": 0.9464,
+            "NEUTRAL": 0.0517,
+            "NEGATIVE": 0.0019
+          }
+        }
+      },
+      {
+        "id": "vid2-c-32",
+        "author": "Sophia Rossi",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SophR2",
+        "text": "The comparison between Earth's solar irradiance and Kepler-186f's flux at 5:50 helped me understand why 'colder star' doesn't mean 'frozen planet' if the planet is closer to the star.",
+        "likes": 115,
+        "publishedAt": "2026-05-05T05:52:07.960Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8807,
+          "scores": {
+            "NEUTRAL": 0.8807,
+            "POSITIVE": 0.0893,
+            "NEGATIVE": 0.0299
+          }
+        }
+      },
+      {
+        "id": "vid2-c-33",
+        "author": "Marcus Aurelius",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcAur2",
+        "text": "To look at a dim star 490 light-years away and deduce the size, orbit, temperature, and atmospheric potential of its planet using pure math and optics is the ultimate triumph of human intellect.",
+        "likes": 520,
+        "publishedAt": "2026-05-01T07:50:50.137Z",
+        "replyCount": 17,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7055,
+          "scores": {
+            "POSITIVE": 0.7055,
+            "NEUTRAL": 0.2732,
+            "NEGATIVE": 0.0213
+          }
+        }
+      },
+      {
+        "id": "vid2-c-34",
+        "author": "Chloe Zhang",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ChloeZ2",
+        "text": "What about ocean tides? If Kepler-186f is partially tidally locked or in a 3:2 spin-orbit resonance like Mercury, the tidal bulges created by the host star would produce massive coastal waves!",
+        "likes": 210,
+        "publishedAt": "2026-05-02T06:42:58.193Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7271,
+          "scores": {
+            "NEUTRAL": 0.7271,
+            "NEGATIVE": 0.2145,
+            "POSITIVE": 0.0583
+          }
+        }
+      },
+      {
+        "id": "vid2-c-35",
+        "author": "Daniel Kim",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DanK2",
+        "text": "I loved the hypothetical calendar breakdown! 130-day year divided into short 4-week seasons. Summer on Kepler-186f would last barely a month!",
+        "likes": 175,
+        "publishedAt": "2026-05-01T18:17:30.759Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9296,
+          "scores": {
+            "POSITIVE": 0.9296,
+            "NEUTRAL": 0.0643,
+            "NEGATIVE": 0.0061
+          }
+        }
+      },
+      {
+        "id": "vid2-c-36",
+        "author": "Emily Watson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EmWat2",
+        "text": "The graphics team for Antigravity Studio deserves a raise. Every single exoplanet visualization is scientific accuracy combined with cinematic art.",
+        "likes": 95,
+        "publishedAt": "2026-05-02T13:48:18.577Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8685,
+          "scores": {
+            "POSITIVE": 0.8685,
+            "NEUTRAL": 0.1091,
+            "NEGATIVE": 0.0223
+          }
+        }
+      },
+      {
+        "id": "vid2-c-37",
+        "author": "Gabriel Silva",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=GabS2",
+        "text": "Is there any chance Kepler-186f has liquid water oceans but a runaway ice-house climate like Snowball Earth? Receiving only 32% of Earth's solar flux makes ice albedo feedback a major risk.",
+        "likes": 260,
+        "publishedAt": "2026-05-01T09:32:04.895Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7202,
+          "scores": {
+            "NEUTRAL": 0.7202,
+            "NEGATIVE": 0.2478,
+            "POSITIVE": 0.032
+          }
+        }
+      },
+      {
+        "id": "vid2-c-38",
+        "author": "Zoe Kravitz",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ZoeK2",
+        "text": "Great video! The timestamp links in the description made it super easy to rewatch the atmospheric modeling segment.",
+        "likes": 45,
+        "publishedAt": "2026-05-12T11:16:48.458Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9833,
+          "scores": {
+            "POSITIVE": 0.9833,
+            "NEUTRAL": 0.0146,
+            "NEGATIVE": 0.0021
+          }
+        }
+      },
+      {
+        "id": "vid2-c-39",
+        "author": "Arthur Pendelton",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ArtP2",
+        "text": "If intelligent life evolved on Kepler-186f, their eyes would likely be optimized for near-infrared vision. To them, our bright yellow Sun would look blindingly harsh and blue-shifted!",
+        "likes": 390,
+        "publishedAt": "2026-05-01T09:50:30.822Z",
+        "replyCount": 13,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.4878,
+          "scores": {
+            "NEUTRAL": 0.4878,
+            "NEGATIVE": 0.46,
+            "POSITIVE": 0.0522
+          }
+        }
+      },
+      {
+        "id": "vid2-c-40",
+        "author": "Victoria Secret_Agent",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=VicSec2",
+        "text": "The distinction between exoplanet candidates and VALIDATED exoplanets at 1:45 cleared up a lot of confusion I had. False positive filtering is such complex statistical work.",
+        "likes": 180,
+        "publishedAt": "2026-05-09T08:56:55.012Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7004,
+          "scores": {
+            "NEUTRAL": 0.7004,
+            "NEGATIVE": 0.1976,
+            "POSITIVE": 0.1019
+          }
+        }
+      },
+      {
+        "id": "vid2-c-41",
+        "author": "Ian MacLeod",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=IanMac2",
+        "text": "Imagine drinking a pint of Scottish ale on a balcony overlooking a black-forest landscape under a red dwarf star. Sign me up!",
+        "likes": 310,
+        "publishedAt": "2026-05-01T03:36:19.399Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.688,
+          "scores": {
+            "POSITIVE": 0.688,
+            "NEUTRAL": 0.2984,
+            "NEGATIVE": 0.0136
+          }
+        }
+      },
+      {
+        "id": "vid2-c-42",
+        "author": "Natalie Portman_Fan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=NatPort2",
+        "text": "Could life exist in the subterranean oceans under an ice crust, similar to Europa or Enceladus, even if the surface is too cold?",
+        "likes": 145,
+        "publishedAt": "2026-05-11T18:20:02.568Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8525,
+          "scores": {
+            "NEUTRAL": 0.8525,
+            "POSITIVE": 0.0804,
+            "NEGATIVE": 0.0671
+          }
+        }
+      },
+      {
+        "id": "vid2-c-43",
+        "author": "Oscar Isaac",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=OscI2",
+        "text": "The stellar classification segment at 6:10 was so well paced. M-dwarfs make up 70% of all stars in the Milky Way, so Kepler-186f represents the most common class of potentially habitable real estate in the galaxy!",
+        "likes": 430,
+        "publishedAt": "2026-05-02T10:49:08.420Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9645,
+          "scores": {
+            "POSITIVE": 0.9645,
+            "NEUTRAL": 0.0334,
+            "NEGATIVE": 0.0021
+          }
+        }
+      },
+      {
+        "id": "vid2-c-44",
+        "author": "Penelope Cruz",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=PenC2",
+        "text": "I shared this with my university astrobiology study group. We had a great discussion on how thick CO2 atmospheres alter the Rayleigh scattering color of the sky!",
+        "likes": 165,
+        "publishedAt": "2026-05-04T10:08:01.408Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8576,
+          "scores": {
+            "POSITIVE": 0.8576,
+            "NEUTRAL": 0.1394,
+            "NEGATIVE": 0.0031
+          }
+        }
+      },
+      {
+        "id": "vid2-c-45",
+        "author": "Quentin Tarantino",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=QuenT2",
+        "text": "Imagine a Western film set on Kepler-186f with twin moons and a crimson horizon. Cinematic perfection!",
+        "likes": 620,
+        "publishedAt": "2026-05-01T17:50:59.260Z",
+        "replyCount": 22,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8675,
+          "scores": {
+            "POSITIVE": 0.8675,
+            "NEUTRAL": 0.1249,
+            "NEGATIVE": 0.0077
+          }
+        }
+      },
+      {
+        "id": "vid2-c-46",
+        "author": "Riley Reid_Academic",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RilR2",
+        "text": "The breakdown of Kepler-186 system's orbital stability was super interesting. 4 interior planets (b, c, d, e) all orbiting much closer than Mercury is to our Sun, keeping the outer planet 186f in a stable gravitational groove.",
+        "likes": 280,
+        "publishedAt": "2026-05-02T17:39:19.495Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.853,
+          "scores": {
+            "POSITIVE": 0.853,
+            "NEUTRAL": 0.1432,
+            "NEGATIVE": 0.0038
+          }
+        }
+      },
+      {
+        "id": "vid2-c-47",
+        "author": "Sebastian Stan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SebS2",
+        "text": "What spectral band pass filters were used to create the false-color composite images shown at 10:15?",
+        "likes": 90,
+        "publishedAt": "2026-05-07T05:45:47.263Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8463,
+          "scores": {
+            "NEUTRAL": 0.8463,
+            "NEGATIVE": 0.1362,
+            "POSITIVE": 0.0175
+          }
+        }
+      },
+      {
+        "id": "vid2-c-48",
+        "author": "Tessa Thompson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TessT2",
+        "text": "The analogy comparing red dwarf energy output to a campfire vs a spotlight for our Sun was so relatable. Made the flux math easy to grasp.",
+        "likes": 135,
+        "publishedAt": "2026-05-04T05:32:52.657Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.6154,
+          "scores": {
+            "POSITIVE": 0.6154,
+            "NEUTRAL": 0.3624,
+            "NEGATIVE": 0.0222
+          }
+        }
+      },
+      {
+        "id": "vid2-c-49",
+        "author": "Ulysses Grant",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=UlyG2",
+        "text": "Could a super-Earth like Kepler-186f retain a dense hydrogen-helium envelope and become a mini-Neptune instead of a terrestrial world?",
+        "likes": 205,
+        "publishedAt": "2026-05-07T23:00:16.578Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8963,
+          "scores": {
+            "NEUTRAL": 0.8963,
+            "POSITIVE": 0.0618,
+            "NEGATIVE": 0.0419
+          }
+        }
+      },
+      {
+        "id": "vid2-c-50",
+        "author": "Valerie F.",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ValF2",
+        "text": "Another fantastic upload! My favorite YouTube channel by far.",
+        "likes": 60,
+        "publishedAt": "2026-05-13T23:58:25.985Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9904,
+          "scores": {
+            "POSITIVE": 0.9904,
+            "NEUTRAL": 0.0067,
+            "NEGATIVE": 0.0029
+          }
+        }
+      },
+      {
+        "id": "vid2-c-51",
+        "author": "Winston Smith",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=WinS2",
+        "text": "How does the habitability of Kepler-186f compare to TRAPPIST-1e or Proxima Centauri b? A comparison chart in the next video would be awesome!",
+        "likes": 310,
+        "publishedAt": "2026-05-01T07:11:12.934Z",
+        "replyCount": 10,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8047,
+          "scores": {
+            "POSITIVE": 0.8047,
+            "NEUTRAL": 0.1896,
+            "NEGATIVE": 0.0057
+          }
+        }
+      },
+      {
+        "id": "vid2-c-52",
+        "author": "Xena Warrior_Physicist",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=XenP2",
+        "text": "The M-dwarf stellar flare problem is why planetary magnetic dipole moment calculations are crucial. Glad you highlighted that around 14:00!",
+        "likes": 240,
+        "publishedAt": "2026-05-04T09:21:10.373Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7492,
+          "scores": {
+            "POSITIVE": 0.7492,
+            "NEUTRAL": 0.2336,
+            "NEGATIVE": 0.0172
+          }
+        }
+      },
+      {
+        "id": "vid2-c-53",
+        "author": "Yusuf Demir",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=YusD2",
+        "text": "Greetings from Istanbul! Always learning something new from your channel.",
+        "likes": 150,
+        "publishedAt": "2026-05-10T05:59:47.349Z",
+        "replyCount": 2,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9766,
+          "scores": {
+            "POSITIVE": 0.9766,
+            "NEUTRAL": 0.021,
+            "NEGATIVE": 0.0024
+          }
+        }
+      },
+      {
+        "id": "vid2-c-54",
+        "author": "Zara Larson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ZarL2",
+        "text": "The sound design during the planetary flyby animation was chef's kiss!",
+        "likes": 80,
+        "publishedAt": "2026-05-07T20:41:26.994Z",
+        "replyCount": 0,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8679,
+          "scores": {
+            "POSITIVE": 0.8679,
+            "NEUTRAL": 0.1194,
+            "NEGATIVE": 0.0126
+          }
+        }
+      },
+      {
+        "id": "vid2-c-55",
+        "author": "Aaron Paul",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AarP2",
+        "text": "Aliens on Kepler-186f: 'Yeah Science!' Outstanding video breakdown!",
+        "likes": 540,
+        "publishedAt": "2026-05-01T01:33:09.691Z",
+        "replyCount": 16,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9586,
+          "scores": {
+            "POSITIVE": 0.9586,
+            "NEUTRAL": 0.0375,
+            "NEGATIVE": 0.0039
+          }
+        }
+      },
+      {
+        "id": "vid2-c-56",
+        "author": "Bella Hadid",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BelH2",
+        "text": "I didn't think I'd spend my Friday evening watching a 18-minute documentary on exoplanets, but I don't regret a single second.",
+        "likes": 170,
+        "publishedAt": "2026-05-07T14:46:02.039Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7282,
+          "scores": {
+            "POSITIVE": 0.7282,
+            "NEUTRAL": 0.1913,
+            "NEGATIVE": 0.0805
+          }
+        }
+      },
+      {
+        "id": "vid2-c-57",
+        "author": "Charles Darwin",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=CharD2",
+        "text": "If life evolved under a red dwarf, adaptive radiation would produce forms of photosynthesis and vision utterly alien to terrestrial biology.",
+        "likes": 380,
+        "publishedAt": "2026-05-05T20:01:45.805Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6562,
+          "scores": {
+            "NEUTRAL": 0.6562,
+            "NEGATIVE": 0.3169,
+            "POSITIVE": 0.0269
+          }
+        }
+      },
+      {
+        "id": "vid2-c-58",
+        "author": "Diana Prince",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DiaP2",
+        "text": "What would the atmospheric pressure at sea level be if Kepler-186f is 10% larger than Earth? Would humans feel heavy or light breathing that air?",
+        "likes": 195,
+        "publishedAt": "2026-05-04T05:30:33.893Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8375,
+          "scores": {
+            "NEUTRAL": 0.8375,
+            "NEGATIVE": 0.1172,
+            "POSITIVE": 0.0453
+          }
+        }
+      },
+      {
+        "id": "vid2-c-59",
+        "author": "Edward Norton",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EdN2",
+        "text": "First rule of Exoplanet Exploration: You don't assume a planet is inhabited until you detect atmospheric disequilibrium (oxygen + methane)!",
+        "likes": 390,
+        "publishedAt": "2026-05-03T10:34:19.070Z",
+        "replyCount": 12,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7366,
+          "scores": {
+            "NEUTRAL": 0.7366,
+            "NEGATIVE": 0.2202,
+            "POSITIVE": 0.0432
+          }
+        }
+      },
+      {
+        "id": "vid2-c-60",
+        "author": "Fiona Gallagher",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=FioG2",
+        "text": "High quality content as always. Pacing, graphics, and voiceover are unmatched.",
+        "likes": 75,
+        "publishedAt": "2026-05-06T12:27:40.644Z",
+        "replyCount": 1,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9785,
+          "scores": {
+            "POSITIVE": 0.9785,
+            "NEUTRAL": 0.0163,
+            "NEGATIVE": 0.0052
+          }
+        }
+      },
+      {
+        "id": "vid2-c-61",
+        "author": "George St-Pierre",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=GeoSP2",
+        "text": "Super clean breakdown of the Kepler space telescope's transit photometry method!",
+        "likes": 280,
+        "publishedAt": "2026-05-02T04:04:59.382Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9424,
+          "scores": {
+            "POSITIVE": 0.9424,
+            "NEUTRAL": 0.0539,
+            "NEGATIVE": 0.0037
+          }
+        }
+      },
+      {
+        "id": "vid2-c-62",
+        "author": "Helena Bonham",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=HelB2",
+        "text": "The concept of black forests absorbing all visible light under a red sun is going to inspire so many sci-fi artists.",
+        "likes": 130,
+        "publishedAt": "2026-05-09T10:45:26.583Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7651,
+          "scores": {
+            "POSITIVE": 0.7651,
+            "NEUTRAL": 0.2257,
+            "NEGATIVE": 0.0093
+          }
+        }
+      },
+      {
+        "id": "vid2-c-63",
+        "author": "Isaac Newton_Ghost",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=IsaN2",
+        "text": "My Law of Universal Gravitation (F = G m1 m2 / r^2) holds true even 490 light-years away on Kepler-186f! Marvelous!",
+        "likes": 980,
+        "publishedAt": "2026-05-01T13:58:09.261Z",
+        "replyCount": 34,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9265,
+          "scores": {
+            "POSITIVE": 0.9265,
+            "NEUTRAL": 0.0697,
+            "NEGATIVE": 0.0038
+          }
+        }
+      },
+      {
+        "id": "vid2-c-64",
+        "author": "Jack Sparrow",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JackS2",
+        "text": "Set sail for the Kepler system, savvy? Only 490 light years off the starboard bow!",
+        "likes": 450,
+        "publishedAt": "2026-05-02T04:06:53.144Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.811,
+          "scores": {
+            "NEUTRAL": 0.811,
+            "POSITIVE": 0.1586,
+            "NEGATIVE": 0.0304
+          }
+        }
+      },
+      {
+        "id": "vid2-c-65",
+        "author": "Katherine Johnson",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=KathJ2",
+        "text": "Precision orbital mechanics shown clearly! Calculating exoplanetary semi-major axes from orbital periods using Kepler's Third Law is beautiful math.",
+        "likes": 360,
+        "publishedAt": "2026-05-04T15:09:47.725Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9477,
+          "scores": {
+            "POSITIVE": 0.9477,
+            "NEUTRAL": 0.0488,
+            "NEGATIVE": 0.0035
+          }
+        }
+      },
+      {
+        "id": "vid2-c-66",
+        "author": "Leonardo DaVinci",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LeoDV2",
+        "text": "To paint a sunset on a world under a red star... what a dream for an artist!",
+        "likes": 410,
+        "publishedAt": "2026-05-03T12:58:49.299Z",
+        "replyCount": 10,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9204,
+          "scores": {
+            "POSITIVE": 0.9204,
+            "NEUTRAL": 0.074,
+            "NEGATIVE": 0.0055
+          }
+        }
+      },
+      {
+        "id": "vid2-c-67",
+        "author": "Margot Robbie",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarR2",
+        "text": "Loved every minute! Please cover Kepler-452b or Ross 128b in your next video!",
+        "likes": 210,
+        "publishedAt": "2026-05-10T00:46:43.470Z",
+        "replyCount": 5,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9774,
+          "scores": {
+            "POSITIVE": 0.9774,
+            "NEUTRAL": 0.021,
+            "NEGATIVE": 0.0016
+          }
+        }
+      },
+      {
+        "id": "vid2-c-68",
+        "author": "Nikola Tesla_Fan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=NikT2",
+        "text": "If Kepler-186f has an active iron core and strong ionosphere, wireless planetary energy transmission might be even easier there!",
+        "likes": 290,
+        "publishedAt": "2026-05-09T00:46:37.681Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.6781,
+          "scores": {
+            "POSITIVE": 0.6781,
+            "NEUTRAL": 0.3108,
+            "NEGATIVE": 0.0111
+          }
+        }
+      },
+      {
+        "id": "vid2-c-69",
+        "author": "Dr. Aris Thorne",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ArisThorne2",
+        "text": "As an exoplanet climatologist, I want to applaud the accuracy of your atmospheric modeling segment at 11:30.  Because Kepler-186f receives 32% of Earth's insolation from an M1 dwarf, maintaining an average surface temperature above freezing requires a greenhouse effect driven by roughly 0.5 to 2 bars of CO2 (assuming a 1-bar N2 background atmosphere).  If the planet possesses an active carbon-silicate cycle (volcanism + weathering), climate feedbacks would naturally regulate CO2 levels to keep oceans liquid! This is why Kepler-186f remains one of our most promising targets for terrestrial habitability studies.",
+        "likes": 1280,
+        "publishedAt": "2026-05-01T11:25:44.775Z",
+        "replyCount": 32,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8055,
+          "scores": {
+            "POSITIVE": 0.8055,
+            "NEUTRAL": 0.184,
+            "NEGATIVE": 0.0105
+          }
+        }
+      },
+      {
+        "id": "vid2-c-70",
+        "author": "Astrobiology_Review",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AstroBioRev",
+        "text": "Here is a breakdown of Alien Vegetation on Kepler-186f for those interested:  1. Light Spectrum: Kepler-186 emits peak energy in the near-infrared (~800\u20131000 nm) with very little blue/UV photon flux compared to G-type stars. 2. Pigment Adaptation: Earth plants use Chlorophyll-A and B (absorbing blue and red, reflecting green). On 186f, plants would likely evolve bacteriochlorophyll-like pigments that absorb NIR and all visible wavelengths. 3. Visual Appearance: To human eyes, forests on Kepler-186f would appear pitch-black or extremely dark purple/brown, maximizing photon capture!  Such a cool intersection between stellar astrophysics and evolutionary biology!",
+        "likes": 940,
+        "publishedAt": "2026-05-02T01:55:44.995Z",
+        "replyCount": 26,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.9091,
+          "scores": {
+            "NEUTRAL": 0.9091,
+            "POSITIVE": 0.0732,
+            "NEGATIVE": 0.0178
+          }
+        }
+      },
+      {
+        "id": "vid2-c-71",
+        "author": "Prof. Marcus Vance",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcVance2",
+        "text": "The discussion surrounding Tidal Locking vs Spin-Orbit Resonance at 14:15 was top tier.  Because Kepler-186f orbits at 0.432 AU from its star, it is far enough out that it is NOT necessarily tidally locked into a permanent day/night hemisphere! It could easily exist in a 3:2 spin-orbit resonance (like Mercury), giving it actual day/night cycles across its entire surface.  This is huge for habitability because permanent tidal locking creates extreme temperature gradients (eyeball Earth scenarios), whereas a rotating planet distributes heat much more evenly through atmospheric wind patterns.",
+        "likes": 810,
+        "publishedAt": "2026-05-02T21:01:02.735Z",
+        "replyCount": 19,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5388,
+          "scores": {
+            "POSITIVE": 0.5388,
+            "NEUTRAL": 0.4463,
+            "NEGATIVE": 0.0149
+          }
+        }
+      },
+      {
+        "id": "vid2-c-72",
+        "author": "JWST_Data_Analyst",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JWSTData",
+        "text": "Working with transit spectroscopy data daily, I want to clarify how we detect atmospheres on planets like Kepler-186f:  When the planet transits its star, a tiny fraction of the starlight filters through the outer edge of the planet's atmosphere. Chemical elements in the atmosphere absorb specific wavelengths, leaving narrow dark absorption lines in the star's spectrum.  For a planet 490 light-years away with a stellar transit depth of 0.04%, retrieving a high signal-to-noise spectrum requires stacking dozens of transits over several years. JWST Cycle 3 and Cycle 4 proposals are actively targeting this system!",
+        "likes": 1150,
+        "publishedAt": "2026-05-02T14:17:08.702Z",
+        "replyCount": 29,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.9184,
+          "scores": {
+            "NEUTRAL": 0.9184,
+            "POSITIVE": 0.0606,
+            "NEGATIVE": 0.021
+          }
+        }
+      },
+      {
+        "id": "vid2-c-73",
+        "author": "Elena_K_89",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ElenaK89_2",
+        "text": "Timestamp breakdown for anyone studying exoplanets or preparing class slides:  0:00 - Introduction to the Kepler-186 System 2:10 - How Kepler Discovered Kepler-186f (Transit Photometry) 4:45 - The Habitable Zone & Stellar Flux Calculation 7:15 - Alien Plants: Black Forests Under a Red Dwarf 9:50 - Atmospheric Composition & Greenhouse Models 12:30 - Surface Environment 3D Renders & Gravity Estimates 15:10 - Stellar Flares & Magnetic Shielding Requirements 17:05 - Future Telescopes (ELT, HWO) & Biosignature Search  Hope this helps!",
+        "likes": 1410,
+        "publishedAt": "2026-05-01T05:08:50.677Z",
+        "replyCount": 25,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.9342,
+          "scores": {
+            "NEUTRAL": 0.9342,
+            "POSITIVE": 0.0493,
+            "NEGATIVE": 0.0165
+          }
+        }
+      },
+      {
+        "id": "vid2-c-74",
+        "author": "Engineer_Dan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EngDan2",
+        "text": "If we ever send a colonizing generational ship or embryo seed ship to Kepler-186f, atmospheric entry would be fascinating.  With surface gravity at ~1.05g and an atmospheric density potentially 1.5x Earth's, entry heat shields would experience higher peak thermal loads, but parachutes and aerobraking would be far more effective than on Earth or Mars!  Landing heavy payloads on Kepler-186f might actually be easier than landing on Mars because Mars' thin atmosphere provides almost no drag while having enough gravity to pull ships down hard. Physics of re-entry is wild!",
+        "likes": 520,
+        "publishedAt": "2026-05-01T05:01:49.980Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.6889,
+          "scores": {
+            "POSITIVE": 0.6889,
+            "NEUTRAL": 0.2944,
+            "NEGATIVE": 0.0167
+          }
+        }
+      },
+      {
+        "id": "vid2-c-75",
+        "author": "Cosmo_Explorer_99",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=CosmoEx99",
+        "text": "Think about the sheer scale of the Kepler Mission:  Kepler monitored a single tiny patch of sky in the Cygnus/Lyra constellations \u2014 roughly the size of your hand held at arm's length! In that tiny sliver of space, it discovered over 2,600 confirmed exoplanets.  If you extrapolate those results to the entire sky, statistical analysis indicates there are more PLANETS than STARS in our galaxy, and billions of Earth-sized planets in habitable zones. We are living in the golden age of discovery!",
+        "likes": 870,
+        "publishedAt": "2026-05-01T15:28:17.391Z",
+        "replyCount": 21,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7167,
+          "scores": {
+            "POSITIVE": 0.7167,
+            "NEUTRAL": 0.2751,
+            "NEGATIVE": 0.0082
+          }
+        }
+      },
+      {
+        "id": "vid2-c-76",
+        "author": "Dr. Rebecca Sterling",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RebecS2",
+        "text": "Great point at 15:40 regarding Habitable Worlds Observatory (HWO) scheduled for the 2030s/2040s.  HWO will feature a 6-meter optical/UV space telescope equipped with an advanced coronagraph and starlight suppression system capable of direct imaging of Earth-like exoplanets around sun-like stars!  Instead of just observing light dips during transits, we will actually capture direct pixels of reflected light from planets like Kepler-186f, allowing us to map oceans, continents, and cloud cover over time!",
+        "likes": 730,
+        "publishedAt": "2026-05-06T00:02:34.328Z",
+        "replyCount": 18,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.863,
+          "scores": {
+            "POSITIVE": 0.863,
+            "NEUTRAL": 0.1344,
+            "NEGATIVE": 0.0027
+          }
+        }
+      },
+      {
+        "id": "vid2-c-77",
+        "author": "Starbound_Pioneer",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=StarPio2",
+        "text": "What would human culture look like after 500 years of living on Kepler-186f?  - Art and architecture designed around soft amber/crimson sunlight. - Circadian rhythms adapted to a 130-day orbital calendar. - Architecture built with wider UV-filtering skylights to capture maximum near-IR heat. - Folklore and mythology revolving around the 4 inner sister planets (b, c, d, e) visible as bright evening stars.  Science fiction becomes human history given enough time and determination.",
+        "likes": 640,
+        "publishedAt": "2026-05-07T10:59:13.103Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.9028,
+          "scores": {
+            "NEUTRAL": 0.9028,
+            "POSITIVE": 0.0746,
+            "NEGATIVE": 0.0226
+          }
+        }
+      },
+      {
+        "id": "vid2-c-78",
+        "author": "Julian_Cosmology",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JulCosmo2",
+        "text": "A quick note on the Kepler-186 star's age:  Kepler-186 is estimated to be roughly 4 billion years old \u2014 very similar in age to our Sun (~4.6 billion years). Because M-dwarf stars burn their nuclear fuel extremely slowly, Kepler-186 will remain on the main sequence for several HUNDRED BILLION years!  Long after our Sun expands into a red giant and incinerates Earth in 5 billion years, Kepler-186f will still be sitting quietly in its habitable zone. Red dwarf systems are the true marathon runners of the cosmos.",
+        "likes": 990,
+        "publishedAt": "2026-05-02T14:26:44.457Z",
+        "replyCount": 28,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7888,
+          "scores": {
+            "NEUTRAL": 0.7888,
+            "POSITIVE": 0.193,
+            "NEGATIVE": 0.0182
+          }
+        }
+      },
+      {
+        "id": "vid2-c-79",
+        "author": "Marcus_Physics_Grad",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcPG2",
+        "text": "Question for anyone studying planetary geology:  If Kepler-186f has a radius 1.17 times Earth's, its mass is likely around 1.4 to 1.7 Earth masses (assuming iron-silicate composition).  Does higher mass mean internal radiogenic heating (decay of Uranium-238, Thorium-232, Potassium-40) lasts longer than on Earth? If so, plate tectonics and mantle convection could persist for tens of billions of years, providing an incredibly long-term stable thermostat!",
+        "likes": 410,
+        "publishedAt": "2026-05-04T21:01:30.562Z",
+        "replyCount": 13,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7919,
+          "scores": {
+            "NEUTRAL": 0.7919,
+            "POSITIVE": 0.1862,
+            "NEGATIVE": 0.0219
+          }
+        }
+      },
+      {
+        "id": "vid2-c-80",
+        "author": "SciFi_Writer_Alex",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SciFiAlex2",
+        "text": "I am writing an alien civilization chapter set on a world orbiting an M-dwarf star, and the details at 07:45 regarding atmospheric scattering were invaluable!  Because Rayleigh scattering scales with 1/\u03bb^4, shorter blue wavelengths scatter much less under an M-dwarf star compared to Earth. The sky would not be azure blue, but a muted, dusty salmon or deep peach color during the day!  This kind of scientific grounding elevates sci-fi world-building from fantasy to plausible realism.",
+        "likes": 350,
+        "publishedAt": "2026-05-06T12:06:31.631Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.875,
+          "scores": {
+            "POSITIVE": 0.875,
+            "NEUTRAL": 0.1204,
+            "NEGATIVE": 0.0045
+          }
+        }
+      },
+      {
+        "id": "vid2-c-81",
+        "author": "Prof_David_Holloway",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DaveHoll2",
+        "text": "I want to highlight how well this channel explains error bars and statistical confidence in astronomy.  When declaring Kepler-186f as 'validated' rather than just a candidate, you correctly explained the Blender algorithm and statistical false-positive probability (< 0.1%). Showing how astronomers rule out background eclipsing binaries gives viewers genuine appreciation for the scientific method.",
+        "likes": 680,
+        "publishedAt": "2026-05-01T21:45:31.857Z",
+        "replyCount": 16,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7329,
+          "scores": {
+            "POSITIVE": 0.7329,
+            "NEUTRAL": 0.2536,
+            "NEGATIVE": 0.0135
+          }
+        }
+      },
+      {
+        "id": "vid2-c-82",
+        "author": "Quantum_Foam_Researcher",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=QFoam2",
+        "text": "If we ever build laser interferometer arrays in deep space (like LISA or Big Bang Observer), we could detect micro-gravitational perturbations from exoplanets directly!  Combining optical transit spectroscopy with gravitational wave astrometry will give us total mass, density, and orbital parameters with unprecedented sub-percent precision.",
+        "likes": 310,
+        "publishedAt": "2026-05-02T08:37:31.767Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.697,
+          "scores": {
+            "POSITIVE": 0.697,
+            "NEUTRAL": 0.2933,
+            "NEGATIVE": 0.0097
+          }
+        }
+      },
+      {
+        "id": "vid2-c-83",
+        "author": "Samantha_Space_Art",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SamSpace2",
+        "text": "The landscape artwork at 13:10 showing a crystal-clear alien coastline with black vegetation reflecting the dim red sun was so inspiring that I started painting my own version on canvas tonight!  Antigravity Studio is proof that science and art are two sides of the exact same coin.",
+        "likes": 420,
+        "publishedAt": "2026-05-04T12:06:32.098Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9746,
+          "scores": {
+            "POSITIVE": 0.9746,
+            "NEUTRAL": 0.0227,
+            "NEGATIVE": 0.0027
+          }
+        }
+      },
+      {
+        "id": "vid2-c-84",
+        "author": "Brian_T_Engineering",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BrianTEng2",
+        "text": "Let's do the math on relativistic travel to Kepler-186 (490 light-years):  - At 0.1c (10% speed of light): 4,900 years journey - At 0.5c: 980 years journey - At 0.99c (gamma = 7.09): 495 years Earth time, but only 70 years ship time for passengers due to time dilation!  With constant 1g acceleration, a ship could reach Kepler-186 in just ~12 years of ship time! Relativity is the ultimate interstellar ticket.",
+        "likes": 1250,
+        "publishedAt": "2026-05-01T17:16:49.159Z",
+        "replyCount": 31,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6751,
+          "scores": {
+            "NEUTRAL": 0.6751,
+            "POSITIVE": 0.295,
+            "NEGATIVE": 0.03
+          }
+        }
+      },
+      {
+        "id": "vid2-c-85",
+        "author": "Dr. Kenji Sato",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=KenjiSato2",
+        "text": "Konnichiwa from Japan! Our astronomy department loved your overview of Kepler-186f.  The explanation of planetary equilibrium temperature (Teq) vs actual surface temperature with greenhouse effect (Tsurf) was very clear. Many people don't realize Earth's Teq is -18\u00b0C without greenhouse gases, so Kepler-186f having a Teq of -85\u00b0C just means it needs a thicker atmosphere to be cozy!",
+        "likes": 740,
+        "publishedAt": "2026-05-03T23:37:43.211Z",
+        "replyCount": 15,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9566,
+          "scores": {
+            "POSITIVE": 0.9566,
+            "NEUTRAL": 0.0402,
+            "NEGATIVE": 0.0032
+          }
+        }
+      },
+      {
+        "id": "vid2-c-86",
+        "author": "Astro_Girl_2026",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AstroG26_2",
+        "text": "Whenever I feel stressed by daily life, I come to this channel and watch videos about distant worlds like Kepler-186f.  It puts everything into perspective. Out there, 490 light-years away, an entire Earth-sized world is orbiting its sun right now in total quiet, waiting for us to discover its secrets.",
+        "likes": 890,
+        "publishedAt": "2026-05-03T00:43:14.557Z",
+        "replyCount": 19,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.698,
+          "scores": {
+            "NEUTRAL": 0.698,
+            "POSITIVE": 0.2175,
+            "NEGATIVE": 0.0846
+          }
+        }
+      },
+      {
+        "id": "vid2-c-87",
+        "author": "Victor_Hugo_Physics",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=VicHugo2",
+        "text": "To quote Carl Sagan: 'The cosmos is within us. We are made of star-stuff. We are a way for the cosmos to know itself.'  Studying exoplanets like Kepler-186f is the ultimate expression of the cosmos looking back at itself through human eyes.",
+        "likes": 610,
+        "publishedAt": "2026-05-05T23:11:02.273Z",
+        "replyCount": 11,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7074,
+          "scores": {
+            "NEUTRAL": 0.7074,
+            "POSITIVE": 0.2845,
+            "NEGATIVE": 0.0081
+          }
+        }
+      },
+      {
+        "id": "vid2-c-88",
+        "author": "Physics_Tutor_Dan",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=PhysTutor2",
+        "text": "Key takeaway summary for astronomy students:  1. Exoplanet: Kepler-186f 2. Distance: ~490 light-years (150 parsecs) 3. Host Star: Kepler-186 (M1V dwarf star, ~0.54 Solar mass) 4. Planet Radius: 1.17 Earth radii 5. Orbital Period: 129.9 days 6. Flux Received: 32% of Earth's solar irradiance 7. Significance: First Earth-sized planet discovered in the conservative habitable zone of its star!",
+        "likes": 1120,
+        "publishedAt": "2026-05-02T03:45:57.633Z",
+        "replyCount": 22,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.8261,
+          "scores": {
+            "NEUTRAL": 0.8261,
+            "POSITIVE": 0.1648,
+            "NEGATIVE": 0.0091
+          }
+        }
+      },
+      {
+        "id": "vid2-c-89",
+        "author": "Clara_Oswald_Space",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ClaraOsw2",
+        "text": "The concept of an 'eyeball Earth' where the side facing the star is a permanent desert ocean and the night side is frozen ice, with a ring of habitable twilight in between, is mind-blowing. Glad you clarified that 186f's distance makes full tidal locking less likely!",
+        "likes": 340,
+        "publishedAt": "2026-05-09T11:42:04.226Z",
+        "replyCount": 7,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5877,
+          "scores": {
+            "POSITIVE": 0.5877,
+            "NEUTRAL": 0.3754,
+            "NEGATIVE": 0.0369
+          }
+        }
+      },
+      {
+        "id": "vid2-c-90",
+        "author": "David_C_Aerospace",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DaveCAero2",
+        "text": "If we ever build a Solar Gravitational Lens (SGL) telescope array stationed at 550 AU from our Sun, we could use the Sun's own gravity to magnify Kepler-186f by a factor of 10^11!  That would yield 1,000x1,000 pixel surface resolution images showing continents, clouds, and seasonal vegetation shifts from 490 light years away! The technology is theoretically possible today.",
+        "likes": 580,
+        "publishedAt": "2026-05-04T08:14:00.552Z",
+        "replyCount": 14,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.5928,
+          "scores": {
+            "POSITIVE": 0.5928,
+            "NEUTRAL": 0.3941,
+            "NEGATIVE": 0.0131
+          }
+        }
+      },
+      {
+        "id": "vid2-c-91",
+        "author": "Nora_Al_Mansoori",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=NoraAlM2",
+        "text": "Another masterpiece video! Sharing this with my university's Space Sciences department. The graphics, scientific rigor, and soundtrack were all 10/10.",
+        "likes": 310,
+        "publishedAt": "2026-05-01T03:18:47.117Z",
+        "replyCount": 4,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9842,
+          "scores": {
+            "POSITIVE": 0.9842,
+            "NEUTRAL": 0.0119,
+            "NEGATIVE": 0.0039
+          }
+        }
+      },
+      {
+        "id": "vid2-c-92",
+        "author": "Tom_Hardy_Voice",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TomHVoice2",
+        "text": "490 light years? That's a long commute mate! Better pack plenty of sandwiches for the generational ship!",
+        "likes": 720,
+        "publishedAt": "2026-05-02T14:31:16.995Z",
+        "replyCount": 18,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.4462,
+          "scores": {
+            "NEUTRAL": 0.4462,
+            "POSITIVE": 0.3068,
+            "NEGATIVE": 0.247
+          }
+        }
+      },
+      {
+        "id": "vid2-c-93",
+        "author": "Rachel_Green_Physics",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RachGreen2",
+        "text": "The light curve graph at 03:20 showed how sensitive Kepler's photometer was. Detecting a 0.04% dip in brightness is like detecting a flea walking across a car headlight from miles away!",
+        "likes": 410,
+        "publishedAt": "2026-05-08T08:55:26.253Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.7318,
+          "scores": {
+            "NEUTRAL": 0.7318,
+            "POSITIVE": 0.1361,
+            "NEGATIVE": 0.1321
+          }
+        }
+      },
+      {
+        "id": "vid2-c-94",
+        "author": "Kevin_Space_Geek",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=KevSpGeek2",
+        "text": "Antigravity Studio has officially become my favorite YouTube channel. The quality of research and lack of sensationalism is so refreshing.",
+        "likes": 560,
+        "publishedAt": "2026-05-06T10:30:15.991Z",
+        "replyCount": 8,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9727,
+          "scores": {
+            "POSITIVE": 0.9727,
+            "NEUTRAL": 0.0201,
+            "NEGATIVE": 0.0072
+          }
+        }
+      },
+      {
+        "id": "vid2-c-95",
+        "author": "Dr. Henrik Lindqvist",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=HenrikL2",
+        "text": "Greetings from Sweden! We appreciated your careful distinction between optimistic vs conservative habitable zones in exoplanetry science. Excellent rigor.",
+        "likes": 380,
+        "publishedAt": "2026-05-10T03:55:02.949Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9628,
+          "scores": {
+            "POSITIVE": 0.9628,
+            "NEUTRAL": 0.0332,
+            "NEGATIVE": 0.004
+          }
+        }
+      },
+      {
+        "id": "vid2-c-96",
+        "author": "Zoe_W_Astronomy",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ZoeWAstro2",
+        "text": "Watching this video makes me feel so lucky to live in the era where we transitioned from wondering 'Are there other planets?' to cataloging thousands of alien solar systems!",
+        "likes": 670,
+        "publishedAt": "2026-05-02T19:40:25.412Z",
+        "replyCount": 12,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9601,
+          "scores": {
+            "POSITIVE": 0.9601,
+            "NEUTRAL": 0.0364,
+            "NEGATIVE": 0.0036
+          }
+        }
+      },
+      {
+        "id": "vid2-c-97",
+        "author": "Astronomy_Daily",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AstroDaily",
+        "text": "Fun fact: Kepler-186f was confirmed using the 'Validation by Multiplicity' technique! Systems with multiple transiting planets are statistically far less likely to be false positives than single-planet systems.",
+        "likes": 420,
+        "publishedAt": "2026-05-07T11:36:18.904Z",
+        "replyCount": 9,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.7161,
+          "scores": {
+            "POSITIVE": 0.7161,
+            "NEUTRAL": 0.2602,
+            "NEGATIVE": 0.0238
+          }
+        }
+      },
+      {
+        "id": "vid2-c-98",
+        "author": "Liam_Space_Enthusiast",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=LiamSE",
+        "text": "The rendering at 14:30 showing atmospheric refraction during twilight was stunning. Imagine seeing a sun twice as large as ours setting on a crimson horizon!",
+        "likes": 210,
+        "publishedAt": "2026-05-08T06:16:35.543Z",
+        "replyCount": 3,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.9327,
+          "scores": {
+            "POSITIVE": 0.9327,
+            "NEUTRAL": 0.0611,
+            "NEGATIVE": 0.0061
+          }
+        }
+      },
+      {
+        "id": "vid2-c-99",
+        "author": "Elena_Vance_Exo",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ElenaVExo",
+        "text": "I wonder if Kepler-186f has active plate tectonics. Without plate tectonics to recycle carbon, the atmosphere would eventually lock up in rocks!",
+        "likes": 310,
+        "publishedAt": "2026-05-11T12:23:26.882Z",
+        "replyCount": 6,
+        "sentiment": {
+          "label": "NEUTRAL",
+          "confidence": 0.6403,
+          "scores": {
+            "NEUTRAL": 0.6403,
+            "NEGATIVE": 0.3266,
+            "POSITIVE": 0.0331
+          }
+        }
+      },
+      {
+        "id": "vid2-c-100",
+        "author": "Antigravity_Studio_Team",
+        "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AGStudio2",
+        "text": "PINNED COMMENT: Thank you all for watching! Which exoplanet would you like us to explore next? TRAPPIST-1e, K2-18b (the ocean world), or Proxima Centauri b?",
+        "likes": 2950,
+        "publishedAt": "2026-05-18T04:41:41.373Z",
+        "replyCount": 118,
+        "sentiment": {
+          "label": "POSITIVE",
+          "confidence": 0.8128,
+          "scores": {
+            "POSITIVE": 0.8128,
+            "NEUTRAL": 0.1847,
+            "NEGATIVE": 0.0024
+          }
+        }
+      }
+    ]
+  }
+}

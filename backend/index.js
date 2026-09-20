@@ -6,6 +6,7 @@ import morgan from 'morgan'
 import connectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js'
 import youtubeRoutes from './routes/youtubeRoutes.js'
+import trendsRoutes from './routes/trendsRoutes.js'
 
 dotenv.config()
 
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/youtube', youtubeRoutes)
+app.use('/api/trends', trendsRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
