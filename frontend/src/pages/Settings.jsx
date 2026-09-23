@@ -517,13 +517,13 @@ const Settings = () => {
                 <label className="block text-sm font-semibold text-text-primary dark:text-dark-text mb-3">
                   Theme
                 </label>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4">
                   {["light", "dark", "system"].map((themeOption) => (
                     <button
                       key={themeOption}
                       onClick={() => handleThemeChange(themeOption)}
                       className={`
-                        relative px-4 py-4 rounded-xl border-2 text-sm font-semibold capitalize transition-all duration-300
+                        relative px-2 sm:px-4 py-3 sm:py-4 rounded-xl border-2 text-xs sm:text-sm font-semibold capitalize transition-all duration-300
                         ${
                           preferences.theme === themeOption
                             ? "border-primary-900 dark:border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-900 dark:text-primary-300 shadow-lg shadow-primary-900/10"
@@ -652,17 +652,20 @@ const Settings = () => {
     <div className="space-y-8 pb-8">
       {/* Header */}
       <div className="relative">
-        <div className="absolute -top-10 -right-10 w-60 h-60 bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 rounded-full blur-3xl opacity-50 pointer-events-none" />
+        {/* Decorative glow — clipped so it never widens the page on mobile */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-10 -right-10 w-60 h-60 bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 rounded-full blur-3xl opacity-50" />
+        </div>
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-primary-600 to-accent-700 rounded-2xl shadow-lg">
-              <IoSparkles className="w-6 h-6 text-white" />
+            <div className="p-2.5 sm:p-3 bg-gradient-to-br from-primary-600 to-accent-700 rounded-2xl shadow-lg flex-shrink-0">
+              <IoSparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-text-primary dark:text-dark-text">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-primary dark:text-dark-text">
               Settings
             </h1>
           </div>
-          <p className="text-text-muted dark:text-dark-text-muted ml-16">
+          <p className="text-sm text-text-muted dark:text-dark-text-muted sm:ml-16">
             Manage your account settings and preferences
           </p>
         </div>

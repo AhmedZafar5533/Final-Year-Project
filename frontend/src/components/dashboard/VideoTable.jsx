@@ -1,4 +1,4 @@
-import { memo, useState, useMemo } from "react";
+import { memo, useState, useMemo, useCallback } from "react";
 import {
   IoPlay,
   IoEye,
@@ -11,27 +11,51 @@ import {
 } from "react-icons/io5";
 import { formatNumber, formatDate } from "../../utils/formatters";
 
+const COLUMNS = [
+  { key: "views", label: "Views", icon: IoEye },
+  { key: "likes", label: "Likes", icon: IoHeart },
+  { key: "engagementRate", label: "Engagement", icon: IoTrendingUp },
+];
+
+// Hoisted out of the component so it isn't re-created every render.
+const SortIcon = ({ active, direction }) => {
+  if (!active) {
+    return (
+      <IoChevronUp className="w-3.5 h-3.5 opacity-0 group-hover:opacity-30 transition-opacity" />
+    );
+  }
+  return direction === "desc" ? (
+    <IoChevronDown className="w-3.5 h-3.5 text-primary-900 dark:text-primary-400" />
+  ) : (
+    <IoChevronUp className="w-3.5 h-3.5 text-primary-900 dark:text-primary-400" />
+  );
+};
+
+const engagementTone = (rate) => {
+  if (rate >= 7)
+    return "bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 ring-1 ring-inset ring-success-600/10";
+  if (rate >= 5)
+    return "bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 ring-1 ring-inset ring-warning-600/10";
+  return "bg-error-100 dark:bg-error-900/30 text-error-700 dark:text-error-400 ring-1 ring-inset ring-error-600/10";
+};
+
 const VideoTable = memo(({ videos = [], onSelectVideo }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortConfig, setSortConfig] = useState({
-    key: "views",
-    direction: "desc",
-  });
+  const [sortConfig, setSortConfig] = useState({ key: "views", direction: "desc" });
   const [hoveredRow, setHoveredRow] = useState(null);
 
   const filteredAndSortedVideos = useMemo(() => {
-    let result = [...videos];
+    const query = searchQuery.trim().toLowerCase();
+    const result = query
+      ? videos.filter((video) => video.title.toLowerCase().includes(query))
+      : [...videos];
 
-    if (searchQuery) {
-      result = result.filter((video) =>
-        video.title.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    }
+    const { key, direction } = sortConfig;
+    const modifier = direction === "asc" ? 1 : -1;
 
     result.sort((a, b) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
-      const modifier = sortConfig.direction === "asc" ? 1 : -1;
+      const aValue = a[key];
+      const bValue = b[key];
       if (typeof aValue === "string") {
         return aValue.localeCompare(bValue) * modifier;
       }
@@ -41,54 +65,42 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
     return result;
   }, [videos, searchQuery, sortConfig]);
 
-  const handleSort = (key) => {
+  const handleSort = useCallback((key) => {
     setSortConfig((prev) => ({
       key,
       direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
     }));
-  };
-
-  const SortIcon = ({ columnKey }) => {
-    if (sortConfig.key !== columnKey) {
-      return (
-        <IoChevronUp className="w-3 h-3 opacity-0 group-hover:opacity-40 transition-opacity" />
-      );
-    }
-    return sortConfig.direction === "desc" ? (
-      <IoChevronDown className="w-3 h-3 text-primary-900 dark:text-primary-400" />
-    ) : (
-      <IoChevronUp className="w-3 h-3 text-primary-900 dark:text-primary-400" />
-    );
-  };
+  }, []);
 
   return (
     <div className="bg-white dark:bg-dark-surface rounded-2xl border border-surface-400 dark:border-dark-border shadow-sm dark:shadow-black/20 overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-surface-300 dark:border-dark-border">
+      <div className="px-6 py-5 border-b border-surface-300 dark:border-dark-border">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-accent-700 rounded-xl shadow-md">
+            <div className="p-2.5 bg-accent-700 rounded-xl shadow-md shadow-accent-700/20">
               <IoPlay className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-text-primary dark:text-dark-text">
+              <h3 className="text-lg font-semibold tracking-tight text-text-primary dark:text-dark-text">
                 Top Performing Videos
               </h3>
               <p className="text-sm text-text-muted dark:text-dark-text-muted">
-                {videos.length} videos this period
+                {videos.length} video{videos.length === 1 ? "" : "s"} this period
               </p>
             </div>
           </div>
 
           {/* Search */}
           <div className="relative">
-            <IoSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-light dark:text-dark-text-muted" />
+            <IoSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-light dark:text-dark-text-muted pointer-events-none" />
             <input
               type="text"
               placeholder="Search videos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2.5 w-full sm:w-64 bg-surface-100 dark:bg-dark-surface-light border border-surface-400 dark:border-dark-border rounded-xl text-sm text-text-primary dark:text-dark-text placeholder:text-text-light dark:placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-primary-900 dark:focus:ring-primary-500 focus:border-transparent transition-all"
+              aria-label="Search videos"
+              className="pl-10 pr-4 py-2.5 w-full sm:w-64 bg-surface-100 dark:bg-dark-surface-light border border-surface-400 dark:border-dark-border rounded-xl text-sm text-text-primary dark:text-dark-text placeholder:text-text-light dark:placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-primary-900 dark:focus:ring-primary-500 focus:border-transparent transition-shadow"
             />
           </div>
         </div>
@@ -96,69 +108,62 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full border-collapse">
           <thead>
             <tr className="bg-surface-200 dark:bg-dark-surface-light">
-              <th className="text-left text-xs font-semibold text-text-secondary dark:text-dark-text-muted uppercase tracking-wider px-6 py-4">
+              <th
+                scope="col"
+                className="text-left text-xs font-semibold text-text-secondary dark:text-dark-text-muted uppercase tracking-wider px-6 py-3.5"
+              >
                 Video
               </th>
-              {[
-                { key: "views", label: "Views", icon: IoEye },
-                { key: "likes", label: "Likes", icon: IoHeart },
-                {
-                  key: "engagementRate",
-                  label: "Engagement",
-                  icon: IoTrendingUp,
-                },
-              ].map((column) => (
-                <th
-                  key={column.key}
-                  onClick={() => handleSort(column.key)}
-                  className="text-left text-xs font-semibold text-text-secondary dark:text-dark-text-muted uppercase tracking-wider px-6 py-4 cursor-pointer group hover:text-text-primary dark:hover:text-dark-text transition-colors"
-                >
-                  <div className="flex items-center gap-1.5">
-                    {column.label}
-                    <SortIcon columnKey={column.key} />
-                  </div>
+              {COLUMNS.map(({ key, label }) => (
+                <th key={key} scope="col" className="px-6 py-3.5">
+                  <button
+                    type="button"
+                    onClick={() => handleSort(key)}
+                    className="group flex items-center gap-1.5 text-xs font-semibold text-text-secondary dark:text-dark-text-muted uppercase tracking-wider hover:text-text-primary dark:hover:text-dark-text transition-colors"
+                  >
+                    {label}
+                    <SortIcon active={sortConfig.key === key} direction={sortConfig.direction} />
+                  </button>
                 </th>
               ))}
-              <th className="px-6 py-4 w-12" />
+              <th scope="col" className="px-6 py-3.5 w-12">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {filteredAndSortedVideos.map((video, index) => (
               <tr
                 key={video.id}
-                onClick={() => onSelectVideo && onSelectVideo(video)}
+                onClick={() => onSelectVideo?.(video)}
                 onMouseEnter={() => setHoveredRow(video.id)}
                 onMouseLeave={() => setHoveredRow(null)}
-                className={`
-                  border-b border-surface-300 dark:border-dark-border transition-colors duration-150 cursor-pointer
-                  ${hoveredRow === video.id ? "bg-surface-100 dark:bg-dark-surface-light" : ""}
-                  animate-fade-in
-                `}
-                style={{ animationDelay: `${index * 30}ms` }}
+                className={`border-b border-surface-300 dark:border-dark-border last:border-b-0 transition-colors duration-150 cursor-pointer animate-fade-in ${
+                  hoveredRow === video.id ? "bg-surface-100 dark:bg-dark-surface-light" : ""
+                }`}
+                style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
               >
                 {/* Video Info */}
-                <td className="px-6 py-4">
+                <td className="px-6 py-3.5">
                   <div className="flex items-center gap-4">
-                    <div className="relative flex-shrink-0 group">
+                    <div className="relative flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-black/5">
                       <img
                         src={video.thumbnail}
-                        alt={video.title}
-                        className="w-20 h-12 object-cover rounded-lg"
+                        alt=""
+                        className="w-20 h-12 object-cover"
                       />
                       <div
-                        className={`
-                          absolute inset-0 bg-text-primary/50 dark:bg-black/60 rounded-lg flex items-center justify-center
-                          transition-opacity duration-200
-                          ${hoveredRow === video.id ? "opacity-100" : "opacity-0"}
-                        `}
+                        className={`absolute inset-0 bg-text-primary/50 dark:bg-black/60 flex items-center justify-center transition-opacity duration-200 ${
+                          hoveredRow === video.id ? "opacity-100" : "opacity-0"
+                        }`}
                       >
                         <IoPlay className="w-6 h-6 text-white" />
                       </div>
                       {video.avgViewDuration && (
-                        <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-text-primary/80 dark:bg-black/80 text-white text-[10px] font-medium rounded">
+                        <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-text-primary/80 dark:bg-black/80 text-white text-[10px] font-medium leading-none rounded">
                           {video.avgViewDuration}
                         </span>
                       )}
@@ -175,47 +180,45 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
                 </td>
 
                 {/* Views */}
-                <td className="px-6 py-4">
+                <td className="px-6 py-3.5">
                   <div className="flex items-center gap-2">
                     <IoEye className="w-4 h-4 text-text-light dark:text-dark-text-muted" />
-                    <span className="text-sm font-semibold text-text-primary dark:text-dark-text">
+                    <span className="text-sm font-semibold tabular-nums text-text-primary dark:text-dark-text">
                       {formatNumber(video.views)}
                     </span>
                   </div>
                 </td>
 
                 {/* Likes */}
-                <td className="px-6 py-4">
+                <td className="px-6 py-3.5">
                   <div className="flex items-center gap-2">
                     <IoHeart className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                    <span className="text-sm font-semibold text-text-primary dark:text-dark-text">
+                    <span className="text-sm font-semibold tabular-nums text-text-primary dark:text-dark-text">
                       {formatNumber(video.likes)}
                     </span>
                   </div>
                 </td>
 
                 {/* Engagement */}
-                <td className="px-6 py-4">
+                <td className="px-6 py-3.5">
                   <div
-                    className={`
-                      inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold
-                      ${
-                        video.engagementRate >= 7
-                          ? "bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400"
-                          : video.engagementRate >= 5
-                            ? "bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400"
-                            : "bg-error-100 dark:bg-error-900/30 text-error-700 dark:text-error-400"
-                      }
-                    `}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${engagementTone(
+                      video.engagementRate,
+                    )}`}
                   >
                     <IoTrendingUp className="w-3 h-3" />
-                    {video.engagementRate}%
+                    <span className="tabular-nums">{video.engagementRate}%</span>
                   </div>
                 </td>
 
                 {/* Actions */}
-                <td className="px-6 py-4">
-                  <button className="p-2 text-text-light dark:text-dark-text-muted hover:text-text-primary dark:hover:text-dark-text hover:bg-surface-200 dark:hover:bg-dark-surface-light rounded-lg transition-colors">
+                <td className="px-6 py-3.5">
+                  <button
+                    type="button"
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`More actions for ${video.title}`}
+                    className="p-2 text-text-light dark:text-dark-text-muted hover:text-text-primary dark:hover:text-dark-text hover:bg-surface-200 dark:hover:bg-dark-surface-light rounded-lg transition-colors"
+                  >
                     <IoEllipsisVertical className="w-4 h-4" />
                   </button>
                 </td>
@@ -226,24 +229,34 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
 
         {/* Empty State */}
         {filteredAndSortedVideos.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <IoSearch className="w-12 h-12 text-surface-400 dark:text-dark-text-muted mb-3" />
-            <p className="text-text-muted dark:text-dark-text-muted">
+          <div className="flex flex-col items-center justify-center py-14 px-6">
+            <div className="p-3 rounded-full bg-surface-100 dark:bg-dark-surface-light mb-3">
+              <IoSearch className="w-6 h-6 text-surface-400 dark:text-dark-text-muted" />
+            </div>
+            <p className="text-sm font-medium text-text-primary dark:text-dark-text">
               No videos found
+            </p>
+            <p className="text-sm text-text-muted dark:text-dark-text-muted mt-0.5">
+              Try a different search term.
             </p>
           </div>
         )}
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-surface-300 dark:border-dark-border flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface-100 dark:bg-dark-surface-light">
-        <p className="text-sm text-text-muted dark:text-dark-text-muted">
-          Showing {filteredAndSortedVideos.length} of {videos.length} videos
-        </p>
-        <button className="text-sm font-semibold text-primary-900 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
-          View All Videos →
-        </button>
-      </div>
+      {filteredAndSortedVideos.length > 0 && (
+        <div className="px-6 py-4 border-t border-surface-300 dark:border-dark-border flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface-100 dark:bg-dark-surface-light">
+          <p className="text-sm text-text-muted dark:text-dark-text-muted">
+            Showing {filteredAndSortedVideos.length} of {videos.length} videos
+          </p>
+          <button
+            type="button"
+            className="text-sm font-semibold text-primary-900 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+          >
+            View All Videos →
+          </button>
+        </div>
+      )}
     </div>
   );
 });

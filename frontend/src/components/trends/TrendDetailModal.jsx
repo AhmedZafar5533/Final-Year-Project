@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   IoClose,
@@ -15,6 +15,16 @@ import {
 
 export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!trend) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [trend, onClose]);
+
   if (!trend) return null;
 
   const opportunityScore = trend.opportunityScore ?? 85;
@@ -68,27 +78,39 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="trend-modal-title"
     >
       <div
-        className="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-dark-surface rounded-3xl border border-surface-300 dark:border-dark-border shadow-2xl overflow-hidden"
+        className="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-dark-surface rounded-3xl border border-surface-300/70 dark:border-dark-border shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)] overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Hairline gradient top edge */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent"
+        />
+
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-surface-200 dark:border-dark-border bg-surface-50/80 dark:bg-dark-surface-light/60">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center text-white shadow-md flex-shrink-0">
-              <IoFlame className="w-6 h-6" />
+        <div className="flex items-center justify-between gap-4 p-5 sm:p-6 border-b border-surface-200 dark:border-dark-border bg-surface-50/60 dark:bg-dark-surface-light/40">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20 flex-shrink-0">
+              <IoFlame className="w-5 h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300">
                   {trend.strength || "Surging"} Market Trend
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-100 dark:bg-success-900/40 text-success-700 dark:text-success-400">
-                  {opportunityScore}/100 Opportunity Score
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-success-100 dark:bg-success-900/40 text-success-700 dark:text-success-400">
+                  {opportunityScore}/100 Score
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-dark-text mt-1">
+              <h2
+                id="trend-modal-title"
+                className="text-xl sm:text-2xl font-semibold tracking-tight text-text-primary dark:text-dark-text truncate"
+              >
                 {trend.topic}
               </h2>
             </div>
@@ -96,51 +118,52 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-text-muted hover:text-text-primary dark:hover:text-white hover:bg-surface-200 dark:hover:bg-dark-border transition-colors"
+            aria-label="Close dialog"
+            className="p-2 rounded-xl text-text-muted hover:text-text-primary dark:hover:text-white hover:bg-surface-200 dark:hover:bg-dark-border transition-colors duration-200 flex-shrink-0"
           >
-            <IoClose className="w-6 h-6" />
+            <IoClose className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Key Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-surface-50 dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
-                <IoSparkles className="w-4 h-4 text-warning-500" /> Opportunity Score
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div className="p-4 rounded-2xl bg-surface-50 dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border transition-colors duration-200 hover:border-warning-300 dark:hover:border-warning-800">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
+                <IoSparkles className="w-3.5 h-3.5 text-warning-500" /> Opportunity Score
               </span>
-              <p className="text-2xl font-black text-text-primary dark:text-dark-text mt-1">
+              <p className="text-2xl font-bold tabular-nums tracking-tight text-text-primary dark:text-dark-text mt-1.5">
                 {opportunityScore} <span className="text-xs font-normal text-text-muted">/ 100</span>
               </p>
-              <div className="mt-2 h-1.5 bg-surface-200 dark:bg-dark-border rounded-full overflow-hidden">
+              <div className="mt-2.5 h-1.5 bg-surface-200 dark:bg-dark-border rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-warning-500 to-success-500 rounded-full"
+                  className="h-full bg-gradient-to-r from-warning-500 to-success-500 rounded-full transition-all duration-700 ease-out"
                   style={{ width: `${opportunityScore}%` }}
                 />
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-surface-50 dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
-                <IoSearchOutline className="w-4 h-4 text-primary-500" /> Search Volume
+            <div className="p-4 rounded-2xl bg-surface-50 dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border transition-colors duration-200 hover:border-primary-300 dark:hover:border-primary-800">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
+                <IoSearchOutline className="w-3.5 h-3.5 text-primary-500" /> Search Volume
               </span>
-              <p className="text-2xl font-black text-text-primary dark:text-dark-text mt-1">
+              <p className="text-2xl font-bold tracking-tight text-text-primary dark:text-dark-text mt-1.5">
                 {searchVolume}
               </p>
-              <p className="text-xs text-text-muted dark:text-dark-text-muted mt-1">
+              <p className="text-xs text-text-muted dark:text-dark-text-muted mt-1.5">
                 High monthly discovery
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-surface-50 dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
-                <IoTrendingUp className="w-4 h-4 text-success-500" /> Search Velocity
+            <div className="p-4 rounded-2xl bg-surface-50 dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border transition-colors duration-200 hover:border-success-300 dark:hover:border-success-800">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
+                <IoTrendingUp className="w-3.5 h-3.5 text-success-500" /> Search Velocity
               </span>
-              <p className="text-2xl font-black text-success-600 dark:text-success-400 mt-1">
+              <p className="text-2xl font-bold tracking-tight text-success-600 dark:text-success-400 mt-1.5">
                 {velocity}
               </p>
-              <p className="text-xs text-text-muted dark:text-dark-text-muted mt-1">
+              <p className="text-xs text-text-muted dark:text-dark-text-muted mt-1.5">
                 7-day algorithm breakout
               </p>
             </div>
@@ -148,31 +171,31 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
 
           {/* Synthesis / Market Insight */}
           <div className="p-5 rounded-2xl bg-primary-50/50 dark:bg-primary-950/20 border border-primary-200/60 dark:border-primary-900/40 space-y-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-primary-800 dark:text-primary-300 flex items-center gap-1.5">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-primary-800 dark:text-primary-300 flex items-center gap-1.5">
               <IoBulbOutline className="w-4 h-4" /> Why This Trend Is Surging
             </h3>
-            <p className="text-xs sm:text-sm text-text-secondary dark:text-dark-text leading-relaxed">
+            <p className="text-sm text-text-secondary dark:text-dark-text leading-relaxed">
               {trend.marketInsight || trend.description || "Surging YouTube algorithm interest driven by high viewer search volume and low competition density in educational breakdown formats."}
             </p>
           </div>
 
           {/* Suggestions for This Particular Trend */}
           <div className="space-y-4">
-            <h3 className="text-base font-bold text-text-primary dark:text-dark-text flex items-center gap-2">
-              <IoSparkles className="w-5 h-5 text-warning-500" />
+            <h3 className="text-base font-semibold tracking-tight text-text-primary dark:text-dark-text flex items-center gap-2">
+              <IoSparkles className="w-4.5 h-4.5 text-warning-500" />
               Strategic Suggestions for This Trend
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {/* Creative Angles */}
-              <div className="p-4 rounded-2xl bg-white dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-1.5">
-                  <IoLayersOutline className="w-4 h-4" /> Recommended Video Angles
+              <div className="p-4 rounded-2xl bg-white dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border space-y-2.5">
+                <h4 className="text-[11px] font-semibold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-1.5">
+                  <IoLayersOutline className="w-3.5 h-3.5" /> Recommended Video Angles
                 </h4>
-                <ul className="space-y-1.5 text-xs text-text-secondary dark:text-dark-text-muted">
+                <ul className="space-y-2 text-xs leading-relaxed text-text-secondary dark:text-dark-text-muted">
                   {trendSuggestions.angles.map((angle, idx) => (
-                    <li key={idx} className="flex items-start gap-1.5">
-                      <span className="text-primary-500 font-bold">•</span>
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="mt-1 h-1 w-1 rounded-full bg-primary-500 flex-shrink-0" />
                       <span>{angle}</span>
                     </li>
                   ))}
@@ -180,14 +203,14 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
               </div>
 
               {/* Title Ideas */}
-              <div className="p-4 rounded-2xl bg-white dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-success-700 dark:text-success-400 flex items-center gap-1.5">
-                  <IoCheckmarkCircle className="w-4 h-4" /> Suggested Title Concepts
+              <div className="p-4 rounded-2xl bg-white dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border space-y-2.5">
+                <h4 className="text-[11px] font-semibold uppercase tracking-wider text-success-700 dark:text-success-400 flex items-center gap-1.5">
+                  <IoCheckmarkCircle className="w-3.5 h-3.5" /> Suggested Title Concepts
                 </h4>
-                <ul className="space-y-1.5 text-xs text-text-secondary dark:text-dark-text-muted">
+                <ul className="space-y-2 text-xs">
                   {trendSuggestions.titleIdeas.map((title, idx) => (
-                    <li key={idx} className="flex items-center gap-1.5 font-medium text-text-primary dark:text-dark-text">
-                      <span className="text-success-500 font-bold">✓</span>
+                    <li key={idx} className="flex items-start gap-2 font-medium text-text-primary dark:text-dark-text leading-relaxed">
+                      <IoCheckmarkCircle className="w-3.5 h-3.5 text-success-500 flex-shrink-0 mt-0.5" />
                       <span>"{title}"</span>
                     </li>
                   ))}
@@ -196,31 +219,31 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
             </div>
 
             {/* Opening Hook & Traps */}
-            <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-2 text-xs">
-              <div className="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
-                <IoAlertCircleOutline className="w-4 h-4 text-amber-600" />
-                <span>Suggested 30-Second Opening Script Hook:</span>
+            <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-2.5 text-xs">
+              <div className="font-semibold uppercase tracking-wider text-[11px] text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                <IoAlertCircleOutline className="w-3.5 h-3.5 text-amber-600" />
+                <span>Suggested 30-Second Opening Script Hook</span>
               </div>
-              <p className="text-text-secondary dark:text-dark-text-muted italic pl-3 border-l-2 border-amber-500">
+              <p className="text-sm text-text-secondary dark:text-dark-text-muted italic pl-3 border-l-2 border-amber-400 dark:border-amber-600 leading-relaxed">
                 "{trendSuggestions.openingHook}"
               </p>
-              <div className="pt-2 text-[11px] text-amber-800 dark:text-amber-300">
-                <strong>Target Audience Appeal: </strong>{trendSuggestions.targetAudienceAppeal}
+              <div className="pt-1 text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                <strong className="font-semibold">Target Audience Appeal: </strong>{trendSuggestions.targetAudienceAppeal}
               </div>
             </div>
           </div>
 
           {/* Hashtags & Keywords */}
           {hashtags.length > 0 && (
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-text-muted dark:text-dark-text-muted uppercase">
-                Hashtags & Key Keywords:
+            <div className="space-y-2.5">
+              <span className="text-[11px] font-semibold text-text-muted dark:text-dark-text-muted uppercase tracking-wider">
+                Hashtags & Key Keywords
               </span>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {hashtags.map((tag, idx) => (
                   <span
                     key={idx}
-                    className="px-3 py-1 bg-surface-100 dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border text-xs font-medium text-primary-700 dark:text-primary-300 rounded-full"
+                    className="px-3 py-1 bg-surface-100 dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border text-xs font-medium text-primary-700 dark:text-primary-300 rounded-full transition-colors duration-200 hover:bg-primary-100 dark:hover:bg-primary-900/30"
                   >
                     {tag}
                   </span>
@@ -231,21 +254,21 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
         </div>
 
         {/* Footer Actions */}
-        <div className="p-5 border-t border-surface-200 dark:border-dark-border bg-surface-50/80 dark:bg-dark-surface-light/60 flex items-center justify-between gap-4">
+        <div className="p-5 border-t border-surface-200 dark:border-dark-border bg-surface-50/60 dark:bg-dark-surface-light/40 flex items-center justify-between gap-4">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border border-surface-300 dark:border-dark-border text-text-secondary dark:text-dark-text-muted hover:bg-surface-200 dark:hover:bg-dark-border transition-colors"
+            className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border border-surface-300 dark:border-dark-border text-text-secondary dark:text-dark-text-muted transition-colors duration-200 hover:bg-surface-200 dark:hover:bg-dark-border"
           >
             Close
           </button>
 
           <button
             onClick={handleDevelopInStudio}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-primary-600 to-accent-600 hover:from-primary-700 hover:to-accent-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-primary-600/25 transition-all active:scale-98"
+            className="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-primary-600/25 transition-all duration-200 hover:from-primary-700 hover:to-accent-700 hover:shadow-xl hover:shadow-primary-600/30 active:scale-[0.98]"
           >
             <IoSparkles className="w-4 h-4" />
             <span>Develop Script in AI Studio</span>
-            <IoArrowForward className="w-4 h-4" />
+            <IoArrowForward className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
           </button>
         </div>
       </div>

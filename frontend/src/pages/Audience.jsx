@@ -55,7 +55,7 @@ const CHART_COLORS = [
 const StatCard = memo(
   ({ icon: Icon, label, value, subValue, gradient, delay = 0 }) => (
     <div
-      className="relative overflow-hidden bg-surface-50 dark:bg-dark-surface rounded-2xl p-6 border border-surface-300 dark:border-dark-border shadow-sm hover:shadow-xl dark:hover:shadow-black/30 transition-all duration-500 group animate-fade-in"
+      className="relative overflow-hidden bg-surface-50 dark:bg-dark-surface rounded-2xl p-4 sm:p-6 border border-surface-300 dark:border-dark-border shadow-sm hover:shadow-xl dark:hover:shadow-black/30 transition-all duration-500 group animate-fade-in"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Background gradient blob */}
@@ -68,17 +68,17 @@ const StatCard = memo(
       <div className="absolute top-6 right-6 w-14 h-14 border border-surface-200 dark:border-dark-border rounded-full opacity-20" />
 
       <div className="relative">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
           <div
-            className={`p-3 rounded-xl ${gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}
+            className={`p-2.5 sm:p-3 rounded-xl ${gradient} shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}
           >
-            <Icon className="w-5 h-5 text-white" />
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <span className="text-sm font-medium text-text-muted dark:text-dark-text-muted">
+          <span className="text-xs sm:text-sm font-medium text-text-muted dark:text-dark-text-muted leading-tight">
             {label}
           </span>
         </div>
-        <p className="text-3xl lg:text-4xl font-bold text-text-primary dark:text-dark-text tracking-tight">
+        <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text-primary dark:text-dark-text tracking-tight">
           {value}
         </p>
         {subValue && (
@@ -192,31 +192,33 @@ const Audience = () => {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-6 sm:space-y-8 pb-8">
       {/* Header */}
       <div className="relative">
-        {/* Decorative background */}
-        <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-accent-700/20 to-primary-900/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-cyan-400/10 to-accent-700/10 rounded-full blur-2xl pointer-events-none" />
+        {/* Decorative glows — clipped so they never widen the page on mobile */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-accent-700/20 to-primary-900/20 rounded-full blur-3xl" />
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-cyan-400/10 to-accent-700/10 rounded-full blur-2xl" />
+        </div>
 
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-accent-700 rounded-2xl shadow-lg">
-              <IoPeople className="w-6 h-6 text-white" />
+            <div className="p-2.5 sm:p-3 bg-accent-700 rounded-2xl shadow-lg flex-shrink-0">
+              <IoPeople className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-text-primary dark:text-dark-text">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-primary dark:text-dark-text">
               Audience Analytics
             </h1>
           </div>
-          <p className="text-text-muted dark:text-dark-text-muted flex items-center gap-2 ml-16">
-            <IoSparkles className="w-4 h-4 text-accent-700 dark:text-accent-400" />
-            Understand who's watching your content and how they engage
+          <p className="text-sm text-text-muted dark:text-dark-text-muted flex items-start sm:items-center gap-2 sm:ml-16">
+            <IoSparkles className="w-4 h-4 mt-0.5 sm:mt-0 text-accent-700 dark:text-accent-400 flex-shrink-0" />
+            <span>Understand who's watching your content and how they engage</span>
           </p>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         <StatCard
           icon={IoPeople}
           label="Total Audience"
@@ -250,7 +252,7 @@ const Audience = () => {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Age Distribution */}
         <div className="bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border shadow-sm dark:shadow-black/20 overflow-hidden">
           <div className="flex items-center gap-3 p-6 border-b border-surface-200 dark:border-dark-border">
@@ -372,7 +374,7 @@ const Audience = () => {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-center gap-6 mt-4">
+            <div className="flex flex-wrap justify-center gap-2.5 sm:gap-6 mt-4">
               {(data?.gender || []).map((item, index) => (
                 <div
                   key={index}
@@ -411,14 +413,14 @@ const Audience = () => {
               </p>
             </div>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-4 sm:p-6 space-y-4">
             {(data?.topCountries || []).slice(0, 5).map((country, index) => (
               <div key={index} className="group">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-3 min-w-0">
                     <span
                       className={`
-                        w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shadow-sm
+                        w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shadow-sm shrink-0
                         ${
                           index === 0
                             ? "bg-gradient-to-br from-warning-400 to-warning-500 text-white"
@@ -432,11 +434,11 @@ const Audience = () => {
                     >
                       {index + 1}
                     </span>
-                    <span className="font-semibold text-text-primary dark:text-dark-text group-hover:text-primary-900 dark:group-hover:text-primary-400 transition-colors">
+                    <span className="font-semibold text-text-primary dark:text-dark-text group-hover:text-primary-900 dark:group-hover:text-primary-400 transition-colors truncate">
                       {country.country}
                     </span>
                   </div>
-                  <span className="text-sm font-bold text-text-primary dark:text-dark-text bg-surface-100 dark:bg-dark-surface-light px-3 py-1 rounded-full">
+                  <span className="text-sm font-bold text-text-primary dark:text-dark-text bg-surface-100 dark:bg-dark-surface-light px-3 py-1 rounded-full flex-shrink-0">
                     {country.percentage}%
                   </span>
                 </div>
@@ -467,7 +469,7 @@ const Audience = () => {
             </div>
           </div>
           <div className="p-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {(data?.devices || []).map((device, index) => {
                 const Icon = deviceIcons[device.type] || IoDesktop;
                 const gradient =
@@ -476,25 +478,25 @@ const Audience = () => {
                 return (
                   <div
                     key={index}
-                    className="relative overflow-hidden p-5 bg-gradient-to-br from-surface-50 to-surface-100 dark:from-dark-surface dark:to-dark-surface-light rounded-2xl border border-surface-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg dark:hover:shadow-black/30 transition-all duration-300 group cursor-pointer"
+                    className="relative overflow-hidden p-4 sm:p-5 bg-gradient-to-br from-surface-50 to-surface-100 dark:from-dark-surface dark:to-dark-surface-light rounded-2xl border border-surface-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg dark:hover:shadow-black/30 transition-all duration-300 group cursor-pointer"
                   >
                     <div className="absolute -top-6 -right-6 w-20 h-20 bg-surface-200 dark:bg-dark-border rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500" />
                     <div className="relative">
-                      <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
                         <div
-                          className={`p-3 rounded-xl ${gradient} shadow-lg group-hover:scale-110 transition-transform`}
+                          className={`p-2.5 sm:p-3 rounded-xl ${gradient} shadow-lg group-hover:scale-110 transition-transform shrink-0`}
                         >
-                          <Icon className="w-5 h-5 text-white" />
+                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
-                        <span className="font-semibold text-text-primary dark:text-dark-text">
+                        <span className="font-semibold text-text-primary dark:text-dark-text truncate">
                           {device.type}
                         </span>
                       </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-bold text-text-primary dark:text-dark-text">
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                        <span className="text-2xl sm:text-3xl font-bold text-text-primary dark:text-dark-text">
                           {device.percentage}%
                         </span>
-                        <span className="text-sm text-text-muted dark:text-dark-text-muted">
+                        <span className="text-xs sm:text-sm text-text-muted dark:text-dark-text-muted">
                           of views
                         </span>
                       </div>

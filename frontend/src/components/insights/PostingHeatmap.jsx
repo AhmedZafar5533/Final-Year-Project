@@ -1,4 +1,11 @@
 import { useState, useMemo } from "react";
+import {
+  IoFlagOutline,
+  IoFlame,
+  IoThumbsUpOutline,
+  IoStatsChartOutline,
+  IoTimeOutline,
+} from "react-icons/io5";
 import Card from "../common/Card";
 import { DAYS_OF_WEEK } from "../../utils/constants";
 import { useTheme } from "../../context/ThemeContext";
@@ -117,6 +124,28 @@ const PostingHeatmap = ({ data = [] }) => {
       .filter((_, i) => i % 2 === 0);
   }, [heatmapData]);
 
+  const selectedStatus = selectedCell
+    ? selectedCell.value >= 80
+      ? {
+          Icon: IoFlame,
+          text: "Excellent time to post — high audience activity expected.",
+        }
+      : selectedCell.value >= 60
+        ? {
+            Icon: IoThumbsUpOutline,
+            text: "Good engagement expected. Solid choice for posting.",
+          }
+        : selectedCell.value >= 40
+          ? {
+              Icon: IoStatsChartOutline,
+              text: "Moderate engagement. Consider peak hours for better reach.",
+            }
+          : {
+              Icon: IoTimeOutline,
+              text: "Lower engagement period. Try evening or weekend slots.",
+            }
+    : null;
+
   return (
     <Card
       title="Best Posting Times"
@@ -126,12 +155,12 @@ const PostingHeatmap = ({ data = [] }) => {
         {/* Heatmap Grid */}
         <div style={{ minWidth: "500px" }}>
           {/* Day Headers */}
-          <div className="grid grid-cols-8 gap-1 mb-2">
+          <div className="grid grid-cols-8 gap-1 mb-2.5">
             <div className="w-14" /> {/* Spacer for hours column */}
             {DAYS_OF_WEEK.map((day) => (
               <div
                 key={day}
-                className={`text-center text-xs font-semibold uppercase tracking-wide ${
+                className={`text-center text-[11px] font-semibold uppercase tracking-wider ${
                   isDark ? "text-dark-text-muted" : "text-text-muted"
                 }`}
               >
@@ -149,7 +178,7 @@ const PostingHeatmap = ({ data = [] }) => {
               >
                 {/* Hour Label */}
                 <div
-                  className={`w-14 text-xs text-right pr-2 font-medium ${
+                  className={`w-14 text-xs text-right pr-2 font-medium tabular-nums ${
                     isDark ? "text-dark-text-muted" : "text-text-light"
                   }`}
                 >
@@ -187,7 +216,7 @@ const PostingHeatmap = ({ data = [] }) => {
                           })
                         }
                         className={`
-                          w-full h-8 rounded-md transition-all duration-200
+                          w-full h-8 rounded-md transition-all duration-200 ease-out
                           ${getColor(value)}
                           ${isSelected ? "ring-2 ring-accent-500 ring-offset-2" : ""}
                           ${isHovered && !isSelected ? "scale-110 shadow-lg z-10" : ""}
@@ -197,15 +226,17 @@ const PostingHeatmap = ({ data = [] }) => {
                           ringOffsetColor: isDark ? "#1e1e1e" : "#f0efe6",
                         }}
                         aria-label={`${DAYS_OF_WEEK[dayIndex]} ${hours[actualHourIndex]}: ${value}% engagement`}
+                        aria-pressed={isSelected}
                       />
 
                       {/* Inline Tooltip */}
                       {isHovered && (
                         <div
                           className={`
-                            absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50
+                            absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50
                             px-3 py-2 text-xs font-medium rounded-lg shadow-xl
                             whitespace-nowrap pointer-events-none border
+                            animate-fade-in
                             ${
                               isDark
                                 ? "bg-dark-elevated text-dark-text border-dark-border"
@@ -213,10 +244,10 @@ const PostingHeatmap = ({ data = [] }) => {
                             }
                           `}
                         >
-                          <div className="font-semibold">
+                          <div className="font-semibold tracking-tight">
                             {DAYS_OF_WEEK[dayIndex]} {hours[actualHourIndex]}
                           </div>
-                          <div className={getValueColor(value)}>
+                          <div className={`tabular-nums ${getValueColor(value)}`}>
                             {value}% engagement
                           </div>
                           {/* Arrow */}
@@ -247,15 +278,15 @@ const PostingHeatmap = ({ data = [] }) => {
       >
         <div className="flex items-center gap-4 flex-wrap">
           <span
-            className={`text-sm font-medium ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
+            className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
           >
-            Engagement:
+            Engagement
           </span>
           <div className="flex items-center gap-3">
             {/* Low */}
             <div className="flex items-center gap-1.5">
               <div
-                className={`w-5 h-4 rounded ${isDark ? "bg-dark-surface-light" : "bg-surface-200"}`}
+                className={`w-5 h-3.5 rounded-sm ${isDark ? "bg-dark-surface-light" : "bg-surface-200"}`}
               />
               <span
                 className={`text-xs ${isDark ? "text-dark-text-muted" : "text-text-light"}`}
@@ -266,7 +297,7 @@ const PostingHeatmap = ({ data = [] }) => {
             {/* Medium */}
             <div className="flex items-center gap-1.5">
               <div
-                className={`w-5 h-4 rounded ${isDark ? "bg-accent-600" : "bg-accent-400"}`}
+                className={`w-5 h-3.5 rounded-sm ${isDark ? "bg-accent-600" : "bg-accent-400"}`}
               />
               <span
                 className={`text-xs ${isDark ? "text-dark-text-muted" : "text-text-light"}`}
@@ -277,7 +308,7 @@ const PostingHeatmap = ({ data = [] }) => {
             {/* High */}
             <div className="flex items-center gap-1.5">
               <div
-                className={`w-5 h-4 rounded ${isDark ? "bg-primary-500" : "bg-primary-600"}`}
+                className={`w-5 h-3.5 rounded-sm ${isDark ? "bg-primary-500" : "bg-primary-600"}`}
               />
               <span
                 className={`text-xs ${isDark ? "text-dark-text-muted" : "text-text-light"}`}
@@ -292,25 +323,29 @@ const PostingHeatmap = ({ data = [] }) => {
       {/* Best Times Summary */}
       {bestTimes.length > 0 && (
         <div
-          className={`mt-4 p-4 rounded-xl border ${
+          className={`relative mt-4 p-4 rounded-xl border overflow-hidden ${
             isDark
               ? "bg-primary-900/30 border-primary-700/50"
               : "bg-primary-50 border-primary-200"
           }`}
         >
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent"
+          />
           <h4
-            className={`font-semibold mb-3 flex items-center gap-2 ${
+            className={`font-semibold tracking-tight mb-3 flex items-center gap-1.5 ${
               isDark ? "text-primary-300" : "text-primary-700"
             }`}
           >
-            <span>🎯</span>
+            <IoFlagOutline className="w-4 h-4" />
             <span>Recommended Posting Times</span>
           </h4>
           <div className="flex flex-wrap gap-2">
             {bestTimes.slice(0, 5).map((time, index) => (
               <span
                 key={index}
-                className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-all hover:scale-105 ${
+                className={`px-3 py-1.5 text-sm font-medium tabular-nums rounded-full border transition-all duration-200 hover:-translate-y-px ${
                   isDark
                     ? "bg-dark-surface text-primary-300 border-primary-600/50 hover:border-primary-500"
                     : "bg-white text-primary-700 border-primary-300 hover:border-primary-500 shadow-sm"
@@ -324,9 +359,9 @@ const PostingHeatmap = ({ data = [] }) => {
       )}
 
       {/* Selected Cell Info */}
-      {selectedCell && (
+      {selectedCell && selectedStatus && (
         <div
-          className={`mt-4 p-4 rounded-xl border ${
+          className={`mt-4 p-4 rounded-xl border animate-fade-in ${
             isDark
               ? "bg-dark-elevated border-dark-border"
               : "bg-surface-50 border-surface-300"
@@ -338,20 +373,15 @@ const PostingHeatmap = ({ data = [] }) => {
             <span className="font-semibold">
               {DAYS_OF_WEEK[selectedCell.day]} at {hours[selectedCell.hour]}:
             </span>{" "}
-            <span className={`font-bold ${getValueColor(selectedCell.value)}`}>
+            <span className={`font-bold tabular-nums ${getValueColor(selectedCell.value)}`}>
               {selectedCell.value}% engagement rate
             </span>
           </p>
           <p
-            className={`text-xs mt-2 ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
+            className={`text-xs mt-2 flex items-center gap-1.5 ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
           >
-            {selectedCell.value >= 80
-              ? "🔥 Excellent time to post! High audience activity expected."
-              : selectedCell.value >= 60
-                ? "👍 Good engagement expected. Solid choice for posting."
-                : selectedCell.value >= 40
-                  ? "📊 Moderate engagement. Consider peak hours for better reach."
-                  : "⏰ Lower engagement period. Try evening or weekend slots."}
+            <selectedStatus.Icon className="w-3.5 h-3.5 flex-shrink-0" />
+            {selectedStatus.text}
           </p>
         </div>
       )}

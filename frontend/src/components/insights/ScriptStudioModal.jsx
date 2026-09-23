@@ -1,103 +1,142 @@
-import { useState, useEffect, memo, useRef } from "react";
+import { useState, useEffect, useMemo, memo, useRef } from "react";
 import {
   IoClose,
   IoCopyOutline,
   IoCheckmark,
   IoSend,
   IoSparkles,
-  IoDocumentTextOutline,
-  IoChatbubbleEllipsesOutline,
-  IoTimeOutline,
-  IoFlame,
-  IoStar,
-  IoChatbubblesOutline,
-  IoFlashOutline,
 } from "react-icons/io5";
 import trendsService from "../../services/trendsService";
+
+/* ---------------------------------------------------------------------- */
+/* Markdown → manuscript rendering                                        */
+/* ---------------------------------------------------------------------- */
 
 function formatInlineMarkdown(str) {
   if (!str) return "";
   return str
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-text-primary dark:text-white">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em class="italic text-primary-600 dark:text-primary-300">$1</em>')
+    .replace(
+      /\*\*(.*?)\*\*/g,
+      '<strong class="font-semibold text-text-primary dark:text-white">$1</strong>',
+    )
+    .replace(
+      /\*(.*?)\*/g,
+      '<em class="italic text-primary-700 dark:text-primary-300">$1</em>',
+    )
     .replace(
       /`(.*?)`/g,
-      '<code class="px-1.5 py-0.5 rounded bg-surface-200 dark:bg-dark-border font-mono text-xs text-primary-700 dark:text-primary-300">$1</code>',
+      '<code class="px-1.5 py-0.5 rounded-md bg-surface-100 dark:bg-dark-border font-mono text-[0.7rem] tracking-tight text-primary-700 dark:text-primary-300">$1</code>',
     );
+}
+
+// Pulls a leading "(0:00 - 0:45)" style timecode off a heading so it can be
+// set in its own monospace column, the way a call sheet or shot list would.
+function splitTimecode(line) {
+  const match = line.match(/^(.*?)(\s*\(\s*[\d:]+\s*-\s*[\d:]+\s*\))\s*$/);
+  if (!match) return { label: line, time: null };
+  return { label: match[1].trim(), time: match[2].replace(/[()]/g, "").trim() };
 }
 
 function renderMarkdownScript(text) {
   if (!text) return null;
   const lines = text.split("\n");
+  let sceneIndex = 0;
+
   return lines.map((line, idx) => {
     if (line.startsWith("# ")) {
+      const { label, time } = splitTimecode(line.substring(2));
       return (
-        <h1
+        <div
           key={idx}
-          className="text-lg sm:text-xl font-black text-text-primary dark:text-white mt-5 mb-2 border-b border-surface-200 dark:border-dark-border pb-1"
+          className="mt-7 mb-3 pb-2 flex items-baseline justify-between gap-4 border-b border-surface-200 dark:border-dark-border"
         >
-          {line.substring(2)}
-        </h1>
+          <h1 className="font-serif text-xl sm:text-2xl text-text-primary dark:text-white">
+            {label}
+          </h1>
+          {time && (
+            <span className="font-mono text-[0.7rem] text-text-muted dark:text-dark-text-muted whitespace-nowrap">
+              {time}
+            </span>
+          )}
+        </div>
       );
     }
     if (line.startsWith("## ")) {
+      sceneIndex += 1;
+      const { label, time } = splitTimecode(line.substring(3));
       return (
-        <h2
-          key={idx}
-          className="text-base sm:text-lg font-bold text-primary-700 dark:text-primary-400 mt-4 mb-1.5"
-        >
-          {line.substring(3)}
-        </h2>
+        <div key={idx} className="mt-6 mb-2 flex items-baseline gap-3">
+          <span className="font-mono text-[0.7rem] text-primary-500/70 dark:text-primary-400/70">
+            {String(sceneIndex).padStart(2, "0")}
+          </span>
+          <h2 className="font-serif text-base sm:text-lg text-primary-800 dark:text-primary-300">
+            {label}
+          </h2>
+          {time && (
+            <span className="font-mono text-[0.7rem] text-text-muted dark:text-dark-text-muted ml-auto whitespace-nowrap">
+              {time}
+            </span>
+          )}
+        </div>
       );
     }
     if (line.startsWith("### ")) {
       return (
         <h3
           key={idx}
-          className="text-sm sm:text-base font-bold text-accent-700 dark:text-accent-400 mt-3 mb-1"
+          className="mt-4 mb-1 font-serif italic text-sm sm:text-base text-accent-700 dark:text-accent-400"
         >
           {line.substring(4)}
         </h3>
       );
     }
     if (line.startsWith("---")) {
-      return (
-        <hr
-          key={idx}
-          className="my-3 border-surface-200 dark:border-dark-border"
-        />
-      );
+      return <div key={idx} className="my-4 border-t border-dashed border-surface-200 dark:border-dark-border" />;
     }
     if (line.startsWith("- ")) {
       return (
-        <div key={idx} className="flex items-start gap-2 my-1 pl-2 text-sm text-text-secondary dark:text-dark-text">
-          <span className="text-primary-500 font-bold">•</span>
+        <div key={idx} className="flex items-start gap-2.5 my-1 pl-1 text-[0.925rem] text-text-secondary dark:text-dark-text">
+          <span className="mt-2 w-1 h-1 rounded-full bg-primary-400 flex-shrink-0" />
           <span dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line.substring(2)) }} />
         </div>
       );
     }
     if (line.startsWith("**[VISUAL:") || line.startsWith("[VISUAL:")) {
+      const cleaned = line.replace(/^\*\*|\*\*$/g, "");
       return (
         <div
           key={idx}
-          className="p-3 my-2 bg-primary-50/60 dark:bg-primary-950/40 border-l-4 border-primary-500 rounded-r-xl text-xs font-mono text-primary-900 dark:text-primary-300"
+          className="my-3 pl-3.5 border-l-2 border-accent-400/60 dark:border-accent-500/50"
         >
-          <span dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line) }} />
+          <span
+            className="text-[0.8rem] font-mono text-accent-700/90 dark:text-accent-400/90"
+            dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(cleaned) }}
+          />
         </div>
       );
     }
     if (line.trim() === "") {
-      return <div key={idx} className="h-2" />;
+      return <div key={idx} className="h-2.5" />;
     }
     return (
       <p
         key={idx}
-        className="my-1.5 text-sm text-text-secondary dark:text-dark-text leading-relaxed"
+        className="my-2 font-serif text-[0.95rem] text-text-secondary dark:text-dark-text leading-[1.75] max-w-[68ch]"
         dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line) }}
       />
     );
   });
 }
+
+/* ---------------------------------------------------------------------- */
+/* Type meta — one quiet label instead of a row of loud badges            */
+/* ---------------------------------------------------------------------- */
+
+const TYPE_META = {
+  overlap: { label: "Overlap pick", dot: "bg-warning-500" },
+  trend: { label: "Trend surge", dot: "bg-rose-500" },
+  demand: { label: "Audience demand", dot: "bg-sky-500" },
+};
 
 export const ScriptStudioModal = ({ idea, channelNiche, onClose }) => {
   const [scriptContent, setScriptContent] = useState("");
@@ -108,8 +147,8 @@ export const ScriptStudioModal = ({ idea, channelNiche, onClose }) => {
   const [copied, setCopied] = useState(false);
 
   const chatEndRef = useRef(null);
+  const inputRef = useRef(null);
 
-  // Initial prompt generation when modal opens
   useEffect(() => {
     if (!idea) return;
 
@@ -150,13 +189,12 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
           role: "assistant",
           content:
             data.reply ||
-            "I have drafted the complete video script with hook, body chapters, and visual director cues! How would you like to refine it?",
+            "Drafted the full script — hook, chapters, and visual cues. Tell me what to adjust.",
         };
 
         const finalMsgs = [...newMessages, assistantReply];
         setChatMessages(finalMsgs);
 
-        // Save session to history
         try {
           const rawHist = localStorage.getItem("onlycreators_script_history");
           const history = rawHist ? JSON.parse(rawHist) : [];
@@ -176,15 +214,13 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       .catch((err) => {
         console.error("Initial script error:", err);
         if (isMounted) {
-          // Fallback script if offline
           const fallbackScript = `# ${idea.title}\n\n## Hook (0:00 - 0:45)\n"${idea.hook}"\n\n**[VISUAL: High-contrast animation demonstrating the core paradox]**\n\nWelcome back to the channel. Today we are unpacking something that completely upends the conventional consensus.\n\n## Section 1: The Core Breakthrough (0:45 - 4:15)\n- Viewer demand source: ${idea.audience_demand_source || "Viewer questions"}\n- Trend surge: ${idea.trend_source || "Latest market velocity"}\n\n**[VISUAL: Technical blueprint on split screen]**\n\n## Section 2: Why It Matters (4:15 - 8:30)\n${idea.why_it_will_perform}\n\n## Outro & Call to Action (8:30 - 9:00)\nWhat do you think about this discovery? Let me know in the comments below, and subscribe for the next deep dive!`;
           setScriptContent(fallbackScript);
           setChatMessages((prev) => [
             ...prev,
             {
               role: "assistant",
-              content:
-                "Drafted initial production script! Ask me to refine tone, rewrite the hook, or add visual scene directions.",
+              content: "Drafted an initial script offline. Ask me to punch up the hook, adjust tone, or add visual direction.",
             },
           ]);
         }
@@ -196,9 +232,9 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idea, channelNiche]);
 
-  // Scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, chatLoading]);
@@ -229,20 +265,17 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       if (data.suggested_followups) setSuggestedFollowups(data.suggested_followups);
       setChatMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.reply || "I've revised the script according to your feedback!" },
+        { role: "assistant", content: data.reply || "Revised the script based on that note." },
       ]);
     } catch (err) {
       console.error("Chat message error:", err);
       setChatMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content:
-            "I heard your instruction! Let's continue refining the script sections or pacing.",
-        },
+        { role: "assistant", content: "Got it — let's keep refining the pacing or sections." },
       ]);
     } finally {
       setChatLoading(false);
+      inputRef.current?.focus();
     }
   };
 
@@ -259,183 +292,155 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
   }, [scriptContent]);
 
   const estimatedMinutes = Math.max(1, Math.round(wordCount / 140));
-
-  const isOverlap = idea?.recommendation_type === "overlap";
-  const isTrend = idea?.recommendation_type === "trend";
-  const isDemand = idea?.recommendation_type === "demand";
+  const typeMeta = TYPE_META[idea?.recommendation_type];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-ink-950/70 backdrop-blur-sm animate-fade-in">
       <div
-        className="relative w-full max-w-6xl h-[92vh] flex flex-col bg-white dark:bg-dark-surface rounded-3xl border border-surface-300 dark:border-dark-border shadow-2xl overflow-hidden"
+        className="relative w-full max-w-6xl h-[92vh] flex flex-col bg-white dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border shadow-[0_24px_70px_-20px_rgba(0,0,0,0.35)] overflow-hidden animate-modal-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Topbar */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-200 dark:border-dark-border bg-surface-50/80 dark:bg-dark-surface-light/60">
-          <div className="flex items-center gap-3 min-w-0 pr-4">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center text-white shadow-md flex-shrink-0">
-              <IoSparkles className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                <h3 className="text-base sm:text-lg font-bold text-text-primary dark:text-dark-text truncate max-w-md">
-                  {idea?.title || "AI Script Studio"}
-                </h3>
-                <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300">
-                  Nova AI
+        <div className="flex items-center justify-between gap-4 px-5 sm:px-6 py-4 border-b border-surface-200 dark:border-dark-border">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <h3 className="font-serif text-lg sm:text-xl text-text-primary dark:text-dark-text truncate">
+                {idea?.title || "Script Studio"}
+              </h3>
+              {typeMeta && (
+                <span className="flex items-center gap-1.5 text-[0.7rem] text-text-muted dark:text-dark-text-muted flex-shrink-0">
+                  <span className={`w-1.5 h-1.5 rounded-full ${typeMeta.dot}`} />
+                  {typeMeta.label}
                 </span>
-                {isOverlap && (
-                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-warning-100 dark:bg-warning-900/40 text-warning-800 dark:text-warning-300 flex items-center gap-1">
-                    <IoStar className="w-3 h-3 text-warning-500" /> Overlap Pick
-                  </span>
-                )}
-                {isTrend && (
-                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 flex items-center gap-1">
-                    <IoFlame className="w-3 h-3 text-rose-500" /> Trend Surge
-                  </span>
-                )}
-                {isDemand && (
-                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 flex items-center gap-1">
-                    <IoChatbubblesOutline className="w-3 h-3 text-sky-500" /> Audience Demand
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-text-muted dark:text-dark-text-muted">
-                {idea?.suggested_format || "12-15 min Deep Dive"} • Niche:{" "}
-                {channelNiche?.primary_niche || "Astrophysics & Space Tech"}
-              </p>
+              )}
             </div>
+            <p className="mt-0.5 text-[0.8rem] text-text-muted dark:text-dark-text-muted truncate">
+              {idea?.suggested_format || "12–15 min deep dive"} · {channelNiche?.primary_niche || "Astrophysics & Space Tech"}
+            </p>
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
             {scriptContent && (
               <button
                 onClick={handleCopyScript}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold border border-surface-300 dark:border-dark-border bg-surface-100 dark:bg-dark-surface-light text-text-primary dark:text-dark-text hover:bg-surface-200 transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[0.8rem] font-medium text-text-secondary dark:text-dark-text hover:text-text-primary dark:hover:text-white hover:bg-surface-100 dark:hover:bg-dark-surface-light transition-colors"
               >
                 {copied ? (
                   <>
-                    <IoCheckmark className="w-4 h-4 text-success-600" />
-                    <span className="text-success-600">Copied!</span>
+                    <IoCheckmark className="w-3.5 h-3.5 text-success-600" />
+                    <span className="text-success-600">Copied</span>
                   </>
                 ) : (
                   <>
-                    <IoCopyOutline className="w-4 h-4" />
-                    <span>Copy Script</span>
+                    <IoCopyOutline className="w-3.5 h-3.5" />
+                    <span>Copy script</span>
                   </>
                 )}
               </button>
             )}
-
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-text-muted hover:text-text-primary dark:hover:text-white hover:bg-surface-200 dark:hover:bg-dark-border transition-colors"
+              aria-label="Close"
+              className="p-2 rounded-lg text-text-muted hover:text-text-primary dark:hover:text-white hover:bg-surface-100 dark:hover:bg-dark-border transition-colors"
             >
-              <IoClose className="w-6 h-6" />
+              <IoClose className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* 2-Column Split Workspace */}
+        {/* Workspace */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
-          {/* Left Column: Script Viewer */}
-          <div className="lg:col-span-7 flex flex-col border-r border-surface-200 dark:border-dark-border overflow-hidden bg-white dark:bg-dark-surface">
-            {/* Script Viewer Subheader */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-surface-200 dark:border-dark-border bg-surface-50/50 dark:bg-dark-surface-light/30">
-              <span className="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-1.5">
-                <IoDocumentTextOutline className="w-4 h-4" />
-                Production Script Draft
+          {/* Manuscript pane */}
+          <div className="lg:col-span-7 flex flex-col border-r border-surface-200 dark:border-dark-border overflow-hidden bg-[#FBFAF8] dark:bg-dark-surface">
+            <div className="flex items-center justify-between px-6 sm:px-8 py-3 border-b border-surface-200/70 dark:border-dark-border">
+              <span className="font-serif italic text-sm text-text-muted dark:text-dark-text-muted">
+                Script draft
               </span>
-              <span className="text-xs text-text-muted dark:text-dark-text-muted flex items-center gap-1">
-                <IoTimeOutline className="w-3.5 h-3.5" />
-                {wordCount} words • ~{estimatedMinutes} min speaking time
+              <span className="font-mono text-[0.7rem] text-text-muted dark:text-dark-text-muted">
+                {wordCount.toLocaleString()} words · ~{estimatedMinutes} min
               </span>
             </div>
 
-            {/* Script Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-2">
+            <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-6">
               {chatLoading && !scriptContent ? (
-                <div className="flex flex-col items-center justify-center h-full py-20 gap-3">
-                  <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-                  <p className="text-sm font-medium text-text-muted dark:text-dark-text-muted">
-                    Nova AI is writing your YouTube script…
+                <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+                  <IoSparkles className="w-5 h-5 text-primary-400 animate-pulse" />
+                  <p className="font-serif italic text-sm text-text-muted dark:text-dark-text-muted">
+                    Writing your script…
                   </p>
                 </div>
               ) : scriptContent ? (
-                renderMarkdownScript(scriptContent)
+                <div>{renderMarkdownScript(scriptContent)}</div>
               ) : (
-                <p className="text-sm text-text-muted text-center py-10">
-                  No script generated yet.
+                <p className="font-serif italic text-sm text-text-muted text-center py-10">
+                  No script yet.
                 </p>
               )}
             </div>
           </div>
 
-          {/* Right Column: AI Scriptwriter Chat */}
-          <div className="lg:col-span-5 flex flex-col overflow-hidden bg-surface-50/50 dark:bg-dark-surface-light/30">
-            {/* Chat Subheader */}
-            <div className="flex items-center gap-2 px-5 py-3 border-b border-surface-200 dark:border-dark-border bg-surface-100/50 dark:bg-dark-surface-light/60">
-              <IoChatbubbleEllipsesOutline className="w-4 h-4 text-accent-600" />
-              <span className="text-xs font-bold uppercase tracking-wider text-text-primary dark:text-dark-text">
-                Collaborate with Nova AI
+          {/* Collaboration pane */}
+          <div className="lg:col-span-5 flex flex-col overflow-hidden bg-surface-50/60 dark:bg-dark-surface-light/20">
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-surface-200 dark:border-dark-border">
+              <span className="text-[0.8rem] font-medium text-text-secondary dark:text-dark-text">
+                Working with Nova
               </span>
             </div>
 
-            {/* Chat Timeline */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
               {chatMessages.map((msg, i) => {
                 const isUser = msg.role === "user";
                 return (
-                  <div
-                    key={i}
-                    className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
-                  >
+                  <div key={i} className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : ""}`}>
+                    {!isUser && (
+                      <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <IoSparkles className="w-3 h-3 text-primary-600 dark:text-primary-300" />
+                      </div>
+                    )}
                     <div
-                      className={`max-w-[90%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                      className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-[0.85rem] leading-relaxed ${
                         isUser
-                          ? "bg-primary-600 text-white rounded-br-xs shadow-sm"
-                          : "bg-white dark:bg-dark-surface border border-surface-200 dark:border-dark-border text-text-primary dark:text-dark-text rounded-bl-xs shadow-sm"
+                          ? "bg-primary-600 text-white rounded-tr-sm"
+                          : "bg-white dark:bg-dark-surface border border-surface-200 dark:border-dark-border text-text-primary dark:text-dark-text rounded-tl-sm"
                       }`}
                     >
-                      {!isUser && (
-                        <div className="flex items-center gap-1 text-[11px] font-bold text-accent-600 dark:text-accent-400 mb-1">
-                          <IoSparkles className="w-3 h-3" /> Nova AI Writer
-                        </div>
-                      )}
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
                   </div>
                 );
               })}
 
-              {chatLoading && (
-                <div className="flex items-center gap-2 p-3 bg-white dark:bg-dark-surface border border-surface-200 dark:border-dark-border rounded-2xl rounded-bl-xs w-fit text-xs text-text-muted">
-                  <div className="w-3.5 h-3.5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                  <span>Nova AI is revising script…</span>
+              {chatLoading && chatMessages.length > 0 && (
+                <div className="flex gap-2.5">
+                  <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center flex-shrink-0">
+                    <IoSparkles className="w-3 h-3 text-primary-600 dark:text-primary-300" />
+                  </div>
+                  <div className="flex items-center gap-1 px-3.5 py-3 rounded-2xl rounded-tl-sm bg-white dark:bg-dark-surface border border-surface-200 dark:border-dark-border">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-bounce [animation-delay:-0.2s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-bounce [animation-delay:-0.1s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-bounce" />
+                  </div>
                 </div>
               )}
               <div ref={chatEndRef} />
             </div>
 
-            {/* Suggested Followups Chips */}
             {suggestedFollowups.length > 0 && (
-              <div className="p-3 border-t border-surface-200 dark:border-dark-border flex gap-2 overflow-x-auto bg-surface-100/40 dark:bg-dark-surface">
+              <div className="px-4 pb-3 flex gap-2 overflow-x-auto">
                 {suggestedFollowups.map((sug, i) => (
                   <button
                     key={i}
                     onClick={() => handleSendMessage(sug)}
                     disabled={chatLoading}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border text-text-primary dark:text-dark-text hover:border-primary-500 hover:text-primary-600 transition-all disabled:opacity-50 flex-shrink-0"
+                    className="px-3 py-1.5 rounded-full text-[0.75rem] font-medium whitespace-nowrap border border-surface-300 dark:border-dark-border text-text-secondary dark:text-dark-text hover:border-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors disabled:opacity-50 flex-shrink-0"
                   >
-                    <IoFlashOutline className="w-3 h-3 text-warning-500" />
                     {sug}
                   </button>
                 ))}
               </div>
             )}
 
-            {/* Chat Input */}
-            <div className="p-3 border-t border-surface-200 dark:border-dark-border bg-white dark:bg-dark-surface">
+            <div className="px-4 py-3 border-t border-surface-200 dark:border-dark-border">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -444,17 +449,19 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                 className="flex items-center gap-2"
               >
                 <input
+                  ref={inputRef}
                   type="text"
-                  placeholder="Ask Nova AI: Punch up hook, add visual cues, simplify tone..."
+                  placeholder="Punch up the hook, add visual cues, simplify tone…"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   disabled={chatLoading}
-                  className="flex-1 px-3.5 py-2.5 bg-surface-100 dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-xl text-xs sm:text-sm text-text-primary dark:text-dark-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="flex-1 px-3.5 py-2.5 bg-white dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-xl text-[0.85rem] text-text-primary dark:text-dark-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400/60 focus:border-primary-400 transition-shadow"
                 />
                 <button
                   type="submit"
                   disabled={!chatInput.trim() || chatLoading}
-                  className="p-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50 transition-colors shadow-md"
+                  aria-label="Send"
+                  className="p-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-40 transition-colors"
                 >
                   <IoSend className="w-4 h-4" />
                 </button>
@@ -463,6 +470,14 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes modal-in {
+          from { opacity: 0; transform: scale(0.97) translateY(6px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-modal-in { animation: modal-in 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+      `}</style>
     </div>
   );
 };

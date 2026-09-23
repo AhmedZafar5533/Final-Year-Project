@@ -83,7 +83,7 @@ const notificationStyles = {
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme, toggleSidebar } = useTheme();
+  const { theme, toggleTheme, toggleSidebar, sidebarCollapsed } = useTheme();
   const navigate = useNavigate();
   const isDark = theme === "dark";
 
@@ -209,10 +209,13 @@ const Header = () => {
           {/* Left section */}
           <div className="flex items-center gap-4">
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.92 }}
+              transition={{ type: "spring", stiffness: 420, damping: 24 }}
               onClick={toggleSidebar}
-              className={`p-2.5 rounded-xl lg:hidden transition-all duration-200 ${
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className={`p-2.5 rounded-xl transition-colors duration-200 ${
                 isDark
                   ? "text-dark-text-muted hover:text-dark-text hover:bg-dark-surface-light"
                   : "text-text-muted hover:text-text-primary hover:bg-surface-100"

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect, memo } from "react";
 import {
   IoEyeOutline,
   IoPeopleOutline,
@@ -27,11 +27,81 @@ const dateRanges = [
   { label: "All time", value: "all" },
 ];
 
+const DateRangeSelector = memo(({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  const selectedLabel = useMemo(
+    () => dateRanges.find((r) => r.value === value)?.label || "Custom",
+    [value],
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isOpen]);
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        className="flex items-center gap-2 px-4 py-2.5 bg-surface-base text-text-heading rounded-xl border border-surface-border hover:border-primary-400 transition-colors text-sm font-medium shadow-sm"
+      >
+        <IoCalendarOutline className="w-4 h-4 text-text-light" />
+        <span>{selectedLabel}</span>
+        <IoChevronDown
+          className={`w-4 h-4 text-text-light transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+          <div
+            role="menu"
+            className="absolute right-0 mt-2 w-48 bg-surface-card rounded-xl border border-surface-border shadow-lg z-20 py-1"
+          >
+            {dateRanges.map((range) => (
+              <button
+                key={range.value}
+                type="button"
+                role="menuitemradio"
+                aria-checked={value === range.value}
+                onClick={() => {
+                  onChange(range.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                  value === range.value
+                    ? "bg-primary-150 text-primary-800 font-medium"
+                    : "text-text-body hover:bg-surface-base"
+                }`}
+              >
+                {range.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+});
+
+DateRangeSelector.displayName = "DateRangeSelector";
+
 const Dashboard = () => {
   const [dateRange, setDateRange] = useState("30d");
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const { analytics, videos, isLoading, refreshData, lastUpdated } =
+  const { analytics, videos, isLoading, isRefreshing, refreshData, lastUpdated } =
     useAnalytics(dateRange);
 
   const metrics = useMemo(
@@ -79,18 +149,8 @@ const Dashboard = () => {
         sparklineData: analytics?.watchTimeSparkline,
       },
     ],
-    [analytics]
+    [analytics],
   );
-
-  const selectedDateRangeLabel = useMemo(
-    () => dateRanges.find((r) => r.value === dateRange)?.label || "Custom",
-    [dateRange]
-  );
-
-  const handleDateRangeChange = useCallback((value) => {
-    setDateRange(value);
-    setIsDatePickerOpen(false);
-  }, []);
 
   const handleRefresh = useCallback(() => {
     refreshData();
@@ -101,7 +161,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-8  mx-auto">
       {/* Header Section */}
       <div className="bg-surface-card rounded-2xl p-6 lg:p-8 border border-surface-border shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -122,58 +182,18 @@ const Dashboard = () => {
 
           {/* Action Controls */}
           <div className="flex flex-wrap items-center gap-3">
-            {/* Date Range Selector Dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-surface-base text-text-heading rounded-xl border border-surface-border hover:border-primary-400 transition-colors text-sm font-medium shadow-sm"
-              >
-                <IoCalendarOutline className="w-4 h-4 text-text-light" />
-                <span>{selectedDateRangeLabel}</span>
-                <IoChevronDown
-                  className={`w-4 h-4 text-text-light transition-transform duration-200 ${
-                    isDatePickerOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
+            <DateRangeSelector value={dateRange} onChange={setDateRange} />
 
-              {isDatePickerOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsDatePickerOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-surface-card rounded-xl border border-surface-border shadow-lg z-20 py-1 divide-y divide-surface-border">
-                    <div className="py-1">
-                      {dateRanges.map((range) => (
-                        <button
-                          key={range.value}
-                          onClick={() => handleDateRangeChange(range.value)}
-                          className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                            dateRange === range.value
-                              ? "bg-primary-150 text-primary-800 font-medium"
-                              : "text-text-body hover:bg-surface-base"
-                          }`}
-                        >
-                          {range.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Refresh Button */}
             <button
               type="button"
               onClick={handleRefresh}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl shadow-md hover:bg-primary-800 hover:shadow-lg transition-all duration-200 active:scale-95"
+              disabled={isRefreshing}
+              aria-label="Refresh data"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl shadow-md hover:bg-primary-800 hover:shadow-lg transition-all duration-200 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
             >
-              <IoRefresh className="w-4 h-4" />
+              <IoRefresh className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
               <span className="text-sm font-semibold hidden sm:inline">
-                Refresh
+                {isRefreshing ? "Refreshing…" : "Refresh"}
               </span>
             </button>
           </div>
@@ -219,10 +239,7 @@ const Dashboard = () => {
 
       {/* Video Deep Dive Modal */}
       {selectedVideo && (
-        <VideoDeepDiveModal
-          video={selectedVideo}
-          onClose={() => setSelectedVideo(null)}
-        />
+        <VideoDeepDiveModal video={selectedVideo} onClose={() => setSelectedVideo(null)} />
       )}
     </div>
   );

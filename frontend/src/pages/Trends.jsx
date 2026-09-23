@@ -32,17 +32,17 @@ const StatCard = memo(
     darkColor,
     darkBgColor,
   }) => (
-    <div className="relative overflow-hidden bg-surface-50 dark:bg-dark-surface rounded-2xl p-5 border border-surface-200 dark:border-dark-border shadow-sm hover:shadow-md dark:hover:shadow-black/30 transition-all duration-300 group">
+    <div className="relative overflow-hidden bg-surface-50 dark:bg-dark-surface rounded-2xl p-4 sm:p-5 border border-surface-200 dark:border-dark-border shadow-sm hover:shadow-md dark:hover:shadow-black/30 transition-all duration-300 group">
       <div
         className="absolute -top-4 -right-4 w-20 h-20 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500"
         style={{ backgroundColor: bgColor }}
       />
       <div className="relative">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 rounded-xl" style={{ backgroundColor: bgColor }}>
+        <div className="flex items-center gap-2.5 sm:gap-3 mb-2">
+          <div className="p-2 sm:p-2.5 rounded-xl flex-shrink-0" style={{ backgroundColor: bgColor }}>
             <IconComponent className="w-4 h-4" style={{ color }} />
           </div>
-          <span className="text-sm font-medium text-text-muted dark:text-dark-text-muted">
+          <span className="text-xs sm:text-sm font-medium text-text-muted dark:text-dark-text-muted leading-tight">
             {label}
           </span>
         </div>
@@ -130,15 +130,18 @@ const Trends = () => {
     <div className="space-y-6 pb-8">
       {/* Header */}
       <div className="relative">
-        <div className="absolute -top-10 -right-10 w-60 h-60 bg-gradient-to-br from-primary-300/20 to-accent-400/20 dark:from-primary-600/10 dark:to-accent-600/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Decorative glow — clipped so it never widens the page on mobile */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-10 -right-10 w-60 h-60 bg-gradient-to-br from-primary-300/20 to-accent-400/20 dark:from-primary-600/10 dark:to-accent-600/10 rounded-full blur-3xl" />
+        </div>
 
         <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1">
+          <div className="space-y-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
-              <div className="p-3 bg-gradient-to-br from-success-500 to-success-600 dark:from-success-400 dark:to-success-500 rounded-2xl shadow-lg shadow-success-500/30">
-                <IoTrendingUp className="w-6 h-6 text-white" />
+              <div className="p-2.5 sm:p-3 bg-gradient-to-br from-success-500 to-success-600 dark:from-success-400 dark:to-success-500 rounded-2xl shadow-lg shadow-success-500/30 flex-shrink-0">
+                <IoTrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-text-primary dark:text-dark-text">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-primary dark:text-dark-text">
                 Trend Intelligence
               </h1>
               {stats.highTrends > 0 && (
@@ -147,19 +150,19 @@ const Trends = () => {
                 </Badge>
               )}
             </div>
-            <p className="text-text-muted dark:text-dark-text-muted flex items-center gap-2 ml-16">
-              <IoFlame className="w-4 h-4 text-warning-500 dark:text-warning-400" />
-              Real-time YouTube & Google Trends analysis for creators
+            <p className="text-sm text-text-muted dark:text-dark-text-muted flex items-start sm:items-center gap-2 sm:ml-16">
+              <IoFlame className="w-4 h-4 mt-0.5 sm:mt-0 text-warning-500 dark:text-warning-400 flex-shrink-0" />
+              <span>Real-time YouTube & Google Trends analysis for creators</span>
             </p>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 p-1.5 bg-surface-100 dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border w-fit">
+      <div className="flex items-center gap-2 p-1.5 bg-surface-100 dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border w-full sm:w-fit overflow-x-auto">
         <button
           onClick={() => setActiveTab("live")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
             activeTab === "live"
               ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
               : "text-text-muted dark:text-dark-text-muted hover:text-text-primary dark:hover:text-dark-text hover:bg-surface-200 dark:hover:bg-dark-surface-light"
@@ -175,7 +178,7 @@ const Trends = () => {
 
         <button
           onClick={() => setActiveTab("catalog")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
             activeTab === "catalog"
               ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
               : "text-text-muted dark:text-dark-text-muted hover:text-text-primary dark:hover:text-dark-text hover:bg-surface-200 dark:hover:bg-dark-surface-light"
@@ -194,7 +197,7 @@ const Trends = () => {
       ) : (
         <>
           {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           label="Total Trends"
           value={stats.total}
