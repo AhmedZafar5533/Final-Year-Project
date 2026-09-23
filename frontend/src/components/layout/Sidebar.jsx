@@ -67,11 +67,11 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-screen overflow-hidden
+          fixed top-0 left-0 z-40 h-screen overflow-hidden
           bg-surface-50 dark:bg-dark-surface
           border-r border-surface-300 dark:border-dark-border
           transition-[width,transform] duration-300 ${EASE} motion-reduce:transition-none
-          lg:sticky lg:z-30 lg:flex-shrink-0
+          lg:z-30 lg:flex-shrink-0
           ${collapsed
             ? "w-72 -translate-x-full lg:translate-x-0 lg:w-[72px]"
             : "w-72 translate-x-0 lg:w-72"}

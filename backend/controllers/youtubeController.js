@@ -83,7 +83,7 @@ export const getYoutubeAnalytics = async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
     const startDate = '2005-01-01';
 
-    // ---------- Run all independent queries in parallel ----------
+    // ---------- Run all independent queries in parallel with fallback error handling ----------
     const [
       channelResponse,
       dailyAnalytics,
@@ -91,37 +91,52 @@ export const getYoutubeAnalytics = async (req, res) => {
       demographicsResult,
     ] = await Promise.all([
       // Channel Info (Data API v3)
-      youtube.channels.list({
-        mine: true,
-        part: 'snippet,contentDetails,statistics',
-      }),
+      youtube.channels
+        .list({
+          mine: true,
+          part: 'snippet,contentDetails,statistics',
+        })
+        .catch((e) => {
+          console.warn('Channel list fetch error:', e.message);
+          return { data: { items: [] } };
+        }),
 
       // Daily metrics (Analytics API)
-      youtubeAnalytics.reports.query({
-        ids: 'channel==MINE',
-        startDate,
-        endDate: today,
-        metrics: 'views,likes,dislikes,comments,shares,subscribersGained,subscribersLost,estimatedMinutesWatched,averageViewDuration',
-        dimensions: 'day',
-        sort: 'day',
-      }),
-
-      // Country breakdown (Analytics API)
-      youtubeAnalytics.reports.query({
-        ids: 'channel==MINE',
-        startDate,
-        endDate: today,
-        metrics: 'views,estimatedMinutesWatched,averageViewDuration',
-        dimensions: 'country',
-        sort: '-views',
-        maxResults: 25,
-      }),
-
-      // Demographics (Analytics API) — wrapped so a failure doesn't kill everything
       youtubeAnalytics.reports
         .query({
           ids: 'channel==MINE',
-          startDate,
+          startDate: '2017-01-01',
+          endDate: today,
+          metrics: 'views,likes,dislikes,comments,shares,subscribersGained,subscribersLost,estimatedMinutesWatched,averageViewDuration',
+          dimensions: 'day',
+          sort: 'day',
+        })
+        .catch((e) => {
+          console.warn('Daily analytics unavailable:', e.message);
+          return { data: { rows: [], columnHeaders: [] } };
+        }),
+
+      // Country breakdown (Analytics API)
+      youtubeAnalytics.reports
+        .query({
+          ids: 'channel==MINE',
+          startDate: '2017-01-01',
+          endDate: today,
+          metrics: 'views,estimatedMinutesWatched,averageViewDuration',
+          dimensions: 'country',
+          sort: '-views',
+          maxResults: 25,
+        })
+        .catch((e) => {
+          console.warn('Country analytics unavailable:', e.message);
+          return { data: { rows: [], columnHeaders: [] } };
+        }),
+
+      // Demographics (Analytics API)
+      youtubeAnalytics.reports
+        .query({
+          ids: 'channel==MINE',
+          startDate: '2017-01-01',
           endDate: today,
           metrics: 'viewerPercentage',
           dimensions: 'ageGroup,gender',
@@ -146,68 +161,80 @@ export const getYoutubeAnalytics = async (req, res) => {
 
     let videosData = [];
     if (uploadsPlaylistId) {
-      // Fetch up to 50 videos from the uploads playlist
-      const playlistResponse = await youtube.playlistItems.list({
-        playlistId: uploadsPlaylistId,
-        part: 'snippet',
-        maxResults: 50,
-      });
-
-      const videoIds = playlistResponse.data.items
-        .map((item) => item.snippet.resourceId.videoId)
-        .join(',');
-
-      if (videoIds) {
-        const videosResponse = await youtube.videos.list({
-          id: videoIds,
-          part: 'snippet,statistics,contentDetails',
+      try {
+        const playlistResponse = await youtube.playlistItems.list({
+          playlistId: uploadsPlaylistId,
+          part: 'snippet',
+          maxResults: 50,
         });
-        videosData = videosResponse.data.items;
+
+        const videoIds = playlistResponse.data.items
+          ?.map((item) => item.snippet.resourceId.videoId)
+          .filter(Boolean)
+          .join(',');
+
+        if (videoIds) {
+          const videosResponse = await youtube.videos.list({
+            id: videoIds,
+            part: 'snippet,statistics,contentDetails',
+          });
+          videosData = videosResponse.data.items || [];
+        }
+      } catch (vidErr) {
+        console.warn('Failed to fetch videos from playlist:', vidErr.message);
       }
     }
 
     // ---------- Aggregate totals from daily analytics rows ----------
-    const rows = dailyAnalytics.data.rows || [];
+    const rows = dailyAnalytics.data?.rows || [];
     const aggregated = rows.reduce(
       (acc, row) => ({
-        views: acc.views + row[1],
-        likes: acc.likes + row[2],
-        dislikes: acc.dislikes + row[3],
-        comments: acc.comments + row[4],
-        shares: acc.shares + row[5],
-        subscribersGained: acc.subscribersGained + row[6],
-        subscribersLost: acc.subscribersLost + row[7],
-        estimatedMinutesWatched: acc.estimatedMinutesWatched + row[8],
+        views: acc.views + (row[1] || 0),
+        likes: acc.likes + (row[2] || 0),
+        dislikes: acc.dislikes + (row[3] || 0),
+        comments: acc.comments + (row[4] || 0),
+        shares: acc.shares + (row[5] || 0),
+        subscribersGained: acc.subscribersGained + (row[6] || 0),
+        subscribersLost: acc.subscribersLost + (row[7] || 0),
+        estimatedMinutesWatched: acc.estimatedMinutesWatched + (row[8] || 0),
       }),
       { views: 0, likes: 0, dislikes: 0, comments: 0, shares: 0, subscribersGained: 0, subscribersLost: 0, estimatedMinutesWatched: 0 }
     );
 
-    // Derived metrics
-    aggregated.netSubscribers = aggregated.subscribersGained - aggregated.subscribersLost;
-    aggregated.likeRatio = aggregated.likes + aggregated.dislikes > 0
-      ? ((aggregated.likes / (aggregated.likes + aggregated.dislikes)) * 100).toFixed(1)
-      : '100.0';
-    aggregated.avgWatchTimeMinutes = rows.length > 0
-      ? (aggregated.estimatedMinutesWatched / aggregated.views).toFixed(2)
-      : '0';
+    // If Analytics API daily rows are empty, fall back to channel statistics from Data API v3
+    if (rows.length === 0 && channel?.statistics) {
+      aggregated.views = parseInt(channel.statistics.viewCount || 0, 10);
+      aggregated.netSubscribers = parseInt(channel.statistics.subscriberCount || 0, 10);
+      aggregated.likeRatio = '100.0';
+      aggregated.avgWatchTimeMinutes = '0';
+    } else {
+      aggregated.netSubscribers = aggregated.subscribersGained - aggregated.subscribersLost;
+      aggregated.likeRatio = aggregated.likes + aggregated.dislikes > 0
+        ? ((aggregated.likes / (aggregated.likes + aggregated.dislikes)) * 100).toFixed(1)
+        : '100.0';
+      aggregated.avgWatchTimeMinutes = rows.length > 0 && aggregated.views > 0
+        ? (aggregated.estimatedMinutesWatched / aggregated.views).toFixed(2)
+        : '0';
+    }
 
     // ---------- Send response ----------
     res.json({
       totals: aggregated,
       daily: {
-        headers: dailyAnalytics.data.columnHeaders?.map((h) => h.name) || [],
-        rows: dailyAnalytics.data.rows || [],
+        headers: dailyAnalytics.data?.columnHeaders?.map((h) => h.name) || [],
+        rows: dailyAnalytics.data?.rows || [],
       },
       countries: {
-        headers: countryAnalytics.data.columnHeaders?.map((h) => h.name) || [],
-        rows: countryAnalytics.data.rows || [],
+        headers: countryAnalytics.data?.columnHeaders?.map((h) => h.name) || [],
+        rows: countryAnalytics.data?.rows || [],
       },
       demographics: {
-        rows: demographicsResult.data.rows || [],
+        rows: demographicsResult.data?.rows || [],
       },
       channel: channel?.snippet || null,
       channelStats: channel?.statistics || null,
       videos: videosData,
+      isDemo: false
     });
   } catch (error) {
     if (error.message === 'YouTube not connected') {

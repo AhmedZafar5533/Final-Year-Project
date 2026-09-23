@@ -48,40 +48,66 @@ export const callback = async (req, res) => {
     const { tokens } = await client.getToken(code);
     client.setCredentials(tokens);
 
-    const oauth2 = google.oauth2({ version: 'v2', auth: client });
-    const { data: profile } = await oauth2.userinfo.get();
+    let profile = {};
+    try {
+      const oauth2 = google.oauth2({ version: 'v2', auth: client });
+      const { data } = await oauth2.userinfo.get();
+      profile = data || {};
+    } catch (profileErr) {
+      console.warn('Could not fetch Google profile info:', profileErr.message);
+    }
 
-    if (!profile.email) {
+    let dbUser = null;
+
+    // Check if user is logged in via HTTP-only token cookie
+    const existingToken = req.cookies?.token;
+    if (existingToken) {
+      try {
+        const decoded = jwt.verify(existingToken, process.env.JWT_SECRET || 'supersecret');
+        if (decoded?.id) {
+          dbUser = await User.findById(decoded.id);
+        }
+      } catch (jwtErr) {
+        console.warn('Existing JWT invalid or expired during callback:', jwtErr.message);
+      }
+    }
+
+    // If not found via token cookie, find or create by email
+    if (!dbUser && profile.email) {
+      const emailNormalized = profile.email.toLowerCase().trim();
+      dbUser = await User.findOne({ email: emailNormalized });
+
+      if (!dbUser) {
+        dbUser = await User.create({
+          email: emailNormalized,
+          fullName: profile.name || emailNormalized.split('@')[0],
+          avatarUrl: profile.picture,
+          googleId: profile.id,
+          lastLogin: new Date(),
+        });
+      } else {
+        dbUser.lastLogin = new Date();
+        if (!dbUser.avatarUrl && profile.picture) dbUser.avatarUrl = profile.picture;
+        if (!dbUser.fullName && profile.name) dbUser.fullName = profile.name;
+        if (!dbUser.googleId && profile.id) dbUser.googleId = profile.id;
+        await dbUser.save();
+      }
+    }
+
+    if (!dbUser) {
       return res.redirect('http://localhost:5173/login?error=GoogleAccountMissingEmail');
     }
 
-    let dbUser = await User.findOne({ email: profile.email.toLowerCase().trim() });
-
-    if (!dbUser) {
-      dbUser = await User.create({
-        email: profile.email.toLowerCase().trim(),
-        fullName: profile.name || profile.email.split('@')[0],
-        avatarUrl: profile.picture,
-        googleId: profile.id,
-        lastLogin: new Date(),
-      });
-    } else {
-      dbUser.lastLogin = new Date();
-      if (!dbUser.avatarUrl && profile.picture) dbUser.avatarUrl = profile.picture;
-      if (!dbUser.fullName && profile.name) dbUser.fullName = profile.name;
-      if (!dbUser.googleId && profile.id) dbUser.googleId = profile.id;
-      await dbUser.save();
-    }
-
-    // If callback was initiated for YouTube connection
+    // Save YouTube Tokens if present or if state is youtube_connect
     const hasYouTubeScope = tokens.scope && (tokens.scope.includes('youtube') || tokens.scope.includes('yt-analytics'));
-    if (state === 'youtube_connect' || hasYouTubeScope) {
+    if (state === 'youtube_connect' || hasYouTubeScope || tokens.access_token) {
       dbUser.youtubeTokens = {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token || dbUser.youtubeTokens?.refreshToken,
         expiryDate: tokens.expiry_date,
         connected: true,
       };
+      dbUser.lastLogin = new Date();
       await dbUser.save();
 
       if (state === 'youtube_connect') {

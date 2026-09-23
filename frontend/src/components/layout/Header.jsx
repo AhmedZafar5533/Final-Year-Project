@@ -132,9 +132,13 @@ const Header = () => {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const handleScroll = (e) => {
+      const scrollTop =
+        e.target === document ? window.scrollY : (e.target.scrollTop || 0);
+      setIsScrolled(scrollTop > 10);
+    };
+    window.addEventListener("scroll", handleScroll, true);
+    return () => window.removeEventListener("scroll", handleScroll, true);
   }, []);
 
   useEffect(() => {

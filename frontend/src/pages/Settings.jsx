@@ -238,6 +238,20 @@ const Settings = () => {
     setPreferences((prev) => ({ ...prev, theme }));
   }, [theme]);
 
+  // Automatically refresh user auth state and open Connected Accounts tab when returning from YouTube OAuth
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("youtube") === "connected") {
+      setActiveTab("accounts");
+      api
+        .get("/auth/me")
+        .then((res) => {
+          if (res.data?.user) updateUser(res.data.user);
+        })
+        .catch(console.error);
+    }
+  }, [updateUser]);
+
   const handleProfileSave = useCallback(async () => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
