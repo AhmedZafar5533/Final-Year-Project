@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
               ...parsed,
               id: parsed.id || parsed._id,
               name: parsed.fullName || parsed.name || parsed.email?.split("@")[0],
-              avatar: parsed.avatarUrl || parsed.avatar,
+              avatar: parsed.channelAvatarUrl || parsed.avatarUrl || parsed.avatar,
             };
             localStorage.setItem("user", JSON.stringify(normalized));
             setUser(normalized);
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
             ...rawUser,
             id: rawUser.id || rawUser._id,
             name: rawUser.fullName || rawUser.name || rawUser.email?.split("@")[0],
-            avatar: rawUser.avatarUrl || rawUser.avatar,
+            avatar: rawUser.channelAvatarUrl || rawUser.avatarUrl || rawUser.avatar,
           };
           setUser(normalized);
           setIsAuthenticated(true);
@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
           ...rawUser,
           id: rawUser.id || rawUser._id,
           name: rawUser.fullName || rawUser.name || rawUser.email?.split("@")[0],
-          avatar: rawUser.avatarUrl || rawUser.avatar,
+          avatar: rawUser.channelAvatarUrl || rawUser.avatarUrl || rawUser.avatar,
         };
 
         if (token) localStorage.setItem("token", token);
@@ -155,7 +155,7 @@ export const AuthProvider = ({ children }) => {
           ...rawUser,
           id: rawUser.id || rawUser._id,
           name: rawUser.fullName || rawUser.name || rawUser.email?.split("@")[0],
-          avatar: rawUser.avatarUrl || rawUser.avatar,
+          avatar: rawUser.channelAvatarUrl || rawUser.avatarUrl || rawUser.avatar,
         };
 
         if (token) localStorage.setItem("token", token);

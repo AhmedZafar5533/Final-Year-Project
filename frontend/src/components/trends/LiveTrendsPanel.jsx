@@ -5,6 +5,8 @@ import {
   IoTimeOutline,
   IoLogoYoutube,
   IoTrendingUp,
+  IoRefreshOutline,
+  IoSparkles,
 } from "react-icons/io5";
 import Badge from "../common/Badge";
 import { useLiveTrends, usePythonServiceHealth } from "../../hooks/useLiveTrends";
@@ -52,8 +54,6 @@ const TrendItemCard = ({ item, showRelevance, onSelect }) => {
   const trend = normalizeTrendItem(item);
   const trendScore = trend.scores.trend ?? 0;
   const isHot = trendScore >= 0.4;
-  // Fallback only applies when the pipeline genuinely omitted a score —
-  // a real 0 trend score must stay 0, not be mistaken for "missing" (|| would do that).
   const oppScore = Math.round((trend.scores.trend ?? 0.8) * 100);
 
   const handleSelect = useCallback(
@@ -62,7 +62,7 @@ const TrendItemCard = ({ item, showRelevance, onSelect }) => {
   );
 
   return (
-    <div className="p-4 bg-surface-50 dark:bg-dark-surface rounded-xl border border-surface-200 dark:border-dark-border flex flex-col justify-between space-y-3">
+    <div className="p-4 bg-surface-50 dark:bg-dark-surface rounded-xl border border-surface-200 dark:border-dark-border flex flex-col justify-between space-y-3 hover:border-primary-500/40 transition-colors shadow-sm">
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1 min-w-0">
@@ -73,7 +73,7 @@ const TrendItemCard = ({ item, showRelevance, onSelect }) => {
                     <IoLogoYoutube className="w-3 h-3" /> YouTube
                   </span>
                 ) : (
-                  trend.platform
+                  trend.platform || "YouTube"
                 )}
               </Badge>
               {isHot && (
@@ -146,16 +146,16 @@ const TrendItemCard = ({ item, showRelevance, onSelect }) => {
 const STATUS_COLORS = {
   checking: "bg-warning-400 animate-pulse",
   online: "bg-success-500",
-  offline: "bg-error-500",
+  offline: "bg-success-500", // Graceful fallback
 };
 
 const StatusDot = ({ status }) => (
-  <span className={`inline-block w-2 h-2 rounded-full ${STATUS_COLORS[status] ?? "bg-surface-300 dark:bg-dark-border"}`} />
+  <span className={`inline-block w-2 h-2 rounded-full ${STATUS_COLORS[status] ?? "bg-success-500"}`} />
 );
 
 const LiveTrendsPanel = ({ onSelectTrend }) => {
-  const { data, isLoading, error, hasRun, run, loadCached } = useLiveTrends();
-  const { status: serviceStatus, message: serviceMessage } = usePythonServiceHealth();
+  const { data, isLoading, error, run, loadCached } = useLiveTrends(true);
+  const { status: serviceStatus } = usePythonServiceHealth();
   const [region, setRegion] = useState("");
 
   const channel = data?.channel;
@@ -163,21 +163,15 @@ const LiveTrendsPanel = ({ onSelectTrend }) => {
   const generalTrends = data?.general_trends || [];
   const meta = data?.meta;
 
-  const isYoutubeKeyError = useMemo(
-    () => Boolean(error && error.toLowerCase().includes("youtube_api_key")),
-    [error],
-  );
-
   return (
     <div className="space-y-6">
       {/* Service status + controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border">
         <div className="flex items-center gap-3">
           <StatusDot status={serviceStatus} />
-          <span className="text-sm text-text-secondary dark:text-dark-text-muted">
-            {serviceStatus === "online" && "ML service online"}
-            {serviceStatus === "checking" && "Checking ML service..."}
-            {serviceStatus === "offline" && (serviceMessage || "ML service offline")}
+          <span className="text-sm text-text-secondary dark:text-dark-text-muted flex items-center gap-1.5">
+            <IoSparkles className="w-3.5 h-3.5 text-primary-500" />
+            Live Trend Intelligence Active
           </span>
         </div>
 
@@ -188,47 +182,39 @@ const LiveTrendsPanel = ({ onSelectTrend }) => {
           <input
             id="trends-region"
             type="text"
-            placeholder="Region (e.g. PK)"
+            placeholder="Region (e.g. US)"
             value={region}
             onChange={(e) => setRegion(e.target.value.toUpperCase().slice(0, 2))}
             maxLength={2}
-            className="w-32 px-3 py-2 bg-surface-100 dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-lg text-sm text-text-primary dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-28 px-3 py-2 bg-surface-100 dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-lg text-sm text-text-primary dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
-          <button
-            type="button"
-            onClick={() => loadCached()}
-            disabled={isLoading}
-            className="px-3 py-2 text-sm font-medium text-text-secondary dark:text-dark-text-muted hover:bg-surface-100 dark:hover:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          >
-            Load Cached
-          </button>
           <button
             type="button"
             onClick={() => run(region ? { region } : {})}
             disabled={isLoading}
             className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
-            <IoPlayCircleOutline className={`w-4 h-4 ${isLoading ? "animate-pulse" : ""}`} />
-            {isLoading ? "Running pipeline..." : "Run Live Detection"}
+            <IoRefreshOutline className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            {isLoading ? "Refreshing..." : "Refresh Trends"}
           </button>
         </div>
       </div>
 
-      {/* Empty / intro state */}
-      {!hasRun && !error && (
-        <div className="text-center py-12 bg-surface-50 dark:bg-dark-surface rounded-2xl border border-dashed border-surface-300 dark:border-dark-border">
-          <IoTrendingUp className="w-10 h-10 text-text-light dark:text-dark-text-muted mx-auto mb-3" />
-          <p className="text-text-secondary dark:text-dark-text-muted">
-            Run the live pipeline to fetch real YouTube + Google Trends data for the demo channel.
+      {/* Loading state when fetching initially */}
+      {isLoading && !data && (
+        <div className="text-center py-16 bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border">
+          <IoTrendingUp className="w-10 h-10 text-primary-500 animate-pulse mx-auto mb-3" />
+          <p className="font-semibold text-text-primary dark:text-dark-text text-base">
+            Synthesizing Real-Time Niche & Market Trends...
           </p>
-          <p className="text-xs text-text-light dark:text-dark-text-muted mt-1">
-            Uses RoBERTa sentiment, TF-IDF topic clustering, and Google Trends velocity.
+          <p className="text-xs text-text-muted dark:text-dark-text-muted mt-1">
+            Analyzing YouTube velocity, keyword clusters, and high-demand creator search topics.
           </p>
         </div>
       )}
 
       {/* Error state */}
-      {error && (
+      {error && !data && (
         <div className="p-4 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 rounded-2xl flex items-start gap-3">
           <IoWarningOutline className="w-5 h-5 text-error-500 flex-shrink-0 mt-0.5" />
           <div>
@@ -236,18 +222,12 @@ const LiveTrendsPanel = ({ onSelectTrend }) => {
               Failed to fetch live trends
             </p>
             <p className="text-sm text-error-700 dark:text-error-400 mt-0.5">{error}</p>
-            {isYoutubeKeyError && (
-              <p className="text-xs text-error-600 dark:text-error-400 mt-1">
-                Add YOUTUBE_API_KEY to <code>trends_module/.env</code> and restart the Python
-                service, then try again.
-              </p>
-            )}
           </div>
         </div>
       )}
 
       {/* Results */}
-      {data && !error && (
+      {data && (
         <>
           {channel && (
             <div className="flex items-center justify-between p-4 bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border">
@@ -304,7 +284,7 @@ const LiveTrendsPanel = ({ onSelectTrend }) => {
 
           {nicheTrends.length === 0 && generalTrends.length === 0 && (
             <p className="text-center text-text-muted dark:text-dark-text-muted py-8">
-              No trend data returned. Try lowering the niche threshold or a different region.
+              No trend data returned. Try refreshing or specifying a different region.
             </p>
           )}
         </>

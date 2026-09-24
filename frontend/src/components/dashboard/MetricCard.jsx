@@ -7,8 +7,14 @@ import { AreaChart, Area, ResponsiveContainer } from "recharts";
 const cx = (...parts) => parts.filter(Boolean).join(" ");
 
 const formatValue = (value, format) => {
+  if (value === undefined || value === null || Number.isNaN(value)) return "0";
   if (format === "percentage") return `${value}%`;
-  if (format === "hours") return `${(value / 1000).toFixed(1)}K hrs`;
+  if (format === "hours") {
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)}K hrs`;
+    }
+    return `${formatNumber(value)} hrs`;
+  }
   return formatNumber(value);
 };
 

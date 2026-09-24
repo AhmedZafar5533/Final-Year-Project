@@ -38,7 +38,41 @@ const TAB_COLORS = ["#B8862E", "#3E7C74", "#A24B4B", "#4C5E8A", "#7A6A9E", "#5E7
 function loadScriptHistory() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const seenIds = new Set();
+        const seenKeys = new Set();
+        const cleaned = [];
+
+        for (const session of parsed) {
+          if (!session || !session.id || seenIds.has(session.id)) continue;
+          seenIds.add(session.id);
+
+          // Deduplicate by title & initial script snippet
+          const contentKey = `${(session.title || '').trim().toLowerCase()}::${(session.scriptContent || '').slice(0, 100)}`;
+          if (seenKeys.has(contentKey)) continue;
+          seenKeys.add(contentKey);
+
+          cleaned.push(session);
+        }
+
+        // If we have valid scripts, filter out leftover unedited empty placeholders
+        const hasRealScripts = cleaned.some(
+          (s) => s.title !== "New AI Script Draft" || (s.messages && s.messages.length > 1)
+        );
+        const finalHistory = hasRealScripts
+          ? cleaned.filter(
+              (s) =>
+                s.title !== "New AI Script Draft" ||
+                (s.messages && s.messages.length > 1) ||
+                (s.scriptContent && !s.scriptContent.includes("Specify your topic"))
+            )
+          : cleaned;
+
+        return finalHistory;
+      }
+    }
   } catch (err) {
     console.warn("Failed to load script history:", err);
   }
@@ -258,12 +292,15 @@ const ScriptStudio = () => {
 
   const chatEndRef = useRef(null);
   const confirmTimeoutRef = useRef(null);
+  const processingIdeaRef = useRef(null);
 
   // Load default session or initialize from passed idea
   useEffect(() => {
-    if (passedIdea) {
+    if (passedIdea && passedIdea.title) {
+      if (processingIdeaRef.current === passedIdea.title) return;
+      processingIdeaRef.current = passedIdea.title;
+
       handleCreateSessionForIdea(passedIdea);
-      // Clean location state without trigger reload
       navigate(location.pathname, { replace: true, state: {} });
     } else if (history.length > 0 && !activeSessionId) {
       const first = history[0];
@@ -281,6 +318,19 @@ const ScriptStudio = () => {
   }, []);
 
   const handleCreateSessionForIdea = (idea) => {
+    // Check if a session for this idea already exists in history
+    const existing = history.find(
+      (s) => (s.idea && s.idea.title === idea.title) || s.title === idea.title
+    );
+
+    if (existing) {
+      setActiveSessionId(existing.id);
+      setScriptContent(existing.scriptContent || "");
+      setChatMessages(existing.messages || []);
+      setSidebarOpen(false);
+      return;
+    }
+
     const sessionId = `script-session-${Date.now()}`;
     const initialPrompt = `Generate a full production-ready YouTube script for the idea: "${idea.title}".
 Hook: ${idea.hook || ""}
@@ -290,11 +340,36 @@ Market Trend Surge: ${idea.trend_source || ""}
 Format: ${idea.suggested_format || "12-15 minutes"}`;
 
     const newMessages = [{ role: "user", content: initialPrompt }];
+    const placeholderScript = `# ${idea.title}\n\n*Nova AI is generating your production YouTube script…*`;
+
+    const initialSession = {
+      id: sessionId,
+      title: idea.title || "AI Script Draft",
+      updatedAt: new Date().toISOString(),
+      messages: newMessages,
+      scriptContent: placeholderScript,
+      idea,
+    };
+
+    // Remove any untouched placeholder drafts and add the new session once
+    setHistory((prev) => {
+      const filtered = prev.filter(
+        (s) =>
+          !(
+            s.title === "New AI Script Draft" &&
+            (!s.scriptContent || s.scriptContent.includes("Specify your topic")) &&
+            (!s.messages || s.messages.length <= 1)
+          )
+      );
+      const updated = [initialSession, ...filtered];
+      saveScriptHistory(updated);
+      return updated;
+    });
 
     setChatLoading(true);
     setActiveSessionId(sessionId);
     setChatMessages(newMessages);
-    setScriptContent(`# ${idea.title}\n\n*Nova AI is generating your production YouTube script…*`);
+    setScriptContent(placeholderScript);
     setSidebarOpen(false);
 
     trendsService
@@ -321,17 +396,18 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
         setChatMessages(finalMsgs);
         if (data.suggested_followups) setSuggestedFollowups(data.suggested_followups);
 
-        const newSessionObj = {
-          id: sessionId,
-          title: idea.title || "AI Script Draft",
-          updatedAt: new Date().toISOString(),
-          messages: finalMsgs,
-          scriptContent: generatedScript,
-          idea,
-        };
-
+        // Update the existing session in history rather than adding a duplicate
         setHistory((prev) => {
-          const updated = [newSessionObj, ...prev];
+          const updated = prev.map((s) =>
+            s.id === sessionId
+              ? {
+                  ...s,
+                  updatedAt: new Date().toISOString(),
+                  messages: finalMsgs,
+                  scriptContent: generatedScript,
+                }
+              : s
+          );
           saveScriptHistory(updated);
           return updated;
         });
@@ -345,6 +421,30 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
   };
 
   const handleCreateNewSession = () => {
+    // If the active session is already a fresh untouched "New AI Script Draft", reuse it
+    const active = history.find((s) => s.id === activeSessionId);
+    if (
+      active &&
+      active.title === "New AI Script Draft" &&
+      (!active.scriptContent || active.scriptContent.includes("Specify your topic")) &&
+      (!active.messages || active.messages.length <= 1)
+    ) {
+      setSidebarOpen(false);
+      return;
+    }
+
+    // If another untouched blank draft exists in history, switch to it
+    const existingBlank = history.find(
+      (s) =>
+        s.title === "New AI Script Draft" &&
+        (!s.scriptContent || s.scriptContent.includes("Specify your topic")) &&
+        (!s.messages || s.messages.length <= 1)
+    );
+    if (existingBlank) {
+      handleSelectSession(existingBlank);
+      return;
+    }
+
     const newSession = {
       id: `script-session-${Date.now()}`,
       title: "New AI Script Draft",

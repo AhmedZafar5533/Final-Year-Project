@@ -134,9 +134,10 @@ export const callback = async (req, res) => {
       name: dbUser.fullName,
       fullName: dbUser.fullName,
       email: dbUser.email,
-      avatar: dbUser.avatarUrl,
+      avatar: dbUser.channelAvatarUrl || dbUser.avatarUrl,
       avatarUrl: dbUser.avatarUrl,
       channelTitle: dbUser.channelTitle,
+      channelAvatarUrl: dbUser.channelAvatarUrl,
       youtubeTokens: dbUser.youtubeTokens,
     };
 
@@ -297,7 +298,7 @@ export const getCurrentUser = (req, res) => {
   delete userObj.password;
   userObj.id = userObj._id;
   userObj.name = userObj.fullName;
-  userObj.avatar = userObj.avatarUrl;
+  userObj.avatar = userObj.channelAvatarUrl || userObj.avatarUrl;
 
   const token = req.cookies?.token || jwt.sign(
     { id: userObj._id },

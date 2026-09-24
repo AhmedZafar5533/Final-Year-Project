@@ -108,7 +108,7 @@ const Dashboard = () => {
     () => [
       {
         id: "views",
-        title: "Total Views",
+        title: dateRange === "all" ? "Total Views" : "Views",
         value: analytics?.totalViews || 0,
         change: analytics?.viewsChange || 0,
         icon: IoEyeOutline,
@@ -118,7 +118,7 @@ const Dashboard = () => {
       },
       {
         id: "subscribers",
-        title: "Subscribers",
+        title: dateRange === "all" ? "Total Subscribers" : "Subscribers",
         value: analytics?.totalSubscribers || 0,
         change: analytics?.subscribersChange || 0,
         icon: IoPeopleOutline,
@@ -149,7 +149,7 @@ const Dashboard = () => {
         sparklineData: analytics?.watchTimeSparkline,
       },
     ],
-    [analytics],
+    [analytics, dateRange],
   );
 
   const handleRefresh = useCallback(() => {
@@ -208,7 +208,7 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Insights Banner */}
-      <QuickInsights analytics={analytics} />
+      <QuickInsights analytics={analytics} videos={videos} />
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
@@ -223,7 +223,7 @@ const Dashboard = () => {
           <PerformanceChart data={analytics?.viewsOverTime || []} />
         </div>
         <div>
-          <EngagementChart data={analytics?.engagementOverTime || []} />
+          <EngagementChart data={analytics?.engagementBreakdown || {}} />
         </div>
       </div>
 

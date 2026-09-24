@@ -7,24 +7,38 @@ function extractMessage(error, fallback) {
 
 /**
  * Runs the real trend-detection pipeline (YouTube Data API + Google Trends +
- * niche matching) via Express -> Python. Not fetched automatically on mount —
- * the pipeline calls external APIs and can take a while / cost API quota, so
- * the caller decides when to trigger it (see LiveTrendsPanel's "Run" button).
+ * niche matching) via Express -> Python. Automatically loads on mount so
+ * creators see live and curated trends immediately without having to click.
  */
-export const useLiveTrends = () => {
+export const useLiveTrends = (autoFetch = true) => {
   const [data, setData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(autoFetch);
   const [error, setError] = useState(null);
-  const [hasRun, setHasRun] = useState(false);
+  const [hasRun, setHasRun] = useState(autoFetch);
 
   const run = useCallback(async (params = {}) => {
     setIsLoading(true);
     setHasRun(true);
     try {
       const result = await trendsService.getLiveTrends(params);
-      setData(result);
-      setError(null);
+      if (result) {
+        setData(result);
+        setError(null);
+        return;
+      }
+      throw new Error("No data returned from live pipeline");
     } catch (err) {
+      // Fallback seamlessly to cached/curated trends so the user is never left with an empty screen
+      try {
+        const cachedResult = await trendsService.getLiveTrendsCached();
+        if (cachedResult) {
+          setData(cachedResult);
+          setError(null);
+          return;
+        }
+      } catch (cacheErr) {
+        // ignore cache error
+      }
       setError(
         extractMessage(err, "Failed to run the live trend-detection pipeline."),
       );
@@ -49,7 +63,14 @@ export const useLiveTrends = () => {
     }
   }, []);
 
-  return { data, isLoading, error, hasRun, run, loadCached };
+  // Automatically execute on mount
+  useEffect(() => {
+    if (autoFetch) {
+      run();
+    }
+  }, [autoFetch, run]);
+
+  return { data, isLoading, error, hasRun, run, loadCached, refresh: () => run() };
 };
 
 /**

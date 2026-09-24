@@ -8,6 +8,7 @@ import {
   IoArrowUp,
   IoArrowDown,
 } from "react-icons/io5";
+import { formatNumber, truncateText } from "../../utils/formatters";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -26,24 +27,79 @@ const itemVariants = {
   },
 };
 
-const QuickInsights = ({ analytics }) => {
-  const insights = useMemo(
-    () => [
+const QuickInsights = ({ analytics, videos = [] }) => {
+  const insights = useMemo(() => {
+    const isDemo = Boolean(analytics?.isDemo);
+    const viewsOverTime = analytics?.viewsOverTime || [];
+
+    // 1. Views Trend
+    const viewsChange = analytics?.viewsChange ?? 0;
+    const viewsTrendUp = viewsChange >= 0;
+
+    // 2. Best Day calculation from daily analytics
+    let bestDayName = "N/A";
+    let bestDaySubtext = "No daily data";
+    if (viewsOverTime.length > 0) {
+      const dayTotals = {};
+      const dayCounts = {};
+      const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+      viewsOverTime.forEach((item) => {
+        if (!item.date) return;
+        const d = new Date(item.date);
+        if (Number.isNaN(d.getTime())) return;
+        const dayName = weekdays[d.getDay()];
+        dayTotals[dayName] = (dayTotals[dayName] || 0) + (item.views || 0);
+        dayCounts[dayName] = (dayCounts[dayName] || 0) + 1;
+      });
+
+      let maxAvg = -1;
+      Object.keys(dayTotals).forEach((day) => {
+        const avg = dayTotals[day] / (dayCounts[day] || 1);
+        if (avg > maxAvg) {
+          maxAvg = avg;
+          bestDayName = day;
+        }
+      });
+
+      if (maxAvg >= 0) {
+        bestDaySubtext = maxAvg > 0 ? `Avg ${formatNumber(Math.round(maxAvg))} views` : "Peak activity";
+      }
+    } else if (isDemo) {
+      bestDayName = "Tuesday";
+      bestDaySubtext = "2PM - 4PM";
+    }
+
+    // 3. Top Video calculation
+    const topVid = videos.length > 0 ? videos[0] : null;
+    const topVidViews = topVid ? formatNumber(topVid.views) : isDemo ? "215K" : "0";
+    const topVidTitle = topVid ? truncateText(topVid.title, 22) : isDemo ? "views this week" : "No videos uploaded";
+    const topVidLabel = topVid ? `${topVid.engagementRate}% eng` : isDemo ? "+18%" : "0%";
+
+    // 4. Net Subs calculation
+    const periodNetSubs = viewsOverTime.reduce((acc, item) => acc + (item.subscribers || 0), 0);
+    const newSubsValue = viewsOverTime.length > 0
+      ? `${periodNetSubs >= 0 ? "+" : ""}${formatNumber(periodNetSubs)}`
+      : isDemo
+      ? "+1.2K"
+      : "0";
+    const subChange = analytics?.subscribersChange ?? 0;
+    const subTrendUp = subChange >= 0;
+
+    return [
       {
         id: "views",
         icon: IoTrendingUp,
         bgGradient: "from-emerald-500 to-teal-500",
         lightBg: "bg-emerald-100 dark:bg-emerald-900/40",
         iconColor: "text-emerald-600 dark:text-emerald-400",
-        trendBg: "bg-emerald-500/15",
-        trendColor: "text-emerald-300",
-        text: "Views up",
-        value: `${analytics?.viewsChange > 0 ? "+" : ""}${
-          analytics?.viewsChange ?? 12.5
-        }%`,
-        subtext: "this month",
-        trend: (analytics?.viewsChange ?? 12.5) >= 0 ? "up" : "down",
-        trendValue: analytics?.viewsTrendLabel ?? "+2.5%",
+        trendBg: viewsTrendUp ? "bg-emerald-500/15" : "bg-rose-500/15",
+        trendColor: viewsTrendUp ? "text-emerald-300" : "text-rose-300",
+        text: "Views trend",
+        value: `${viewsTrendUp ? "+" : ""}${viewsChange}%`,
+        subtext: "vs previous period",
+        trend: viewsTrendUp ? "up" : "down",
+        trendValue: `${viewsTrendUp ? "+" : ""}${viewsChange}%`,
       },
       {
         id: "best-day",
@@ -54,8 +110,8 @@ const QuickInsights = ({ analytics }) => {
         trendBg: "bg-amber-500/15",
         trendColor: "text-amber-300",
         text: "Best day",
-        value: analytics?.bestDay ?? "Tuesday",
-        subtext: analytics?.bestDayWindow ?? "2PM - 4PM",
+        value: bestDayName,
+        subtext: bestDaySubtext,
         trend: null,
         trendValue: null,
       },
@@ -67,11 +123,11 @@ const QuickInsights = ({ analytics }) => {
         iconColor: "text-violet-600 dark:text-violet-400",
         trendBg: "bg-violet-500/15",
         trendColor: "text-violet-300",
-        text: "Top video",
-        value: analytics?.topVideoViews ?? "215K",
-        subtext: "views this week",
-        trend: "up",
-        trendValue: analytics?.topVideoTrendLabel ?? "+18%",
+        text: "Top video views",
+        value: topVidViews,
+        subtext: topVidTitle,
+        trend: topVid ? "up" : null,
+        trendValue: topVidLabel,
       },
       {
         id: "new-subs",
@@ -79,17 +135,16 @@ const QuickInsights = ({ analytics }) => {
         bgGradient: "from-blue-500 to-indigo-500",
         lightBg: "bg-blue-100 dark:bg-blue-900/40",
         iconColor: "text-blue-600 dark:text-blue-400",
-        trendBg: "bg-blue-500/15",
-        trendColor: "text-blue-300",
-        text: "New subs",
-        value: analytics?.newSubs ?? "+1.2K",
-        subtext: "last 7 days",
-        trend: "up",
-        trendValue: analytics?.newSubsTrendLabel ?? "+8%",
+        trendBg: subTrendUp ? "bg-blue-500/15" : "bg-rose-500/15",
+        trendColor: subTrendUp ? "text-blue-300" : "text-rose-300",
+        text: "Net subs",
+        value: newSubsValue,
+        subtext: "in selected period",
+        trend: subTrendUp ? "up" : "down",
+        trendValue: `${subTrendUp ? "+" : ""}${subChange}%`,
       },
-    ],
-    [analytics]
-  );
+    ];
+  }, [analytics, videos]);
 
   return (
     <motion.section

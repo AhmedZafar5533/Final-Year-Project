@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  IoNotificationsOutline,
   IoSearchOutline,
   IoMenuOutline,
   IoSettingsOutline,
@@ -12,74 +11,45 @@ import {
   IoClose,
   IoSparkles,
   IoTrendingUp,
-  IoCheckmarkCircle,
-  IoAlertCircle,
-  IoFlame,
   IoVideocam,
   IoPeople,
   IoBulb,
   IoStatsChart,
+  IoLogoYoutube,
 } from "react-icons/io5";
 import { useAuth } from "../../hooks/useAuth";
 import { useTheme } from "../../context/ThemeContext";
 import ThemeToggle from "../common/ThemeToggle";
+import analyticsService from "../../services/analyticsService";
+import { formatNumber } from "../../utils/formatters";
 
 const searchSuggestions = [
   {
     id: 1,
     type: "page",
     icon: IoVideocam,
-    title: "Dashboard",
+    title: "Dashboard Overview",
     path: "/dashboard",
   },
-  { id: 2, type: "page", icon: IoTrendingUp, title: "Trends", path: "/trends" },
-  { id: 3, type: "page", icon: IoBulb, title: "Insights", path: "/insights" },
-  { id: 4, type: "page", icon: IoPeople, title: "Audience", path: "/audience" },
-  {
-    id: 5,
-    type: "video",
-    icon: IoVideocam,
-    title: "React Tutorial - 10K views",
-    path: "#",
-  },
+  { id: 2, type: "page", icon: IoTrendingUp, title: "Trends & Topics", path: "/trends" },
+  { id: 3, type: "page", icon: IoBulb, title: "Insights & Optimization", path: "/insights" },
+  { id: 4, type: "page", icon: IoSparkles, title: "AI Script Studio", path: "/studio" },
+  { id: 5, type: "page", icon: IoPeople, title: "Audience Analytics", path: "/audience" },
   {
     id: 6,
-    type: "trend",
-    icon: IoFlame,
-    title: "AI Tools Trending",
-    path: "/trends",
+    type: "page",
+    icon: IoPersonOutline,
+    title: "Profile Settings",
+    path: "/settings?tab=profile",
+  },
+  {
+    id: 7,
+    type: "page",
+    icon: IoSettingsOutline,
+    title: "Channel & Accounts",
+    path: "/settings?tab=accounts",
   },
 ];
-
-const notificationIcons = {
-  success: IoCheckmarkCircle,
-  trend: IoFlame,
-  insight: IoBulb,
-  alert: IoAlertCircle,
-};
-
-const notificationStyles = {
-  success: {
-    bg: "bg-success-100",
-    color: "text-success-600",
-    ring: "ring-success-200",
-  },
-  trend: {
-    bg: "bg-warning-100",
-    color: "text-warning-600",
-    ring: "ring-warning-200",
-  },
-  insight: {
-    bg: "bg-accent-100",
-    color: "text-accent-700",
-    ring: "ring-accent-200",
-  },
-  alert: {
-    bg: "bg-error-100",
-    color: "text-error-600",
-    ring: "ring-error-200",
-  },
-};
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -87,49 +57,86 @@ const Header = () => {
   const navigate = useNavigate();
   const isDark = theme === "dark";
 
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const notificationRef = useRef(null);
   const profileRef = useRef(null);
   const searchRef = useRef(null);
   const searchInputRef = useRef(null);
 
-  const notifications = [
-    {
-      id: 1,
-      type: "success",
-      message: 'Your video "React Tutorial" hit 10K views!',
-      time: "2 hours ago",
-      read: false,
-    },
-    {
-      id: 2,
-      type: "trend",
-      message: 'The topic "AI Tools" is trending now',
-      time: "5 hours ago",
-      read: false,
-    },
-    {
-      id: 3,
-      type: "insight",
-      message: "New recommendation available for your channel",
-      time: "1 day ago",
-      read: true,
-    },
-    {
-      id: 4,
-      type: "success",
-      message: "You gained 500 new subscribers this week!",
-      time: "2 days ago",
-      read: true,
-    },
-  ];
+  const [channelStats, setChannelStats] = useState({
+    subscribers: user?.subscriberCount || 0,
+    views: user?.totalViews || 0,
+    growth: 0,
+    loading: true,
+  });
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStats = async () => {
+      try {
+        const data = await analyticsService.getOverview("30d");
+        if (!isMounted || !data) return;
+
+        const subs =
+          data.totalSubscribers ??
+          (data.channelStats?.subscriberCount
+            ? parseInt(data.channelStats.subscriberCount, 10)
+            : user?.subscriberCount ?? 0);
+
+        const views =
+          data.totalViews ??
+          (data.channelStats?.viewCount
+            ? parseInt(data.channelStats.viewCount, 10)
+            : user?.totalViews ?? 0);
+
+        const growth =
+          typeof data.viewsChange === "number"
+            ? data.viewsChange
+            : typeof data.subscribersChange === "number"
+            ? data.subscribersChange
+            : 0;
+
+        setChannelStats({
+          subscribers: subs,
+          views: views,
+          growth: growth,
+          loading: false,
+        });
+      } catch (err) {
+        if (isMounted) {
+          setChannelStats((prev) => ({
+            ...prev,
+            subscribers: user?.subscriberCount || 0,
+            views: user?.totalViews || 0,
+            growth: 0,
+            loading: false,
+          }));
+        }
+      }
+    };
+
+    if (user) {
+      fetchStats();
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  const formatStatValue = (val) => {
+    if (val === undefined || val === null || isNaN(val)) return "0";
+    return formatNumber(Number(val));
+  };
+
+  const growthNum = Number(channelStats.growth || 0);
+  const isPositiveGrowth = growthNum > 0;
+  const isNegativeGrowth = growthNum < 0;
+  const growthFormatted = isPositiveGrowth
+    ? `+${growthNum.toFixed(1)}%`
+    : `${growthNum.toFixed(1)}%`;
 
   useEffect(() => {
     const handleScroll = (e) => {
@@ -149,7 +156,6 @@ const Header = () => {
       }
       if (e.key === "Escape") {
         setShowSearch(false);
-        setShowNotifications(false);
         setShowProfile(false);
       }
     };
@@ -165,12 +171,6 @@ const Header = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target)
-      ) {
-        setShowNotifications(false);
-      }
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setShowProfile(false);
       }
@@ -274,129 +274,6 @@ const Header = () => {
               size="default"
             />
 
-            {/* Notifications */}
-            <div className="relative" ref={notificationRef}>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowNotifications(!showNotifications)}
-                className={`relative p-2.5 rounded-xl transition-all ${
-                  isDark
-                    ? "text-dark-text-muted hover:text-dark-text hover:bg-dark-surface-light"
-                    : "text-text-muted hover:text-text-primary hover:bg-surface-100"
-                }`}
-              >
-                <IoNotificationsOutline className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg"
-                  >
-                    {unreadCount}
-                  </motion.span>
-                )}
-              </motion.button>
-
-              <AnimatePresence>
-                {showNotifications && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className={`absolute right-0 mt-2 w-96 rounded-2xl shadow-2xl overflow-hidden ${
-                      isDark
-                        ? "bg-dark-surface border border-dark-border"
-                        : "bg-white border border-surface-200"
-                    }`}
-                  >
-                    <div
-                      className={`flex items-center justify-between px-5 py-4 border-b ${
-                        isDark
-                          ? "border-dark-border bg-gradient-to-r from-dark-surface-light to-dark-surface"
-                          : "border-surface-200 bg-gradient-to-r from-surface-50 to-white"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <h3
-                          className={`font-bold ${isDark ? "text-dark-text" : "text-text-primary"}`}
-                        >
-                          Notifications
-                        </h3>
-                        {unreadCount > 0 && (
-                          <span className="px-2.5 py-0.5 bg-primary-100 text-primary-900 text-xs font-bold rounded-full">
-                            {unreadCount} new
-                          </span>
-                        )}
-                      </div>
-                      <button className="text-sm text-primary-900 hover:text-primary-700 font-semibold transition-colors">
-                        Mark all read
-                      </button>
-                    </div>
-
-                    <div className="max-h-96 overflow-y-auto">
-                      {notifications.map((notification, index) => {
-                        const Icon = notificationIcons[notification.type];
-                        const styles = notificationStyles[notification.type];
-                        return (
-                          <motion.div
-                            key={notification.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className={`
-                              px-5 py-4 cursor-pointer transition-colors last:border-0
-                              ${
-                                isDark
-                                  ? `hover:bg-dark-surface-light border-b border-dark-border ${!notification.read ? "bg-primary-900/20" : ""}`
-                                  : `hover:bg-surface-50 border-b border-surface-100 ${!notification.read ? "bg-primary-50/30" : ""}`
-                              }
-                            `}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div
-                                className={`p-2.5 rounded-xl ${styles.bg} ring-2 ${styles.ring}`}
-                              >
-                                <Icon className={`w-5 h-5 ${styles.color}`} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p
-                                  className={`text-sm font-medium ${isDark ? "text-dark-text" : "text-text-primary"}`}
-                                >
-                                  {notification.message}
-                                </p>
-                                <p
-                                  className={`text-xs mt-1 ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
-                                >
-                                  {notification.time}
-                                </p>
-                              </div>
-                              {!notification.read && (
-                                <span className="w-2.5 h-2.5 bg-primary-900 rounded-full flex-shrink-0 mt-1.5 animate-pulse" />
-                              )}
-                            </div>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-
-                    <div
-                      className={`px-5 py-3 border-t ${isDark ? "border-dark-border bg-dark-surface-light" : "border-surface-200 bg-surface-50"}`}
-                    >
-                      <Link
-                        to="/notifications"
-                        onClick={() => setShowNotifications(false)}
-                        className="block text-center text-sm text-primary-900 hover:text-primary-700 font-semibold transition-colors"
-                      >
-                        View all notifications →
-                      </Link>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
             {/* Profile Dropdown */}
             <div className="relative" ref={profileRef}>
               <motion.button
@@ -412,9 +289,16 @@ const Header = () => {
                 <div className="relative">
                   <img
                     src={
-                      user?.profilePicture || "https://via.placeholder.com/40"
+                      user?.channelAvatarUrl ||
+                      user?.avatarUrl ||
+                      user?.avatar ||
+                      user?.profilePicture ||
+                      "https://via.placeholder.com/40"
                     }
-                    alt={user?.name}
+                    alt={user?.name || "Avatar"}
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/40?text=U";
+                    }}
                     className={`w-10 h-10 rounded-xl object-cover ring-2 ${isDark ? "ring-dark-border" : "ring-surface-200"}`}
                   />
                   <span
@@ -423,14 +307,20 @@ const Header = () => {
                 </div>
                 <div className="hidden md:block text-left">
                   <p
-                    className={`text-sm font-semibold ${isDark ? "text-dark-text" : "text-text-primary"}`}
+                    className={`text-sm font-semibold truncate max-w-[120px] ${isDark ? "text-dark-text" : "text-text-primary"}`}
                   >
-                    {user?.name?.split(" ")[0]}
+                    {user?.channelTitle || user?.name?.split(" ")[0] || "Creator"}
                   </p>
                   <p
-                    className={`text-xs ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
+                    className={`text-xs truncate max-w-[120px] ${
+                      user?.channelTitle
+                        ? "text-success-600 dark:text-success-400 font-medium"
+                        : isDark
+                        ? "text-dark-text-muted"
+                        : "text-text-muted"
+                    }`}
                   >
-                    Pro Plan
+                    {user?.channelTitle ? "Connected" : "Creator"}
                   </p>
                 </div>
                 <IoChevronDown
@@ -461,41 +351,64 @@ const Header = () => {
                           : "border-surface-200 bg-gradient-to-br from-surface-50 to-white"
                       }`}
                     >
-                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full opacity-50 blur-2xl" />
-                      <div className="relative flex items-center gap-4">
+                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full opacity-50 blur-2xl pointer-events-none" />
+                      <Link
+                        to="/settings?tab=profile"
+                        onClick={() => setShowProfile(false)}
+                        className="relative flex items-center gap-4 group cursor-pointer"
+                        title="View profile settings"
+                      >
                         <img
                           src={
+                            user?.channelAvatarUrl ||
+                            user?.avatarUrl ||
+                            user?.avatar ||
                             user?.profilePicture ||
-                            "https://via.placeholder.com/40"
+                            "https://via.placeholder.com/56"
                           }
-                          alt={user?.name}
-                          className={`w-14 h-14 rounded-xl object-cover ring-2 shadow-lg ${isDark ? "ring-dark-border" : "ring-white"}`}
+                          alt={user?.name || "Avatar"}
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/56?text=User";
+                          }}
+                          className={`w-14 h-14 rounded-xl object-cover ring-2 shadow-lg transition-transform group-hover:scale-105 ${isDark ? "ring-dark-border" : "ring-white"}`}
                         />
                         <div className="flex-1 min-w-0">
                           <p
-                            className={`font-bold truncate ${isDark ? "text-dark-text" : "text-text-primary"}`}
+                            className={`font-bold truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors ${isDark ? "text-dark-text" : "text-text-primary"}`}
                           >
-                            {user?.name}
+                            {user?.name || user?.fullName || "Creator"}
                           </p>
                           <p
-                            className={`text-sm truncate ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
+                            className={`text-xs truncate ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
                           >
                             {user?.email}
                           </p>
+                          {user?.channelTitle ? (
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              <span className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
+                              <span className="text-xs font-semibold text-primary-900 dark:text-primary-400 truncate">
+                                {user.channelTitle}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="inline-block mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-surface-200 dark:bg-dark-surface-light text-text-muted dark:text-dark-text-muted">
+                              Creator
+                            </span>
+                          )}
                         </div>
-                      </div>
+                      </Link>
 
                       {/* Stats */}
                       <div
                         className={`flex items-center gap-3 mt-4 pt-4 border-t ${isDark ? "border-dark-border" : "border-surface-200"}`}
                       >
                         <div
-                          className={`flex-1 text-center p-2 rounded-xl ${isDark ? "bg-dark-surface" : "bg-white"}`}
+                          className={`flex-1 text-center p-2 rounded-xl transition-colors ${isDark ? "bg-dark-surface" : "bg-white shadow-sm"}`}
                         >
                           <p
                             className={`text-lg font-bold ${isDark ? "text-dark-text" : "text-text-primary"}`}
                           >
-                            {(user?.subscriberCount / 1000).toFixed(1)}K
+                            {formatStatValue(channelStats.subscribers)}
                           </p>
                           <p
                             className={`text-xs ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
@@ -504,12 +417,12 @@ const Header = () => {
                           </p>
                         </div>
                         <div
-                          className={`flex-1 text-center p-2 rounded-xl ${isDark ? "bg-dark-surface" : "bg-white"}`}
+                          className={`flex-1 text-center p-2 rounded-xl transition-colors ${isDark ? "bg-dark-surface" : "bg-white shadow-sm"}`}
                         >
                           <p
                             className={`text-lg font-bold ${isDark ? "text-dark-text" : "text-text-primary"}`}
                           >
-                            1.2M
+                            {formatStatValue(channelStats.views)}
                           </p>
                           <p
                             className={`text-xs ${isDark ? "text-dark-text-muted" : "text-text-muted"}`}
@@ -517,11 +430,33 @@ const Header = () => {
                             Views
                           </p>
                         </div>
-                        <div className="flex-1 text-center p-2 bg-success-50 rounded-xl">
-                          <p className="text-lg font-bold text-success-600">
-                            +12%
+                        <div
+                          className={`flex-1 text-center p-2 rounded-xl transition-colors ${
+                            isPositiveGrowth
+                              ? "bg-success-50 dark:bg-success-900/30 text-success-600 dark:text-success-400"
+                              : isNegativeGrowth
+                              ? "bg-error-50 dark:bg-error-900/30 text-error-600 dark:text-error-400"
+                              : isDark
+                              ? "bg-dark-surface text-dark-text-muted"
+                              : "bg-surface-100 text-text-muted"
+                          }`}
+                        >
+                          <p className="text-lg font-bold">
+                            {growthFormatted}
                           </p>
-                          <p className="text-xs text-success-600">Growth</p>
+                          <p
+                            className={`text-xs ${
+                              isPositiveGrowth
+                                ? "text-success-600 dark:text-success-400"
+                                : isNegativeGrowth
+                                ? "text-error-600 dark:text-error-400"
+                                : isDark
+                                ? "text-dark-text-muted"
+                                : "text-text-muted"
+                            }`}
+                          >
+                            Growth
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -532,7 +467,12 @@ const Header = () => {
                         {
                           icon: IoPersonOutline,
                           label: "Profile",
-                          path: "/profile",
+                          path: "/settings?tab=profile",
+                        },
+                        {
+                          icon: IoLogoYoutube,
+                          label: "Connected Channel",
+                          path: "/settings?tab=accounts",
                         },
                         {
                           icon: IoSettingsOutline,
@@ -564,7 +504,7 @@ const Header = () => {
                     >
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 px-5 py-3 w-full text-error-600 hover:bg-error-50 transition-all group"
+                        className="flex items-center gap-3 px-5 py-3 w-full text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-all group"
                       >
                         <IoLogOutOutline className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         <span className="text-sm font-medium">Logout</span>

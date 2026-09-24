@@ -278,8 +278,31 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
         <div className="flex items-start justify-between p-5 sm:p-6 border-b border-surface-200 dark:border-dark-border bg-surface-50/80 dark:bg-dark-surface-light/50">
           <div className="flex items-start gap-4 min-w-0 pr-4">
             <img
-              src={video.thumbnail}
-              alt=""
+              src={
+                video.thumbnail ||
+                video.thumbnailUrl ||
+                (video.id && !String(video.id).startsWith("vid") && !String(video.id).startsWith("video_")
+                  ? `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`
+                  : "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=169&fit=crop")
+              }
+              alt={video.title || "Video thumbnail"}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                const vId = video.id;
+                if (
+                  vId &&
+                  !String(vId).startsWith("vid") &&
+                  !String(vId).startsWith("video_") &&
+                  !e.target.src.includes("hqdefault.jpg")
+                ) {
+                  e.target.src = `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`;
+                } else if (!e.target.src.includes("unsplash.com")) {
+                  e.target.src =
+                    "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=169&fit=crop";
+                } else {
+                  e.target.onerror = null;
+                }
+              }}
               className="w-24 sm:w-32 h-14 sm:h-20 object-cover rounded-xl shadow-md border border-surface-200 dark:border-dark-border shrink-0"
             />
             <div className="min-w-0">

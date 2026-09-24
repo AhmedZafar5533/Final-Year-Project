@@ -148,9 +148,15 @@ export const ScriptStudioModal = ({ idea, channelNiche, onClose }) => {
 
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
+  const modalSessionIdRef = useRef(null);
 
   useEffect(() => {
     if (!idea) return;
+
+    // Initialize or reuse single stable session ID for this idea
+    if (!modalSessionIdRef.current) {
+      modalSessionIdRef.current = `script-session-${Date.now()}`;
+    }
 
     let isMounted = true;
     setChatLoading(true);
@@ -199,14 +205,26 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
           const rawHist = localStorage.getItem("onlycreators_script_history");
           const history = rawHist ? JSON.parse(rawHist) : [];
           const sessionObj = {
-            id: `script-session-${Date.now()}`,
+            id: modalSessionIdRef.current,
             title: idea.title || "AI Script Draft",
             updatedAt: new Date().toISOString(),
             messages: finalMsgs,
             scriptContent: generatedScript,
             idea,
           };
-          localStorage.setItem("onlycreators_script_history", JSON.stringify([sessionObj, ...history]));
+
+          const existingIdx = history.findIndex(
+            (s) => s.id === modalSessionIdRef.current || s.title === sessionObj.title
+          );
+
+          let updatedHistory;
+          if (existingIdx >= 0) {
+            updatedHistory = history.map((s, idx) => (idx === existingIdx ? sessionObj : s));
+          } else {
+            updatedHistory = [sessionObj, ...history];
+          }
+
+          localStorage.setItem("onlycreators_script_history", JSON.stringify(updatedHistory));
         } catch (e) {
           console.warn("Failed to persist session to script history:", e);
         }
@@ -261,12 +279,45 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
         currentScript: scriptContent,
       });
 
-      if (data.script) setScriptContent(data.script);
+      let nextScript = scriptContent;
+      if (data.script) {
+        nextScript = data.script;
+        setScriptContent(data.script);
+      }
       if (data.suggested_followups) setSuggestedFollowups(data.suggested_followups);
-      setChatMessages((prev) => [
-        ...prev,
+      const nextMsgs = [
+        ...updatedMessages,
         { role: "assistant", content: data.reply || "Revised the script based on that note." },
-      ]);
+      ];
+      setChatMessages(nextMsgs);
+
+      // Persist updated state to history
+      try {
+        const rawHist = localStorage.getItem("onlycreators_script_history");
+        const history = rawHist ? JSON.parse(rawHist) : [];
+        const sessionObj = {
+          id: modalSessionIdRef.current || `script-session-${Date.now()}`,
+          title: idea.title || "AI Script Draft",
+          updatedAt: new Date().toISOString(),
+          messages: nextMsgs,
+          scriptContent: nextScript,
+          idea,
+        };
+
+        const existingIdx = history.findIndex(
+          (s) => s.id === sessionObj.id || s.title === sessionObj.title
+        );
+
+        let updatedHistory;
+        if (existingIdx >= 0) {
+          updatedHistory = history.map((s, idx) => (idx === existingIdx ? sessionObj : s));
+        } else {
+          updatedHistory = [sessionObj, ...history];
+        }
+        localStorage.setItem("onlycreators_script_history", JSON.stringify(updatedHistory));
+      } catch (e) {
+        console.warn("Failed to persist updated chat to script history:", e);
+      }
     } catch (err) {
       console.error("Chat message error:", err);
       setChatMessages((prev) => [

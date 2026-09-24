@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String }, // Hashed password for email/password authentication
   fullName: { type: String, trim: true },
   avatarUrl: { type: String },
+  channelTitle: { type: String },
+  channelAvatarUrl: { type: String },
   lastLogin: { type: Date, default: Date.now },
   youtubeTokens: {
     accessToken: String,

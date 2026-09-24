@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useState, useEffect } from "react";
 import { IoPlayCircle, IoTrendingUp, IoFlame, IoImage } from "react-icons/io5";
 import { formatNumber } from "../../utils/formatters";
 import Card from "../common/Card";
@@ -11,26 +11,42 @@ const RANK_STYLES = [
 const RANK_STYLE_DEFAULT =
   "bg-surface-200 dark:bg-dark-surface-light text-text-muted dark:text-dark-text-muted";
 
-const VideoThumbnail = ({ src, alt }) => {
-  const [errored, setErrored] = useState(false);
+const VideoThumbnail = ({ src, alt, videoId }) => {
+  const primarySrc =
+    src ||
+    (videoId && !String(videoId).startsWith("vid") && !String(videoId).startsWith("video_")
+      ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+      : "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=169&fit=crop");
 
-  if (!src || errored) {
-    return (
-      <div className="relative w-16 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-200 dark:bg-dark-surface-light flex items-center justify-center">
-        <IoImage
-          className="w-5 h-5 text-surface-400 dark:text-dark-text-muted"
-          aria-hidden="true"
-        />
-      </div>
-    );
-  }
+  const [currentSrc, setCurrentSrc] = useState(primarySrc);
+
+  useEffect(() => {
+    setCurrentSrc(primarySrc);
+  }, [primarySrc]);
+
+  const handleError = (e) => {
+    const vId = videoId;
+    if (
+      vId &&
+      !String(vId).startsWith("vid") &&
+      !String(vId).startsWith("video_") &&
+      !e.target.src.includes("hqdefault.jpg")
+    ) {
+      setCurrentSrc(`https://i.ytimg.com/vi/${vId}/hqdefault.jpg`);
+    } else if (!e.target.src.includes("unsplash.com")) {
+      setCurrentSrc(
+        "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=169&fit=crop"
+      );
+    }
+  };
 
   return (
-    <div className="relative w-16 h-10 rounded-lg overflow-hidden shrink-0">
+    <div className="relative w-16 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-200 dark:bg-dark-surface-light">
       <img
-        src={src}
-        alt={alt}
-        onError={() => setErrored(true)}
+        src={currentSrc}
+        alt={alt || "Thumbnail"}
+        referrerPolicy="no-referrer"
+        onError={handleError}
         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
       />
       <div className="absolute inset-0 bg-text-primary/30 dark:bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
@@ -79,7 +95,11 @@ const VideoRow = ({ video, rank, onSelect }) => {
         {rank + 1}
       </div>
 
-      <VideoThumbnail src={video.thumbnail} alt={video.title} />
+      <VideoThumbnail
+        src={video.thumbnail || video.thumbnailUrl}
+        alt={video.title}
+        videoId={video.id}
+      />
 
       {/* Info */}
       <div className="flex-1 min-w-0">

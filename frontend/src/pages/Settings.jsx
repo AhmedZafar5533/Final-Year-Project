@@ -1,8 +1,8 @@
 import { useState, useCallback, memo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   IoPersonOutline,
   IoLinkOutline,
-  IoNotificationsOutline,
   IoColorPaletteOutline,
   IoShieldOutline,
   IoLogoYoutube,
@@ -74,20 +74,6 @@ const Toggle = memo(({ checked, onChange, disabled = false }) => (
   </button>
 ));
 
-const NotificationItem = memo(({ label, description, checked, onChange }) => (
-  <div className="flex items-center justify-between py-4 border-b border-surface-200 dark:border-dark-border last:border-0 group hover:bg-surface-50 dark:hover:bg-dark-surface-light -mx-4 px-4 transition-colors">
-    <div className="flex-1 pr-4">
-      <p className="font-semibold text-text-primary dark:text-dark-text group-hover:text-primary-900 dark:group-hover:text-primary-400 transition-colors">
-        {label}
-      </p>
-      <p className="text-sm text-text-muted dark:text-dark-text-muted mt-0.5">
-        {description}
-      </p>
-    </div>
-    <Toggle checked={checked} onChange={onChange} />
-  </div>
-));
-
 const ConnectedAccount = memo(
   ({
     icon: Icon,
@@ -99,6 +85,7 @@ const ConnectedAccount = memo(
     onConnect,
     onDisconnect,
     loading = false,
+    avatarUrl,
   }) => (
     <div
       className={`
@@ -116,9 +103,13 @@ const ConnectedAccount = memo(
         <div className="absolute top-0 right-0 w-20 h-20 bg-success-100 rounded-full -translate-y-10 translate-x-10 opacity-50" />
       )}
       <div className="flex items-center gap-4 relative">
-        <div className={`p-3.5 rounded-xl ${gradient} shadow-lg`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={name} className="w-12 h-12 rounded-xl object-cover shadow-lg border border-surface-200 dark:border-dark-border" />
+        ) : (
+          <div className={`p-3.5 rounded-xl ${gradient} shadow-lg`}>
+            <Icon className="w-6 h-6 text-white" />
+          </div>
+        )}
         <div>
           <h4 className="font-bold text-text-primary dark:text-dark-text">
             {name}
@@ -158,14 +149,27 @@ const ConnectedAccount = memo(
   ),
 );
 
-const Settings = () => {
+const Settings = ({ initialTab = "profile" }) => {
   const { user, updateUser } = useAuth();
   const { theme, setTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(tabParam || initialTab);
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [connectingYoutube, setConnectingYoutube] = useState(false);
+
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl && tabFromUrl !== "notifications") {
+      setActiveTab(tabFromUrl);
+    } else if (initialTab && initialTab !== "notifications") {
+      setActiveTab(initialTab);
+    } else {
+      setActiveTab("profile");
+    }
+  }, [searchParams, initialTab]);
 
   const handleConnectYoutube = async () => {
     try {
@@ -200,14 +204,6 @@ const Settings = () => {
     email: user?.email || "",
     bio: "Full-stack developer sharing coding tutorials and tech insights.",
     channelName: user?.channelName || "",
-  });
-
-  const [notifications, setNotifications] = useState({
-    emailPerformance: true,
-    emailTrending: true,
-    emailWeekly: false,
-    inAppAlerts: true,
-    inAppInsights: true,
   });
 
   const [preferences, setPreferences] = useState({
@@ -264,12 +260,6 @@ const Settings = () => {
   const tabs = [
     { id: "profile", label: "Profile", icon: IoPersonOutline },
     { id: "accounts", label: "Connected Accounts", icon: IoLinkOutline },
-    {
-      id: "notifications",
-      label: "Notifications",
-      icon: IoNotificationsOutline,
-      badge: "2",
-    },
     { id: "preferences", label: "Preferences", icon: IoColorPaletteOutline },
     { id: "security", label: "Security", icon: IoShieldOutline },
   ];
@@ -304,7 +294,11 @@ const Settings = () => {
                 <div className="relative group">
                   <img
                     src={
-                      user?.profilePicture || "https://via.placeholder.com/120"
+                      user?.channelAvatarUrl ||
+                      user?.avatarUrl ||
+                      user?.avatar ||
+                      user?.profilePicture ||
+                      "https://via.placeholder.com/120"
                     }
                     alt={user?.name}
                     className="w-28 h-28 rounded-2xl object-cover border-4 border-white dark:border-dark-surface shadow-xl"
@@ -401,13 +395,14 @@ const Settings = () => {
             <div className="p-6 space-y-4">
               <ConnectedAccount
                 icon={IoLogoYoutube}
-                name="YouTube"
+                name={user?.channelTitle ? `YouTube (${user.channelTitle})` : "YouTube"}
                 description={
                   user?.youtubeTokens?.connected || user?.connectedAccounts?.youtube
-                    ? `Connected as ${user.channelName || "Connected Channel"}`
+                    ? `Connected as ${user.channelTitle || user.channelName || "Connected Channel"}`
                     : "Connect your channel to sync live analytics, subscriber stats, and viewer comments."
                 }
                 connected={Boolean(user?.youtubeTokens?.connected || user?.connectedAccounts?.youtube)}
+                avatarUrl={user?.channelAvatarUrl}
                 gradient="bg-gradient-to-br from-red-500 to-red-600"
                 onConnect={handleConnectYoutube}
                 onDisconnect={handleDisconnectYoutube}
@@ -427,90 +422,6 @@ const Settings = () => {
                 comingSoon
                 gradient="bg-gradient-to-br from-dark-900 to-dark-800"
               />
-            </div>
-          </div>
-        );
-
-      case "notifications":
-        return (
-          <div className="bg-white dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-surface-200 dark:border-dark-border">
-              <h2 className="text-xl font-bold text-text-primary dark:text-dark-text">
-                Notification Preferences
-              </h2>
-              <p className="text-sm text-text-muted dark:text-dark-text-muted mt-1">
-                Choose what updates you want to receive
-              </p>
-            </div>
-            <div className="p-6 space-y-8">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
-                    <IoNotificationsOutline className="w-4 h-4 text-primary-900 dark:text-primary-400" />
-                  </div>
-                  <h3 className="font-bold text-text-primary dark:text-dark-text">
-                    Email Notifications
-                  </h3>
-                </div>
-                <div className="bg-surface-50 dark:bg-dark-surface-light rounded-xl p-4 border border-surface-200 dark:border-dark-border">
-                  <NotificationItem
-                    label="Performance Milestones"
-                    description="Get notified when your videos hit milestones"
-                    checked={notifications.emailPerformance}
-                    onChange={(v) =>
-                      setNotifications({
-                        ...notifications,
-                        emailPerformance: v,
-                      })
-                    }
-                  />
-                  <NotificationItem
-                    label="Trending Opportunities"
-                    description="Alerts about trending topics in your niche"
-                    checked={notifications.emailTrending}
-                    onChange={(v) =>
-                      setNotifications({ ...notifications, emailTrending: v })
-                    }
-                  />
-                  <NotificationItem
-                    label="Weekly Summary"
-                    description="Weekly digest of your channel performance"
-                    checked={notifications.emailWeekly}
-                    onChange={(v) =>
-                      setNotifications({ ...notifications, emailWeekly: v })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-2 bg-accent-100 dark:bg-accent-900/30 rounded-lg">
-                    <IoSparkles className="w-4 h-4 text-accent-700 dark:text-accent-400" />
-                  </div>
-                  <h3 className="font-bold text-text-primary dark:text-dark-text">
-                    In-App Notifications
-                  </h3>
-                </div>
-                <div className="bg-surface-50 dark:bg-dark-surface-light rounded-xl p-4 border border-surface-200 dark:border-dark-border">
-                  <NotificationItem
-                    label="Real-time Alerts"
-                    description="Instant notifications for important events"
-                    checked={notifications.inAppAlerts}
-                    onChange={(v) =>
-                      setNotifications({ ...notifications, inAppAlerts: v })
-                    }
-                  />
-                  <NotificationItem
-                    label="Insight Updates"
-                    description="Notifications when new insights are available"
-                    checked={notifications.inAppInsights}
-                    onChange={(v) =>
-                      setNotifications({ ...notifications, inAppInsights: v })
-                    }
-                  />
-                </div>
-              </div>
             </div>
           </div>
         );

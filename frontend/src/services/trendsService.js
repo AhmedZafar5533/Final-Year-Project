@@ -2,12 +2,52 @@ import api from "./api";
 import mockTrends from "../data/mockTrends.json";
 import mockInsights from "../data/mockInsights.json";
 
+const INTEL_STORAGE_KEY = "onlycreators_channel_intelligence";
+const INTEL_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+function loadCachedIntelligenceFromStorage() {
+  try {
+    const raw = localStorage.getItem(INTEL_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.data) {
+        return parsed.data;
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to load cached intelligence from storage:", e);
+  }
+  return null;
+}
+
+function saveIntelligenceToStorage(data) {
+  try {
+    if (data) {
+      localStorage.setItem(
+        INTEL_STORAGE_KEY,
+        JSON.stringify({ timestamp: Date.now(), data })
+      );
+    }
+  } catch (e) {
+    console.warn("Failed to save intelligence to storage:", e);
+  }
+}
+
 // In-memory cache for channel intelligence
-let cachedIntelligence = null;
-let lastIntelFetch = 0;
-const INTEL_CACHE_TTL = 30000; // 30 seconds
+let cachedIntelligence = loadCachedIntelligenceFromStorage();
+let lastIntelFetch = cachedIntelligence ? Date.now() : 0;
 
 export const trendsService = {
+  /**
+   * Synchronously get whatever intelligence is already in cache/storage (no delay)
+   */
+  getCachedIntelligence() {
+    if (!cachedIntelligence) {
+      cachedIntelligence = loadCachedIntelligenceFromStorage();
+    }
+    return cachedIntelligence || null;
+  },
+
   /**
    * Get synthesized market trends for the channel's niche
    */
@@ -15,6 +55,22 @@ export const trendsService = {
     try {
       const intel = await this.getChannelIntelligence();
       let list = intel?.marketTrends;
+
+      if (!list || list.length === 0) {
+        try {
+          const res = await api.get("/trends/live/cached");
+          if (res.data?.data?.niche_trends?.length > 0) {
+            list = res.data.data.niche_trends;
+          }
+        } catch (e) {
+          try {
+            const fallbackRes = await api.get("/trends");
+            if (fallbackRes.data?.data?.length > 0) {
+              list = fallbackRes.data.data;
+            }
+          } catch (e2) {}
+        }
+      }
 
       if (!list || list.length === 0) {
         list = mockTrends;
@@ -42,8 +98,16 @@ export const trendsService = {
    */
   async getChannelIntelligence(refresh = false) {
     const now = Date.now();
-    if (!refresh && cachedIntelligence && now - lastIntelFetch < INTEL_CACHE_TTL) {
-      return cachedIntelligence;
+    if (!refresh) {
+      if (cachedIntelligence && now - lastIntelFetch < INTEL_CACHE_TTL) {
+        return cachedIntelligence;
+      }
+      const stored = loadCachedIntelligenceFromStorage();
+      if (stored) {
+        cachedIntelligence = stored;
+        lastIntelFetch = now;
+        return stored;
+      }
     }
 
     try {
@@ -54,12 +118,16 @@ export const trendsService = {
       if (response.data) {
         cachedIntelligence = response.data;
         lastIntelFetch = now;
+        saveIntelligenceToStorage(response.data);
         return cachedIntelligence;
       }
     } catch (error) {
       console.warn("Failed to fetch channel intelligence:", error.message);
     }
 
+    if (!cachedIntelligence) {
+      cachedIntelligence = loadCachedIntelligenceFromStorage();
+    }
     return cachedIntelligence || null;
   },
 
@@ -154,6 +222,72 @@ export const trendsService = {
   async getRecommendations() {
     try {
       const intel = await this.getChannelIntelligence();
+      let contentTips = [];
+
+      if (intel?.masterSummary?.friction_points?.length || intel?.masterSummary?.best_performing_patterns?.length) {
+        const frictions = intel.masterSummary.friction_points || [];
+        const patterns = intel.masterSummary.best_performing_patterns || [];
+
+        frictions.forEach((f, idx) => {
+          contentTips.push({
+            id: `rec-friction-${idx}`,
+            category: "Audience Retention & Pacing",
+            current: "Viewer Drop-Off Point Detected",
+            recommendation: f,
+            impact: "+22% Watch Time",
+            status: "error",
+          });
+        });
+
+        patterns.forEach((p, idx) => {
+          contentTips.push({
+            id: `rec-pattern-${idx}`,
+            category: "Proven Channel Formula",
+            current: "Standard Production",
+            recommendation: `Double down on: ${p}`,
+            impact: "+35% Engagement",
+            status: "success",
+          });
+        });
+      }
+
+      if (contentTips.length === 0) {
+        contentTips = [
+          {
+            id: 1,
+            category: "Viewer Retention & Pacing",
+            current: "Standard 30s Intro",
+            recommendation: "Deliver the core promise within the first 10 seconds to hook viewers",
+            impact: "+25% Retention",
+            status: "warning",
+          },
+          {
+            id: 2,
+            category: "Thumbnail & Title Synergy",
+            current: "Generic Titles",
+            recommendation: "Use curiosity gap questions with high-contrast, face-forward visuals",
+            impact: "+40% CTR",
+            status: "error",
+          },
+          {
+            id: 3,
+            category: "Audience Call-to-Action",
+            current: "End Screen Link Only",
+            recommendation: "Place an interactive pinned comment question within 1 hour of upload",
+            impact: "+50% Comments",
+            status: "success",
+          },
+          {
+            id: 4,
+            category: "Publishing Strategy",
+            current: "Irregular Upload Times",
+            recommendation: "Publish during your audience's peak active hours (4 PM - 7 PM)",
+            impact: "+18% Initial Views",
+            status: "warning",
+          },
+        ];
+      }
+
       return {
         heatmap: [
           [2, 3, 5, 4, 3, 2, 1],
@@ -164,21 +298,64 @@ export const trendsService = {
           [7, 8, 10, 9, 8, 7, 6],
           [8, 9, 11, 10, 9, 8, 7],
         ],
-        contentTips: intel?.masterSummary?.strategic_growth_roadmap?.map(s => s.objective) || [
-          "Post between 4 PM - 7 PM EST on Thursdays for peak engagement.",
-          "Include high-contrast diagrams in the first 45 seconds of each video.",
-          "Target topics with surging YouTube search velocity and comment demand.",
-        ],
-        suggestedTags: intel?.niche?.content_pillars || [
-          "#Astrophysics",
-          "#QuantumPhysics",
-          "#SpaceExploration",
-          "#ScienceExplained",
-        ],
+        contentTips,
+        suggestedTags: intel?.niche?.content_pillars?.length
+          ? intel.niche.content_pillars
+          : [
+              "#YouTubeGrowth",
+              "#ContentCreation",
+              "#VideoSEO",
+              "#CreatorEconomy",
+              "#AudienceRetention",
+              "#AlgorithmOptimization",
+            ],
       };
     } catch (error) {
       console.error("Failed to fetch recommendations:", error);
-      throw error;
+      return {
+        heatmap: [
+          [2, 3, 5, 4, 3, 2, 1],
+          [3, 4, 6, 5, 4, 3, 2],
+          [4, 5, 7, 6, 5, 4, 3],
+          [5, 6, 8, 7, 6, 5, 4],
+          [6, 7, 9, 8, 7, 6, 5],
+          [7, 8, 10, 9, 8, 7, 6],
+          [8, 9, 11, 10, 9, 8, 7],
+        ],
+        contentTips: [
+          {
+            id: 1,
+            category: "Viewer Retention & Pacing",
+            current: "Standard 30s Intro",
+            recommendation: "Deliver the core promise within the first 10 seconds to hook viewers",
+            impact: "+25% Retention",
+            status: "warning",
+          },
+          {
+            id: 2,
+            category: "Thumbnail & Title Synergy",
+            current: "Generic Titles",
+            recommendation: "Use curiosity gap questions with high-contrast, face-forward visuals",
+            impact: "+40% CTR",
+            status: "error",
+          },
+          {
+            id: 3,
+            category: "Audience Call-to-Action",
+            current: "End Screen Link Only",
+            recommendation: "Place an interactive pinned comment question within 1 hour of upload",
+            impact: "+50% Comments",
+            status: "success",
+          },
+        ],
+        suggestedTags: [
+          "#YouTubeGrowth",
+          "#ContentCreation",
+          "#VideoSEO",
+          "#CreatorEconomy",
+          "#AudienceRetention",
+        ],
+      };
     }
   },
 

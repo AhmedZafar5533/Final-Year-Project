@@ -411,12 +411,12 @@ const ContentTipCard = memo(({ tip }) => {
 
 const Insights = () => {
   const navigate = useNavigate();
-  const [channelIntel, setChannelIntel] = useState(null);
-  const [loadingIntel, setLoadingIntel] = useState(true);
+  const [channelIntel, setChannelIntel] = useState(() => trendsService.getCachedIntelligence());
+  const [loadingIntel, setLoadingIntel] = useState(() => !trendsService.getCachedIntelligence());
   const [reanalyzing, setReanalyzing] = useState(false);
 
   const [insights, setInsights] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !trendsService.getCachedIntelligence());
   const [category, setCategory] = useState("all");
   const [appliedInsights, setAppliedInsights] = useState([]);
 
@@ -432,8 +432,11 @@ const Insights = () => {
 
   const fetchIntelligence = useCallback(async (refresh = false) => {
     try {
-      if (refresh) setReanalyzing(true);
-      else setLoadingIntel(true);
+      if (refresh) {
+        setReanalyzing(true);
+      } else if (!trendsService.getCachedIntelligence()) {
+        setLoadingIntel(true);
+      }
 
       const data = await trendsService.getChannelIntelligence(refresh);
       if (data) {
@@ -453,7 +456,6 @@ const Insights = () => {
 
   useEffect(() => {
     const loadInsights = async () => {
-      setIsLoading(true);
       try {
         const data = await trendsService.getInsights();
         setInsights(data);

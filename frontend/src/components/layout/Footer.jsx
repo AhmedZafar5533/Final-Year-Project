@@ -32,7 +32,6 @@ const footerLinks = {
     { label: "API Reference", href: "#api" },
     { label: "Guides", href: "#guides" },
     { label: "Community", href: "#community" },
-    { label: "Support", href: "#support" },
   ],
   legal: [
     { label: "Privacy", href: "#privacy" },

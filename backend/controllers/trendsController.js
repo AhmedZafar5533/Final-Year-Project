@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { fetchAndSynthesizeMarketTrends } from '../services/trendService.js';
+import { detectChannelNiche } from '../services/deepseekService.js';
 import ChannelIntelligence from '../models/ChannelIntelligence.js';
 import User from '../models/User.js';
 import oauth2Client from '../config/youtube.js';
@@ -20,16 +21,16 @@ function formatLiveTrendItems(trends, nicheName = 'Science & Technology') {
       title: t.topic,
       topic: t.topic,
       category: t.category || nicheName,
-      channel: t.relatedVideos?.[0]?.title ? "Top Niche Channels" : "Science Creators",
+      channel: t.relatedVideos?.[0]?.title ? "Top Niche Creators" : `${nicheName} Creators`,
       scores: {
         trend: parseFloat((oppScore / 100).toFixed(2)),
-        relevance: 0.92 - (idx * 0.04),
-        google: 0.88 - (idx * 0.03),
-        engagement: 0.86 - (idx * 0.02),
+        relevance: parseFloat(Math.max(0.65, 0.94 - (idx * 0.05)).toFixed(2)),
+        google: parseFloat(Math.max(0.60, 0.90 - (idx * 0.04)).toFixed(2)),
+        engagement: parseFloat(Math.max(0.60, 0.88 - (idx * 0.03)).toFixed(2)),
       },
       engagement: {
         views: viewsNum,
-        views_fmt: `${(viewsNum / 1000000).toFixed(1)}M`,
+        views_fmt: viewsNum >= 1000000 ? `${(viewsNum / 1000000).toFixed(1)}M` : `${Math.round(viewsNum / 1000)}K`,
         likes: Math.round(viewsNum * 0.04),
         comments: Math.round(viewsNum * 0.003),
       },
@@ -51,58 +52,108 @@ function formatLiveTrendItems(trends, nicheName = 'Science & Technology') {
  */
 const GENERAL_TRENDING_ITEMS = [
   {
-    id: "gen-superconductors",
-    title: "Next-Gen Ambient Superconductors & Condensed Matter Physics Breakthroughs",
-    topic: "Room-Temperature Superconductivity",
-    category: "Physics & Engineering",
-    channel: "Applied Physics Research",
-    scores: { trend: 0.96, relevance: 0.75, google: 0.94, engagement: 0.91 },
-    engagement: { views: 3400000, views_fmt: "3.4M", likes: 125000, comments: 8400 },
-    match: {
-      matched_keywords: ["#Superconductivity", "#MaterialsScience", "#QuantumPhysics"],
-      reason: "Surging multi-week global search velocity and debate across science communities."
-    }
-  },
-  {
     id: "gen-ai-agents",
-    title: "Autonomous AI Agents: Local LLMs, Tool-Use & Multi-Agent Orchestration",
-    topic: "Autonomous AI Reasoning Models",
-    category: "Computer Science & AI",
+    title: "Autonomous AI Reasoning Agents: Local LLMs, Tool-Use & Multi-Agent Systems",
+    topic: "Autonomous AI Agents & Reasoning Models",
+    category: "Artificial Intelligence & Tech",
     channel: "AI Frontier Labs",
-    scores: { trend: 0.93, relevance: 0.68, google: 0.91, engagement: 0.87 },
-    engagement: { views: 2800000, views_fmt: "2.8M", likes: 98000, comments: 5600 },
+    scores: { trend: 0.96, relevance: 0.82, google: 0.95, engagement: 0.92 },
+    engagement: { views: 3200000, views_fmt: "3.2M", likes: 145000, comments: 9200 },
     match: {
-      matched_keywords: ["#AIAgents", "#MachineLearning", "#LLMs"],
-      reason: "High viewer retention on technical walkthroughs and agent system architectures."
+      matched_keywords: ["#AIAgents", "#MachineLearning", "#LLMs", "#DeepSeek"],
+      reason: "High viewer retention on technical walkthroughs, local LLM installations, and agent workflows."
     }
   },
   {
-    id: "gen-starship-orbital",
-    title: "SpaceX Starship Flight Tests: Orbital Re-entry & Mechanical Tower Catches",
-    topic: "Starship Flight Architecture",
-    category: "Aerospace & Engineering",
-    channel: "Cosmic Frontier",
-    scores: { trend: 0.89, relevance: 0.82, google: 0.90, engagement: 0.88 },
-    engagement: { views: 4200000, views_fmt: "4.2M", likes: 210000, comments: 15400 },
+    id: "gen-creator-production",
+    title: "Cinematic High-Retention Editing: Sound Design, Pacing & Visual Storytelling Secrets",
+    topic: "Modern Video Editing & Retention Architecture",
+    category: "Creator Economy & Production",
+    channel: "Creator Masterclass",
+    scores: { trend: 0.93, relevance: 0.79, google: 0.91, engagement: 0.89 },
+    engagement: { views: 2400000, views_fmt: "2.4M", likes: 110000, comments: 6400 },
     match: {
-      matched_keywords: ["#SpaceX", "#Starship", "#SpaceExploration"],
-      reason: "Massive organic viewership around heavy-lift rocketry and thermal protection systems."
+      matched_keywords: ["#VideoEditing", "#Storytelling", "#CreatorEconomy", "#YouTubeTips"],
+      reason: "Surging creator demand for advanced storytelling techniques that maintain average view duration > 60%."
     }
   },
   {
-    id: "gen-quantum-computing",
-    title: "Fault-Tolerant Quantum Computing: Neutral Atom Qubits & Logical Gate Fidelity",
-    topic: "Neutral Atom Quantum Processors",
-    category: "Quantum Computing",
-    channel: "Quantum Horizons",
-    scores: { trend: 0.87, relevance: 0.88, google: 0.85, engagement: 0.84 },
-    engagement: { views: 1600000, views_fmt: "1.6M", likes: 62000, comments: 3900 },
+    id: "gen-nextgen-hardware",
+    title: "Next-Gen Silicon & Desktop Performance: Neural Chips, GPUs & Efficient Workstations",
+    topic: "Next-Gen Computing & Custom Hardware",
+    category: "Hardware & Gadgets",
+    channel: "Hardware Nexus",
+    scores: { trend: 0.89, relevance: 0.74, google: 0.88, engagement: 0.86 },
+    engagement: { views: 1950000, views_fmt: "1.9M", likes: 82000, comments: 4800 },
     match: {
-      matched_keywords: ["#QuantumComputing", "#Qubits", "#QuantumTech"],
-      reason: "Growing mainstream curiosity about physical vs logical quantum error correction."
+      matched_keywords: ["#Hardware", "#TechReview", "#CustomPC", "#Silicon"],
+      reason: "Consistent organic interest in benchmark comparisons, power efficiency, and creator workstation builds."
+    }
+  },
+  {
+    id: "gen-smart-automation",
+    title: "Full-Stack Automation Pipelines: Webhooks, API Integration & Workflow Architecture",
+    topic: "Full-Stack Automation & Developer Tools",
+    category: "Software & Automation",
+    channel: "Modern Engineering",
+    scores: { trend: 0.87, relevance: 0.71, google: 0.86, engagement: 0.84 },
+    engagement: { views: 1600000, views_fmt: "1.6M", likes: 64000, comments: 3900 },
+    match: {
+      matched_keywords: ["#Automation", "#APIs", "#Productivity", "#WebDev"],
+      reason: "Massive growth in viewers seeking to automate repetitive tasks and connect modern software services."
     }
   }
 ];
+
+/**
+ * Helper to get or build an authenticated YouTube client for a user
+ */
+async function getAuthenticatedYoutubeClient(userId) {
+  if (!userId) return null;
+  try {
+    const user = await User.findById(userId);
+    if (!user?.youtubeTokens?.connected || !user?.youtubeTokens?.accessToken) {
+      return null;
+    }
+
+    const auth = new google.auth.OAuth2(
+      process.env.YOUTUBE_CLIENT_ID,
+      process.env.YOUTUBE_CLIENT_SECRET,
+      process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:5000/api/auth/callback'
+    );
+
+    let accessToken = user.youtubeTokens.accessToken;
+    let refreshToken = user.youtubeTokens.refreshToken;
+    let expiryDate = user.youtubeTokens.expiryDate;
+
+    auth.setCredentials({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expiry_date: expiryDate,
+    });
+
+    if (expiryDate && Date.now() >= (expiryDate - 120000) && refreshToken) {
+      try {
+        const { credentials } = await auth.refreshAccessToken();
+        auth.setCredentials(credentials);
+        await User.findByIdAndUpdate(userId, {
+          $set: {
+            'youtubeTokens.accessToken': credentials.access_token,
+            'youtubeTokens.expiryDate': credentials.expiry_date,
+            'youtubeTokens.connected': true,
+          }
+        });
+      } catch (refErr) {
+        console.warn('Failed to refresh YouTube token for trends:', refErr.message);
+      }
+    }
+
+    return google.youtube({ version: 'v3', auth });
+  } catch (err) {
+    console.warn('Could not initialize authenticated YouTube client:', err.message);
+    return null;
+  }
+}
 
 /**
  * 1. GET /api/trends/live
@@ -113,30 +164,26 @@ export const getLiveTrends = async (req, res) => {
   const userId = req.user?._id;
 
   try {
-    let niche = {
-      primary_niche: "Astrophysics, Space & Deep Tech",
-      sub_niches: ["Quantum Mechanics", "Exoplanets", "Theoretical Physics"],
-      content_pillars: ["#Astrophysics", "#QuantumPhysics", "#SpaceExploration"]
-    };
+    let niche = null;
     let channelName = "Antigravity Studio";
     let youtubeClient = null;
+    let isConnected = false;
+    let sampleVideos = [];
+    let channelMeta = null;
 
     if (userId && mongoose.connection.readyState === 1) {
       const user = await User.findById(userId);
       if (user) {
         if (user.channelTitle) channelName = user.channelTitle;
-        if (user.youtubeTokens?.connected && user.youtubeTokens?.accessToken) {
-          oauth2Client.setCredentials({
-            access_token: user.youtubeTokens.accessToken,
-            refresh_token: user.youtubeTokens.refreshToken,
-          });
-          youtubeClient = google.youtube({ version: 'v3', auth: oauth2Client });
+        if (user.youtubeTokens?.connected) {
+          isConnected = true;
+          youtubeClient = await getAuthenticatedYoutubeClient(userId);
         }
       }
 
-      // Check stored ChannelIntelligence for detected niche
+      // Check stored ChannelIntelligence for this specific user first
       const channelIntel = await ChannelIntelligence.findOne({
-        $or: [{ userId }, { channelId: 'demo-antigravity-studio' }]
+        $or: [{ userId }, { channelId: `channel-${userId}` }]
       }).sort({ createdAt: -1 });
 
       if (channelIntel?.niche?.primary_niche) {
@@ -145,14 +192,108 @@ export const getLiveTrends = async (req, res) => {
       }
     }
 
-    // Fetch and synthesize trends
+    // If user is connected to YouTube but has no niche saved yet, dynamically fetch channel info and sample videos to detect niche
+    if (isConnected && youtubeClient && (!niche || !niche.primary_niche)) {
+      try {
+        const channelResponse = await youtubeClient.channels.list({
+          mine: true,
+          part: 'snippet,contentDetails,statistics',
+        });
+        const channel = channelResponse.data.items?.[0];
+        if (channel) {
+          channelName = channel.snippet?.title || channelName;
+          channelMeta = {
+            title: channel.snippet?.title || '',
+            description: channel.snippet?.description || '',
+            subscriberCount: channel.statistics?.subscriberCount || '0',
+            videoCount: channel.statistics?.videoCount || '0'
+          };
+          const uploadsPlaylistId = channel.contentDetails?.relatedPlaylists?.uploads;
+          if (uploadsPlaylistId) {
+            const playlistRes = await youtubeClient.playlistItems.list({
+              playlistId: uploadsPlaylistId,
+              part: 'snippet',
+              maxResults: 6,
+            });
+            const videoIds = playlistRes.data.items?.map(item => item.snippet?.resourceId?.videoId).filter(Boolean).join(',');
+            if (videoIds) {
+              const vidsRes = await youtubeClient.videos.list({
+                id: videoIds,
+                part: 'snippet,statistics',
+              });
+              sampleVideos = vidsRes.data.items || [];
+            }
+          }
+          // Detect the channel's niche dynamically
+          niche = await detectChannelNiche({
+            channel: channelMeta,
+            channelStats: channelMeta,
+            sampleVideos
+          });
+        }
+      } catch (ytErr) {
+        console.warn('Error fetching live channel metadata for trends:', ytErr.message);
+      }
+    }
+
+    // Fallback if still no niche
+    if (!niche) {
+      if (!userId || !isConnected) {
+        // Fallback to demo channel intelligence if available
+        let demoIntel = null;
+        if (mongoose.connection.readyState === 1) {
+          demoIntel = await ChannelIntelligence.findOne({ channelId: 'demo-antigravity-studio' });
+        }
+        if (demoIntel?.niche?.primary_niche) {
+          niche = demoIntel.niche;
+          channelName = demoIntel.channelTitle || channelName;
+        } else {
+          niche = {
+            primary_niche: "Astrophysics, Space & Deep Tech",
+            sub_niches: ["Quantum Mechanics", "Exoplanets", "Theoretical Physics"],
+            content_pillars: ["#Astrophysics", "#QuantumPhysics", "#SpaceExploration"]
+          };
+        }
+      } else {
+        // Connected user with custom name but offline API
+        niche = await detectChannelNiche({
+          channel: { title: channelName },
+          channelStats: {},
+          sampleVideos: []
+        });
+      }
+    }
+
+    // Fetch and synthesize trends for the channel's detected niche
     const rawTrends = await fetchAndSynthesizeMarketTrends({
       niche,
       youtubeClient,
-      isDemo: !youtubeClient
+      isDemo: !isConnected
     });
 
     const nicheTrends = formatLiveTrendItems(rawTrends, niche.primary_niche);
+
+    // Save/update ChannelIntelligence cache for connected user
+    if (userId && mongoose.connection.readyState === 1) {
+      try {
+        await ChannelIntelligence.findOneAndUpdate(
+          { $or: [{ userId }, { channelId: `channel-${userId}` }] },
+          {
+            $set: {
+              userId,
+              channelId: `channel-${userId}`,
+              channelTitle: channelName,
+              niche,
+              marketTrends: rawTrends,
+              updatedAt: new Date()
+            }
+          },
+          { upsert: true, new: true }
+        );
+      } catch (saveErr) {
+        console.warn('Could not cache synthesized trends in ChannelIntelligence:', saveErr.message);
+      }
+    }
 
     res.status(200).json({
       success: true,
@@ -190,13 +331,26 @@ export const getLiveTrendsCached = async (req, res) => {
     let nicheTrends = [];
     let channelName = "Antigravity Studio";
     let channelNiche = "Astrophysics, Space & Deep Tech";
+    let isConnected = false;
 
-    // Attempt to pull from saved ChannelIntelligence if DB is connected
+    // Pull from saved ChannelIntelligence if DB is connected
     let channelIntel = null;
-    if (mongoose.connection.readyState === 1) {
+    if (mongoose.connection.readyState === 1 && userId) {
+      const user = await User.findById(userId);
+      if (user) {
+        if (user.channelTitle) channelName = user.channelTitle;
+        if (user.youtubeTokens?.connected) isConnected = true;
+      }
       channelIntel = await ChannelIntelligence.findOne({
-        $or: [{ userId }, { channelId: 'demo-antigravity-studio' }]
+        $or: [{ userId }, { channelId: `channel-${userId}` }]
       }).sort({ createdAt: -1 });
+    }
+
+    // Only fallback to demo channel if user is NOT connected to their own channel
+    if (!channelIntel && (!userId || !isConnected)) {
+      if (mongoose.connection.readyState === 1) {
+        channelIntel = await ChannelIntelligence.findOne({ channelId: 'demo-antigravity-studio' });
+      }
     }
 
     if (channelIntel && channelIntel.marketTrends?.length > 0) {
@@ -204,9 +358,21 @@ export const getLiveTrendsCached = async (req, res) => {
       if (channelIntel.niche?.primary_niche) channelNiche = channelIntel.niche.primary_niche;
       nicheTrends = formatLiveTrendItems(channelIntel.marketTrends, channelNiche);
     } else {
+      let detectedNiche = { primary_niche: channelNiche };
+      if (channelIntel?.niche) {
+        detectedNiche = channelIntel.niche;
+        channelNiche = detectedNiche.primary_niche;
+      } else if (isConnected) {
+        detectedNiche = await detectChannelNiche({
+          channel: { title: channelName },
+          channelStats: {},
+          sampleVideos: []
+        });
+        channelNiche = detectedNiche.primary_niche;
+      }
       const rawTrends = await fetchAndSynthesizeMarketTrends({
-        niche: { primary_niche: channelNiche },
-        isDemo: true
+        niche: detectedNiche,
+        isDemo: !isConnected
       });
       nicheTrends = formatLiveTrendItems(rawTrends, channelNiche);
     }
@@ -221,7 +387,7 @@ export const getLiveTrendsCached = async (req, res) => {
         },
         meta: {
           fetched_time: "Cached",
-          source: "Saved Channel Intelligence Cache",
+          source: isConnected ? "Channel Intelligence Live Cache" : "Saved Channel Intelligence Cache",
         },
         niche_trends: nicheTrends,
         general_trends: GENERAL_TRENDING_ITEMS,
@@ -259,7 +425,6 @@ export const getPythonServiceHealth = async (req, res) => {
     }
     throw new Error(`Service returned HTTP ${response.status}`);
   } catch (err) {
-    // If python microservice is temporarily stopped, report offline status without HTTP 500 error
     res.status(200).json({
       success: true,
       data: {
@@ -278,11 +443,47 @@ export const getPythonServiceHealth = async (req, res) => {
 export const getTrends = async (req, res) => {
   const userId = req.user?._id;
   try {
-    const channelIntel = await ChannelIntelligence.findOne({
-      $or: [{ userId }, { channelId: 'demo-antigravity-studio' }]
-    }).sort({ createdAt: -1 });
+    let channelIntel = null;
+    let isConnected = false;
+    let channelName = "Antigravity Studio";
 
-    const trends = channelIntel?.marketTrends || [];
+    if (userId && mongoose.connection.readyState === 1) {
+      const user = await User.findById(userId);
+      if (user) {
+        if (user.channelTitle) channelName = user.channelTitle;
+        if (user.youtubeTokens?.connected) isConnected = true;
+      }
+      channelIntel = await ChannelIntelligence.findOne({
+        $or: [{ userId }, { channelId: `channel-${userId}` }]
+      }).sort({ createdAt: -1 });
+    }
+
+    if (!channelIntel && (!userId || !isConnected)) {
+      if (mongoose.connection.readyState === 1) {
+        channelIntel = await ChannelIntelligence.findOne({ channelId: 'demo-antigravity-studio' });
+      }
+    }
+
+    let trends = channelIntel?.marketTrends || [];
+    if (trends.length === 0) {
+      let niche = channelIntel?.niche;
+      if (!niche) {
+        if (isConnected) {
+          niche = await detectChannelNiche({
+            channel: { title: channelName },
+            channelStats: {},
+            sampleVideos: []
+          });
+        } else {
+          niche = { primary_niche: "Astrophysics, Space & Deep Tech" };
+        }
+      }
+      trends = await fetchAndSynthesizeMarketTrends({
+        niche,
+        isDemo: !isConnected
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: trends,

@@ -151,8 +151,31 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
                   <div className="flex items-center gap-4">
                     <div className="relative flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-black/5">
                       <img
-                        src={video.thumbnail}
-                        alt=""
+                        src={
+                          video.thumbnail ||
+                          video.thumbnailUrl ||
+                          (video.id && !String(video.id).startsWith("vid") && !String(video.id).startsWith("video_")
+                            ? `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`
+                            : "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=169&fit=crop")
+                        }
+                        alt={video.title || "Video thumbnail"}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const vId = video.id;
+                          if (
+                            vId &&
+                            !String(vId).startsWith("vid") &&
+                            !String(vId).startsWith("video_") &&
+                            !e.target.src.includes("hqdefault.jpg")
+                          ) {
+                            e.target.src = `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`;
+                          } else if (!e.target.src.includes("unsplash.com")) {
+                            e.target.src =
+                              "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=169&fit=crop";
+                          } else {
+                            e.target.onerror = null;
+                          }
+                        }}
                         className="w-20 h-12 object-cover"
                       />
                       <div

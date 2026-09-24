@@ -7,8 +7,6 @@ import {
   IoSettingsOutline,
   IoCloseOutline,
   IoSparkles,
-  IoHelpCircleOutline,
-  IoRocketOutline,
   IoChevronForward,
   IoChevronForwardOutline,
 } from "react-icons/io5";
@@ -214,82 +212,17 @@ const Sidebar = () => {
                 );
               })}
             </ul>
-
-            {/* Divider */}
-            <div
-              className={`h-px bg-gradient-to-r from-transparent via-surface-300 dark:via-dark-border to-transparent overflow-hidden ${MOTION} ${
-                collapsed ? "my-0 opacity-0" : "my-5 mx-3 opacity-100"
-              }`}
-            />
-
-            {/* Support Section */}
-            <p
-              className={`text-xs font-medium text-text-light dark:text-dark-text-muted px-3 overflow-hidden whitespace-nowrap ${MOTION} ${
-                collapsed ? "max-h-0 mb-0 opacity-0" : "max-h-6 mb-3 opacity-100"
-              }`}
-            >
-              Support
-            </p>
-
-            <button
-              title={collapsed ? "Help & Support" : undefined}
-              className={`group flex items-center w-full rounded-xl text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-200 dark:text-dark-text-muted dark:hover:text-dark-text dark:hover:bg-dark-surface-light ${COLOR_MOTION} ${FOCUS_RING}`}
-            >
-              <span className={`flex items-center justify-center w-10 h-10 rounded-xl shrink-0 bg-surface-200 dark:bg-dark-surface-light group-hover:bg-surface-300 dark:group-hover:bg-dark-border ${COLOR_MOTION}`}>
-                <IoHelpCircleOutline className="w-[18px] h-[18px]" />
-              </span>
-              <span className={`flex-1 min-w-0 text-left ${labelMotion(collapsed)}`}>
-                Help & Support
-              </span>
-            </button>
           </nav>
 
-          {/* Upgrade Card — slides + fades away when collapsed */}
+          {/* Version footer */}
           <div
-            className={`shrink-0 overflow-hidden ${MOTION} ${
-              collapsed ? "max-h-0 opacity-0" : "max-h-[460px] opacity-100"
+            className={`shrink-0 overflow-hidden px-4 pb-2 ${MOTION} ${
+              collapsed ? "max-h-0 opacity-0" : "max-h-16 opacity-100"
             }`}
           >
-            <div className="p-4">
-              <div className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 dark:from-primary-600 dark:via-primary-700 dark:to-primary-800 rounded-2xl p-5 text-surface-50">
-                {/* Decorative circles */}
-                <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary-300/20 rounded-full blur-2xl" aria-hidden="true" />
-                <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-primary-400/20 rounded-full blur-xl" aria-hidden="true" />
-
-                {/* Content */}
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <span className="flex items-center justify-center w-9 h-9 bg-white/10 backdrop-blur-sm rounded-lg">
-                      <IoRocketOutline className="w-5 h-5" />
-                    </span>
-                    <div>
-                      <h3 className="font-bold text-sm">Upgrade to Pro</h3>
-                      <p className="text-[11px] text-white/80">
-                        Unlock every feature
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-white/90 mb-4 leading-relaxed">
-                    Get advanced analytics, AI insights, and priority support.
-                  </p>
-
-                  <button
-                    className={`flex items-center justify-center gap-1.5 w-full py-2.5 bg-surface-50 hover:bg-white text-primary-700 rounded-xl font-semibold text-sm shadow-lg shadow-black/10 ${MOTION} active:scale-[0.98] ${FOCUS_RING} focus-visible:ring-offset-primary-800`}
-                  >
-                    See Pro plans
-                    <IoChevronForward className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Version */}
-              <p className="text-center text-[10px] leading-relaxed text-text-light dark:text-dark-text-muted mt-4">
-                v2.4.1
-                <br />
-                © 2025 OnlyCreators
-              </p>
-            </div>
+            <p className="text-center text-[10px] leading-relaxed text-text-light dark:text-dark-text-muted">
+              v2.4.1 • © 2025 OnlyCreators
+            </p>
           </div>
 
           {/* Collapse / Expand toggle */}

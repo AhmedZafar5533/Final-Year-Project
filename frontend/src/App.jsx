@@ -368,6 +368,20 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Settings initialTab="profile" />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={<Navigate to="/settings" replace />}
+          />
 
           {/* 404 Not Found */}
           <Route path="/not-found" element={<NotFound />} />

@@ -261,10 +261,10 @@ const HeroBackground = memo(({ loaded, mousePos }) => (
 
     {/* Bottom gradient fade into next section */}
     <div
-      className="absolute bottom-0 left-0 right-0 h-32 sm:h-40"
+      className="absolute bottom-0 left-0 right-0 h-32 sm:h-40 pointer-events-none"
       style={{
         background:
-          "linear-gradient(to top, var(--color-secondary-100), transparent)",
+          "linear-gradient(to top, var(--color-background), transparent)",
       }}
     />
 

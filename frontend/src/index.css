@@ -215,6 +215,23 @@
 
     .dark {
         color-scheme: dark;
+        --color-background: #121212;
+        --color-text: #e4e4e7;
+        --color-text-primary: #e4e4e7;
+        --color-text-secondary: #a1a1aa;
+        --color-text-muted: #71717a;
+        --color-text-light: #52525b;
+        --color-secondary-50: #1a1a1a;
+        --color-secondary-100: #121212;
+        --color-secondary-200: #242424;
+        --color-secondary-300: #333333;
+        --color-secondary-400: #444444;
+        --color-secondary-500: #666666;
+        --color-surface-50: #1e1e1e;
+        --color-surface-100: #252525;
+        --color-surface-200: #2d2d2d;
+        --color-surface-300: #3d3d3d;
+        --color-surface-400: #4a4a4a;
     }
 
     ::-webkit-scrollbar {

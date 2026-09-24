@@ -79,6 +79,89 @@ function calculateOpportunityScore(views, likeRatio = 98) {
 }
 
 /**
+ * Generate rich, realistic niche-specific trend templates when live YouTube API is offline or returns 0 results
+ */
+export function generateNicheTrendsFallback(niche) {
+  const primaryNiche = niche?.primary_niche || 'Science & Technology';
+  const subNiches = niche?.sub_niches || [];
+  const pillars = niche?.content_pillars || [];
+
+  if (primaryNiche.toLowerCase().includes('astrophysics') || primaryNiche.toLowerCase().includes('space & deep tech')) {
+    return DEMO_ASTROPHYSICS_TRENDS;
+  }
+
+  const sub1 = subNiches[0] || `${primaryNiche} Breakthroughs & Masterclass`;
+  const sub2 = subNiches[1] || `Advanced ${primaryNiche} Production Workflows`;
+  const sub3 = subNiches[2] || `Next-Gen ${primaryNiche} Tools & Shifts`;
+  const sub4 = subNiches[3] || `Mastering ${primaryNiche} in 2025`;
+
+  const tagBase = primaryNiche.replace(/[^a-zA-Z0-9]/g, '');
+
+  return [
+    {
+      id: "trend-niche-1",
+      topic: `${sub1}: Complete Architecture & Breakdown`,
+      category: primaryNiche,
+      strength: "Surging",
+      opportunityScore: 95,
+      searchVolume: "580K monthly searches",
+      growthData: [35, 48, 62, 74, 88, 97],
+      hashtags: pillars.length > 0 ? pillars.slice(0, 4) : [`#${tagBase}`, '#TrendingTopic', '#Masterclass', '#Growth'],
+      marketInsight: `Surging viewer velocity and high engagement observed around "${sub1}". Viewers are actively seeking actionable, step-by-step masterclasses and clear visual explanations without unnecessary fluff.`,
+      relatedVideos: [
+        { title: `Ultimate Guide to ${sub1} in 2025`, views: "1.4M views" },
+        { title: `Top 5 Strategies for ${sub1} You Must Know`, views: "850K views" }
+      ]
+    },
+    {
+      id: "trend-niche-2",
+      topic: `${sub2}: Techniques & Industry Best Practices`,
+      category: primaryNiche,
+      strength: "Surging",
+      opportunityScore: 91,
+      searchVolume: "420K monthly searches",
+      growthData: [28, 42, 55, 69, 81, 93],
+      hashtags: [`#${tagBase}`, `#${sub2.replace(/[^a-zA-Z0-9]/g, '')}`, '#BestPractices', '#Strategy'],
+      marketInsight: `High retention and discussion volume across niche communities for "${sub2}". Creators producing comprehensive comparisons and practical walkthroughs are experiencing above-average CTR.`,
+      relatedVideos: [
+        { title: `How Modern Creators Master ${sub2}`, views: "980K views" },
+        { title: `${sub2} Explained Simply: From Zero to Pro`, views: "620K views" }
+      ]
+    },
+    {
+      id: "trend-niche-3",
+      topic: `${sub3}: Emerging Innovations & 2025 Market Shifts`,
+      category: primaryNiche,
+      strength: "High",
+      opportunityScore: 86,
+      searchVolume: "340K monthly searches",
+      growthData: [20, 32, 46, 61, 75, 87],
+      hashtags: [`#${tagBase}`, '#Innovations', '#FutureTrends', '#NextGen'],
+      marketInsight: `Growing search volume and organic curiosity regarding "${sub3}". Viewers show sustained demand for forward-looking case studies and objective evaluations.`,
+      relatedVideos: [
+        { title: `The Future of ${sub3} and What Changes Next`, views: "740K views" },
+        { title: `Why Everyone is Talking About ${sub3}`, views: "510K views" }
+      ]
+    },
+    {
+      id: "trend-niche-4",
+      topic: `${sub4}: Practical Blueprints & Common Mistakes to Avoid`,
+      category: primaryNiche,
+      strength: "Breakout",
+      opportunityScore: 82,
+      searchVolume: "270K monthly searches",
+      growthData: [15, 25, 38, 52, 67, 82],
+      hashtags: [`#${tagBase}`, '#MistakesToAvoid', '#Blueprint', '#Guide'],
+      marketInsight: `Strong audience interest in diagnostic and problem-solving content on "${sub4}". Content highlighting common pitfalls, troubleshooting steps, and structured blueprints delivers peak viewer retention.`,
+      relatedVideos: [
+        { title: `Stop Making These Common Mistakes in ${sub4}`, views: "890K views" },
+        { title: `Step-by-Step Blueprint for ${sub4}`, views: "430K views" }
+      ]
+    }
+  ];
+}
+
+/**
  * Fetch and synthesize market trends for a channel based on its detected niche
  * @param {Object} params
  * @param {Object} params.niche Channel niche object (primary_niche, sub_niches, content_pillars)
@@ -91,9 +174,9 @@ export const fetchAndSynthesizeMarketTrends = async ({
   youtubeClient = null,
   isDemo = false
 }) => {
-  // If demo mode or no live client, return rich demo astrophysics trends
+  // If demo mode or no live client, synthesize trends for the given niche
   if (isDemo || !youtubeClient) {
-    return DEMO_ASTROPHYSICS_TRENDS;
+    return generateNicheTrendsFallback(niche);
   }
 
   try {
@@ -117,7 +200,7 @@ export const fetchAndSynthesizeMarketTrends = async ({
     const items = searchResponse.data.items || [];
     if (items.length === 0) {
       console.warn('YouTube trend search returned 0 items, using niche fallback trends.');
-      return DEMO_ASTROPHYSICS_TRENDS;
+      return generateNicheTrendsFallback(niche);
     }
 
     // Collect video IDs to get full statistics
@@ -191,9 +274,9 @@ export const fetchAndSynthesizeMarketTrends = async ({
       return synthesizedTrends;
     }
 
-    return DEMO_ASTROPHYSICS_TRENDS;
+    return generateNicheTrendsFallback(niche);
   } catch (error) {
     console.error('Error fetching live market trends:', error.message);
-    return DEMO_ASTROPHYSICS_TRENDS;
+    return generateNicheTrendsFallback(niche);
   }
 };

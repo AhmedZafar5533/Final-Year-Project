@@ -155,9 +155,14 @@ Produce a valid JSON object strictly matching this schema:
 // =========================================================================
 // 1. CHANNEL NICHE & CREATOR PERSONA DETECTION
 // =========================================================================
-export const detectChannelNiche = async ({ channel, channelStats, sampleVideos = [] }) => {
-  // Pre-computed fallback for demo channel
-  if (!DEEPSEEK_API_KEY || DEEPSEEK_API_KEY === 'your_deepseek_api_key_here' || channel?.title === 'Antigravity Studio' || channel?.isDemo) {
+
+/**
+ * Intelligent rule-based creator niche classifier
+ * Analyzes channel metadata, video titles, tags, and descriptions to determine the exact creative niche.
+ */
+export function classifyChannelNicheHeuristic({ channel, channelStats, sampleVideos = [] }) {
+  // If it's explicitly the demo channel
+  if (channel?.title === 'Antigravity Studio' || channel?.isDemo) {
     return {
       primary_niche: "Theoretical Astrophysics & Frontier Propulsion Physics",
       sub_niches: [
@@ -170,9 +175,9 @@ export const detectChannelNiche = async ({ channel, channelStats, sampleVideos =
       target_audience: "STEM university students, amateur astronomers, sci-fi worldbuilders, and intellectually curious science enthusiasts (primarily 18–35).",
       content_tone: "Cinematic, mathematically honest, exploratory, and intellectually rigorous without dumbing down the equations.",
       content_pillars: [
-        "Frontier Physics & Spacetime Mechanics",
-        "Exoplanet Science & Alien Worlds",
-        "Cosmic Existential Paradoxes & Astrophysics"
+        "#Astrophysics",
+        "#QuantumPhysics",
+        "#SpaceExploration"
       ],
       differentiators: [
         "Replaces clickbait hype with authentic mathematical rigor (e.g., actual stress-energy tensors and Kerr metric solutions)",
@@ -181,12 +186,217 @@ export const detectChannelNiche = async ({ channel, channelStats, sampleVideos =
     };
   }
 
-  try {
-    const videoSummaryList = sampleVideos.slice(0, 5).map(v => 
-      `- Title: "${v.snippet?.title || v.title}" | Desc: "${(v.snippet?.description || v.description || '').substring(0, 150)}..."`
-    ).join('\n');
+  // Combine channel info, video titles, descriptions, and tags into a unified corpus
+  const textCorpus = [
+    channel?.title || '',
+    channel?.description || '',
+    ...sampleVideos.map(v => `${v.snippet?.title || v.title || ''} ${v.snippet?.description || v.description || ''} ${(v.snippet?.tags || v.tags || []).join(' ')}`)
+  ].join(' ').toLowerCase();
 
-    const prompt = `
+  const NICHE_PROFILES = [
+    {
+      primary_niche: "Web Development & Software Engineering",
+      keywords: ["javascript", "typescript", "react", "nextjs", "node", "frontend", "backend", "fullstack", "full stack", "python", "coding", "code", "programming", "developer", "html", "css", "docker", "kubernetes", "api", "rest api", "graphql", "sql", "database", "mongodb", "git", "github", "tailwind", "express", "vue", "angular", "devops", "software engineer", "leetcode", "algorithms", "web dev", "app dev", "flutter", "react native"],
+      sub_niches: ["Modern Frontend & React Architecture", "Backend APIs & Microservices", "Full Stack Web Applications", "Cloud Deployment & DevOps", "Developer Tools & Productive Workflows"],
+      pillars: ["#WebDev", "#FullStack", "#CodingTutorials"],
+      target_audience: "Software engineers, web developers, CS students, and coding bootcamp grads seeking modern, project-based engineering tutorials.",
+      content_tone: "Practical, code-first, hands-on, and clear with step-by-step real-world implementations.",
+      differentiators: ["Focus on clean architecture and production-ready code", "Practical real-world project builds over theoretical boilerplate"]
+    },
+    {
+      primary_niche: "Artificial Intelligence & Machine Learning",
+      keywords: ["ai", "artificial intelligence", "machine learning", "deep learning", "llm", "llms", "chatgpt", "openai", "deepseek", "claude", "gemini", "neural network", "transformer", "nlp", "computer vision", "stable diffusion", "midjourney", "prompt engineering", "langchain", "rag", "fine tuning", "pytorch", "tensorflow", "data science", "agents", "autonomous agents"],
+      sub_niches: ["Autonomous AI Agents & Tool Use", "Local LLMs & Open Source Models", "Retrieval-Augmented Generation (RAG)", "Generative AI & Image Synthesis", "AI Engineering & Practical Automations"],
+      pillars: ["#ArtificialIntelligence", "#MachineLearning", "#AITools"],
+      target_audience: "AI engineers, tech enthusiasts, data scientists, and creators leveraging frontier AI models and tools.",
+      content_tone: "Analytical, forward-looking, cutting-edge, and technical with benchmark comparisons.",
+      differentiators: ["Objective benchmark comparisons of latest open-source vs proprietary models", "Live code walkthroughs of AI agent systems and pipelines"]
+    },
+    {
+      primary_niche: "Gaming & Esports Walkthroughs",
+      keywords: ["gameplay", "gaming", "game", "walkthrough", "playthrough", "lets play", "let's play", "minecraft", "gta", "gta v", "roblox", "fortnite", "valorant", "call of duty", "warzone", "elden ring", "ps5", "playstation", "xbox", "nintendo", "switch", "speedrun", "boss fight", "mod", "mods", "gamer", "streamer", "twitch", "esports", "fps", "rpg", "pokemon", "cs2", "counter strike"],
+      sub_niches: ["High-Level Gameplay & Strategy", "Complete Game Walkthroughs & Guides", "Mod Reviews & Secret Easter Eggs", "Challenging Speedruns & Boss Guides", "Gaming News & Patch Breakdowns"],
+      pillars: ["#Gaming", "#Gameplay", "#GamerLife"],
+      target_audience: "Gamers, stream viewers, and fans looking for entertaining gameplay, expert strategies, and hidden game secrets.",
+      content_tone: "High-energy, entertaining, humorous, and highly engaging with fast-paced editing.",
+      differentiators: ["Crisp gameplay capture with engaging audio commentary", "Creative challenges, mods, and pro-level speedrun strategies"]
+    },
+    {
+      primary_niche: "Personal Finance, Investing & Crypto",
+      keywords: ["finance", "investing", "stocks", "stock market", "crypto", "bitcoin", "ethereum", "money", "wealth", "passive income", "real estate", "dividends", "trading", "budgeting", "credit card", "credit score", "side hustle", "financial freedom", "etf", "index funds", "sp500", "s&p 500", "forex", "roth ira", "portfolio"],
+      sub_niches: ["Long-Term Index & Dividend Investing", "Crypto & Blockchain Market Trends", "Passive Income Streams & Side Hustles", "Personal Budgeting & Debt Elimination", "Real Estate & Wealth Building"],
+      pillars: ["#PersonalFinance", "#Investing", "#PassiveIncome"],
+      target_audience: "Young professionals, investors, and individuals aspiring to build wealth, achieve financial independence, and master investing.",
+      content_tone: "Transparent, numbers-driven, encouraging, and actionable with real portfolio breakdowns.",
+      differentiators: ["Zero-fluff financial transparency with real data and portfolios", "Balanced, risk-aware investment frameworks instead of hype"]
+    },
+    {
+      primary_niche: "Fitness, Bodybuilding & Nutrition",
+      keywords: ["fitness", "workout", "gym", "bodybuilding", "calisthenics", "exercise", "muscle", "weight loss", "fat loss", "diet", "nutrition", "protein", "training", "physique", "hypertrophy", "cardio", "lifting", "squat", "bench press", "deadlift", "crossfit", "transformation", "abs", "strength"],
+      sub_niches: ["Hypertrophy & Science-Based Training", "Fat Loss & Calorie Deficit Strategies", "Calisthenics & Bodyweight Mastery", "High-Protein Meal Prep & Nutrition", "Form Fixes & Injury Prevention"],
+      pillars: ["#Fitness", "#GymMotivation", "#WorkoutRoutine"],
+      target_audience: "Gym-goers, fitness enthusiasts, athletes, and beginners seeking effective workouts, nutrition advice, and physique transformation.",
+      content_tone: "Motivating, science-backed, disciplined, and direct with high-intensity visual execution.",
+      differentiators: ["Evidence-based exercise biomechanics and form breakdowns", "Practical meal planning without extreme or unsustainable diets"]
+    },
+    {
+      primary_niche: "Cooking, Culinary Arts & Recipes",
+      keywords: ["cooking", "recipe", "recipes", "food", "cook", "chef", "baking", "bake", "kitchen", "delicious", "dish", "meal prep", "street food", "dinner", "breakfast", "lunch", "dessert", "restaurant", "culinary", "taste test", "asmr cooking", "flavor", "easy meal"],
+      sub_niches: ["Quick & Budget-Friendly Dinners", "Artisanal Baking & Pastry Techniques", "Authentic Global Street Food & Cuisines", "High-Flavor Gourmet Cooking Techniques", "Meal Prep & Batch Cooking"],
+      pillars: ["#Cooking", "#RecipeOfTheDay", "#Foodie"],
+      target_audience: "Home cooks, foodies, culinary students, and busy individuals looking for mouthwatering, foolproof recipes.",
+      content_tone: "Appetizing, sensory-rich, warm, and step-by-step with satisfying culinary visuals.",
+      differentiators: ["High-definition sensory food presentation and foolproof timing", "Accessible ingredients elevated with restaurant-quality flavor profiles"]
+    },
+    {
+      primary_niche: "Tech Reviews, Gadgets & Hardware",
+      keywords: ["review", "unboxing", "smartphone", "iphone", "apple", "samsung", "android", "laptop", "macbook", "gadgets", "hardware", "camera", "setup", "pc build", "gpu", "nvidia", "rtx", "tech review", "specs", "tech", "headphones", "desk setup"],
+      sub_niches: ["Flagship Smartphone & Device Comparisons", "Ultimate Desk Setups & Productivity Gear", "Custom PC Builds & GPU Benchmarks", "Next-Gen Consumer Tech Innovations", "Long-Term Everyday Carry (EDC) Reviews"],
+      pillars: ["#TechReview", "#Gadgets", "#SetupTour"],
+      target_audience: "Tech enthusiasts, gearheads, professionals, and consumers researching the best hardware before purchasing.",
+      content_tone: "Cinematic, objective, detail-oriented, and aesthetic with crisp B-roll product shots.",
+      differentiators: ["Aesthetic cinematography paired with honest pros/cons testing", "Long-term durability and real-world battery/performance metrics"]
+    },
+    {
+      primary_niche: "Digital Art, Design & VFX",
+      keywords: ["art", "digital art", "drawing", "illustration", "design", "photoshop", "blender", "3d", "vfx", "animation", "motion graphics", "graphic design", "procreate", "speedpaint", "concept art", "ui ux", "figma", "sketching"],
+      sub_niches: ["3D Modeling & Blender Workflows", "Digital Illustration & Painting Techniques", "Visual Effects (VFX) & Compositing", "UI/UX & Graphic Design Principles", "Speedpainting & Character Concept Art"],
+      pillars: ["#DigitalArt", "#DesignInspiration", "#Blender3D"],
+      target_audience: "Digital artists, graphic designers, animators, 3D modelers, and creative hobbyists honing their visual craft.",
+      content_tone: "Inspiring, aesthetic, educational, and creative with mesmerizing timelapse and process reveals.",
+      differentiators: ["Deep workflow breakdowns of professional production software", "Actionable composition, lighting, and color theory tips"]
+    },
+    {
+      primary_niche: "Music Production, Audio & Beats",
+      keywords: ["music", "song", "beat", "beats", "producer", "fl studio", "ableton", "logic pro", "guitar", "piano", "vocals", "singing", "cover", "track", "remix", "audio", "rap", "hip hop", "mixing", "mastering", "sound design", "synth"],
+      sub_niches: ["Beat Making & FL Studio / Ableton Workflows", "Vocal Mixing & Audio Engineering", "Acoustic & Instrumental Performance", "Music Theory for Modern Producers", "Sound Design & Synthesizer Presets"],
+      pillars: ["#MusicProduction", "#BeatMaker", "#AudioEngineer"],
+      target_audience: "Music producers, songwriters, audio engineers, beatmakers, and passionate music fans.",
+      content_tone: "Rhythmic, creative, auditory-focused, and inspiring with live instrumental jams.",
+      differentiators: ["Deconstructing hit songs step-by-step from zero to master", "Practical mixing tricks that make bedroom productions sound radio-ready"]
+    },
+    {
+      primary_niche: "Travel, Adventure & Culture Vlogs",
+      keywords: ["travel", "vlog", "vlogs", "trip", "adventure", "tour", "exploring", "hotel", "destination", "vacation", "flight", "backpacking", "country", "city tour", "road trip", "culture", "hidden gems", "solo travel", "nomad", "itinerary"],
+      sub_niches: ["Hidden Gems & Off-The-Beaten-Path Expeditions", "Solo Travel Guides & Safety Tips", "Cultural Immersion & Local Experiences", "Budget vs Luxury Destination Comparisons", "Cinematic City & Nature Travel Vlogs"],
+      pillars: ["#TravelVlog", "#Wanderlust", "#AdventureTravel"],
+      target_audience: "Travelers, digital nomads, adventure seekers, and viewers who love experiencing diverse global cultures.",
+      content_tone: "Cinematic, authentic, curious, adventurous, and visually breathtaking.",
+      differentiators: ["Immersive local storytelling beyond typical tourist hotspots", "Practical budget and itinerary breakdown for viewers"]
+    },
+    {
+      primary_niche: "Automotive, Cars & Mechanics",
+      keywords: ["car", "cars", "supercar", "auto", "engine", "exhaust", "drift", "racing", "turbo", "bmw", "audi", "porsche", "toyota", "honda", "mechanic", "restoration", "motorcycle", "ev", "electric car", "track day", "car build"],
+      sub_niches: ["Project Car Builds & Engine Swaps", "Supercar Reviews & Track Comparisons", "DIY Mechanic Repairs & Maintenance", "Exhaust Sounds & Performance Dyno Tests", "Classic Car Restorations"],
+      pillars: ["#CarCulture", "#Supercars", "#ProjectCar"],
+      target_audience: "Automotive enthusiasts, gearheads, mechanics, and car owners passionate about builds, horsepower, and car culture.",
+      content_tone: "High-octane, passionate, hands-on, and mechanically detailed.",
+      differentiators: ["Authentic garage wrenching and transparent build budgets", "Dynamic track testing and exhaust sound capturing"]
+    },
+    {
+      primary_niche: "Business, Marketing & Entrepreneurship",
+      keywords: ["business", "marketing", "entrepreneur", "startup", "ecommerce", "e-commerce", "dropshipping", "sales", "agency", "branding", "growth", "strategy", "smma", "b2b", "side business", "management", "leadership", "scale"],
+      sub_niches: ["Digital Marketing & Paid Ad Optimization", "E-Commerce & Brand Building", "B2B Sales & Client Acquisition", "Startup Growth & Venture Strategy", "Business Automation & Systems"],
+      pillars: ["#Entrepreneurship", "#DigitalMarketing", "#BusinessGrowth"],
+      target_audience: "Entrepreneurs, agency owners, digital marketers, and founders looking to scale businesses and revenue.",
+      content_tone: "Direct, strategic, metric-driven, and pragmatic.",
+      differentiators: ["Case studies with verified revenue and conversion numbers", "Actionable standard operating procedures (SOPs) and frameworks"]
+    },
+    {
+      primary_niche: "Self-Improvement, Habits & Productivity",
+      keywords: ["productivity", "habits", "discipline", "mindset", "self improvement", "self help", "focus", "motivation", "routine", "morning routine", "books", "learning", "psychology", "dopamine", "goal setting", "time management", "stoicism"],
+      sub_niches: ["Daily Habits & Routine Architecture", "Focus, Deep Work & Dopamine Detox", "Book Summaries & Mental Models", "Goal Execution & Anti-Procrastination", "Stoic Mindset & Emotional Resilience"],
+      pillars: ["#SelfImprovement", "#Productivity", "#MindsetMatters"],
+      target_audience: "High-achievers, students, and self-directed learners aiming to optimize focus, build discipline, and level up daily life.",
+      content_tone: "Thoughtful, structured, inspiring, and grounded in psychological frameworks.",
+      differentiators: ["Actionable habit loops backed by behavioral psychology", "Realistic routines that avoid toxic hustle culture"]
+    }
+  ];
+
+  // Score each niche profile
+  let bestNiche = null;
+  let maxScore = 0;
+
+  for (const profile of NICHE_PROFILES) {
+    let score = 0;
+    for (const kw of profile.keywords) {
+      const regex = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+      const matches = textCorpus.match(regex);
+      if (matches) {
+        score += matches.length * (kw.includes(' ') ? 2.5 : 1.2);
+      }
+    }
+    if (score > maxScore) {
+      maxScore = score;
+      bestNiche = profile;
+    }
+  }
+
+  // If matched with confidence
+  if (bestNiche && maxScore >= 1.5) {
+    const videoTitles = sampleVideos.map(v => (v.snippet?.title || v.title || '').trim()).filter(Boolean);
+    let customSubNiches = [...bestNiche.sub_niches];
+    if (videoTitles.length > 0) {
+      const extractedPillars = videoTitles.slice(0, 3).map(t => {
+        const clean = t.split('|')[0].split('-')[0].replace(/[^\w\s]/g, '').trim();
+        return clean.length > 4 && clean.length < 35 ? clean : null;
+      }).filter(Boolean);
+      if (extractedPillars.length > 0) {
+        customSubNiches = [...extractedPillars, ...bestNiche.sub_niches.slice(extractedPillars.length)];
+      }
+    }
+
+    return {
+      primary_niche: bestNiche.primary_niche,
+      sub_niches: customSubNiches.slice(0, 5),
+      target_audience: bestNiche.target_audience,
+      content_tone: bestNiche.content_tone,
+      content_pillars: bestNiche.pillars,
+      differentiators: bestNiche.differentiators
+    };
+  }
+
+  // If channel has video titles, construct custom niche from first video title or channel title
+  const channelTitle = channel?.title || 'Creator';
+  const firstVideoTitle = sampleVideos[0]?.snippet?.title || sampleVideos[0]?.title || '';
+  const cleanTitle = firstVideoTitle.split('|')[0].split('-')[0].replace(/[^\w\s]/g, '').trim();
+
+  return {
+    primary_niche: cleanTitle.length > 5 ? `${cleanTitle} Content & Guides` : `${channelTitle} Official Topics`,
+    sub_niches: [
+      cleanTitle ? `${cleanTitle} Deep Dive` : "Core Video Topics",
+      "Audience Q&A and Community Highlights",
+      "Creator Walkthroughs & Updates",
+      "Trending Topic Explorations"
+    ],
+    target_audience: `Subscribers and viewers following ${channelTitle} for unique insights, high-value tutorials, and community discussions.`,
+    content_tone: "Engaging, authentic, direct, and community-focused.",
+    content_pillars: [
+      `#${channelTitle.replace(/\s+/g, '')}`,
+      "#TrendingContent",
+      "#YouTubeCreators"
+    ],
+    differentiators: [
+      "Authentic community connection and creator voice",
+      "Tailored perspectives on topics in this niche"
+    ]
+  };
+}
+
+export const detectChannelNiche = async ({ channel, channelStats, sampleVideos = [] }) => {
+  // Pre-computed fallback for demo channel
+  if (channel?.title === 'Antigravity Studio' || channel?.isDemo) {
+    return classifyChannelNicheHeuristic({ channel, channelStats, sampleVideos });
+  }
+
+  // If DeepSeek API key is available, attempt AI classification
+  if (DEEPSEEK_API_KEY && DEEPSEEK_API_KEY !== 'your_deepseek_api_key_here') {
+    try {
+      const videoSummaryList = sampleVideos.slice(0, 5).map(v => 
+        `- Title: "${v.snippet?.title || v.title}" | Desc: "${(v.snippet?.description || v.description || '').substring(0, 150)}..."`
+      ).join('\n');
+
+      const prompt = `
 Analyze this YouTube channel's metadata, subscriber scale, and sample video catalogue to identify its exact creative niche, audience persona, and content strategy:
 
 CHANNEL NAME: ${channel?.title || 'YouTube Channel'}
@@ -194,7 +404,7 @@ CHANNEL DESCRIPTION: ${channel?.description || 'N/A'}
 SUBSCRIBERS: ${channelStats?.subscriberCount || 'Unknown'} | TOTAL VIDEOS: ${channelStats?.videoCount || sampleVideos.length}
 
 LATEST VIDEOS:
-${videoSummaryList}
+${videoSummaryList || 'No recent videos provided.'}
 
 Respond strictly in valid JSON matching this schema:
 {
@@ -207,47 +417,44 @@ Respond strictly in valid JSON matching this schema:
 }
 `;
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-    const response = await fetch(DEEPSEEK_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: 'You are an elite YouTube channel strategist. Always return valid JSON.' },
-          { role: 'user', content: prompt }
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.6
-      }),
-      signal: controller.signal
-    });
+      const response = await fetch(DEEPSEEK_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            { role: 'system', content: 'You are an elite YouTube channel strategist. Always return valid JSON.' },
+            { role: 'user', content: prompt }
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.6
+        }),
+        signal: controller.signal
+      });
 
-    clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
 
-    if (response.ok) {
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content;
-      if (content) return JSON.parse(content);
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) {
+          const parsed = JSON.parse(content);
+          if (parsed?.primary_niche) return parsed;
+        }
+      }
+    } catch (err) {
+      console.warn('DeepSeek Channel niche detection failed, using heuristic classification:', err.message);
     }
-  } catch (err) {
-    console.warn('Channel niche detection failed, falling back:', err.message);
   }
 
-  // Generic fallback
-  return {
-    primary_niche: "Science, Education & Technology",
-    sub_niches: ["Applied Science", "Technical Tutorials", "Deep Dives", "Exploratory Concepts"],
-    target_audience: "Curiosity-driven lifelong learners and tech enthusiasts.",
-    content_tone: "Informative, engaging, and clear.",
-    content_pillars: ["Core Concepts", "Emerging Tech", "Analytical Breakdowns"],
-    differentiators: ["Clear explanations", "In-depth analytical visuals"]
-  };
+  // High-accuracy heuristic classifier for all real creator channels
+  return classifyChannelNicheHeuristic({ channel, channelStats, sampleVideos });
 };
 
 // =========================================================================

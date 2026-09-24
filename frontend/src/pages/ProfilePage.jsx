@@ -24,14 +24,14 @@ export default function ProfilePage() {
         <div className="profile-container">
             <div className="profile-card">
                 <div className="profile-header">
-                    <img src={user.avatarUrl || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'} 
-                         alt="Avatar" width="80" height="80" />
+                    <img src={user.channelAvatarUrl || user.avatarUrl || user.avatar || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'} 
+                         alt="Avatar" width="80" height="80" style={{ borderRadius: '50%', objectFit: 'cover' }} />
                     <div className="profile-info">
-                        <h1>{user.fullName || 'User Profile'}</h1>
+                        <h1>{user.channelTitle || user.fullName || 'User Profile'}</h1>
                         <p>{user.email}</p>
                         <div className="badges">
                             <span className="badge">Verified Account</span>
-                            {isYoutubeConnected && <span className="badge yt-badge">YouTube Connected</span>}
+                            {isYoutubeConnected && <span className="badge yt-badge">YouTube Connected {user.channelTitle ? `(${user.channelTitle})` : ''}</span>}
                         </div>
                     </div>
                 </div>
