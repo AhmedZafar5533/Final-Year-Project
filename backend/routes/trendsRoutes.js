@@ -9,7 +9,6 @@ import { protectOptional } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Live Trend Pipeline & ML Health Check
 router.get('/live/health', getPythonServiceHealth);
 router.get('/live/cached', protectOptional, getLiveTrendsCached);
 router.get('/live', protectOptional, getLiveTrends);
