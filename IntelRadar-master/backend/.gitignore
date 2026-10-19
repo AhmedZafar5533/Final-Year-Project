@@ -1,0 +1,14 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Runtime artifacts
+*.log
+media_storage/
+screenshots/

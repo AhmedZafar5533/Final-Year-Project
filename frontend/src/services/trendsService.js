@@ -134,14 +134,17 @@ export const trendsService = {
   /**
    * Interactive AI Script Studio Chatbot
    */
-  async chatScriptStudio({ idea, channelContext, messages, currentScript }) {
+  async chatScriptStudio({ idea, channelContext, messages, currentScript, sessionId, requestMode = 'auto', researchMode = 'auto' }) {
     try {
       const response = await api.post("/youtube/script-studio/chat", {
         idea,
         channelContext,
         messages,
         currentScript,
-      });
+        sessionId,
+        requestMode,
+        researchMode,
+      }, { timeout: 120000 });
       return response.data;
     } catch (error) {
       console.error("Failed to call script studio chat:", error);

@@ -1,0 +1,12 @@
+node_modules/
+src-tauri/target/
+src-tauri/gen/
+
+# Generated engine build output
+engine/dist/
+
+# Generated engine + browser bundles
+src-tauri/resources/engine/intelradar-engine
+src-tauri/resources/engine/intelradar-engine.exe
+src-tauri/resources/playwright/*
+!src-tauri/resources/playwright/README.md

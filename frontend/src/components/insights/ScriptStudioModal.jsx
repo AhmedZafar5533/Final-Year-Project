@@ -7,6 +7,11 @@ import {
   IoSparkles,
 } from "react-icons/io5";
 import trendsService from "../../services/trendsService";
+import useScriptResearch from "../../hooks/useScriptResearch";
+import DOMPurify from "dompurify";
+import ScriptWorkspace from "./ScriptWorkspace";
+import ScriptRequestMode from "./ScriptRequestMode";
+import ScriptChatContent from "./ScriptChatContent";
 
 /* ---------------------------------------------------------------------- */
 /* Markdown → manuscript rendering                                        */
@@ -14,7 +19,7 @@ import trendsService from "../../services/trendsService";
 
 function formatInlineMarkdown(str) {
   if (!str) return "";
-  return str
+  return DOMPurify.sanitize(str
     .replace(
       /\*\*(.*?)\*\*/g,
       '<strong class="font-semibold text-text-primary dark:text-white">$1</strong>',
@@ -26,7 +31,7 @@ function formatInlineMarkdown(str) {
     .replace(
       /`(.*?)`/g,
       '<code class="px-1.5 py-0.5 rounded-md bg-surface-100 dark:bg-dark-border font-mono text-[0.7rem] tracking-tight text-primary-700 dark:text-primary-300">$1</code>',
-    );
+    ), { ALLOWED_TAGS: ["strong", "em", "code"], ALLOWED_ATTR: ["class"] });
 }
 
 // Pulls a leading "(0:00 - 0:45)" style timecode off a heading so it can be
@@ -143,12 +148,37 @@ export const ScriptStudioModal = ({ idea, channelNiche, onClose }) => {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [requestMode, setRequestMode] = useState("auto");
+  const [mobilePane, setMobilePane] = useState("draft");
   const [suggestedFollowups, setSuggestedFollowups] = useState([]);
   const [copied, setCopied] = useState(false);
+  const [researchCompletedAt, setResearchCompletedAt] = useState(null);
+  const [webResearch, setWebResearch] = useState(null);
+  const { job: scriptResearch, availableUpdate: researchUpdateAvailable } = useScriptResearch(idea, researchCompletedAt);
 
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
   const modalSessionIdRef = useRef(null);
+  const dialogRef = useRef(null);
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    const previous = document.activeElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeRef.current?.focus();
+    const keydown = event => {
+      if (event.key === 'Escape') onClose();
+      if (event.key !== 'Tab') return;
+      const elements = [...(dialogRef.current?.querySelectorAll('button:not(:disabled), textarea:not(:disabled), a[href], [tabindex="0"]') || [])]
+        .filter(element => element.getClientRects().length);
+      const first = elements[0], last = elements.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener('keydown', keydown);
+    return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', keydown); previous?.focus?.(); };
+  }, [onClose]);
 
   useEffect(() => {
     if (!idea) return;
@@ -181,9 +211,13 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
         },
         messages: newMessages,
         currentScript: "",
+        sessionId: modalSessionIdRef.current,
+        requestMode: "edit",
       })
       .then((data) => {
         if (!isMounted) return;
+        if (data.scriptUpdated) setResearchCompletedAt(data.researchCompletedAt || null);
+        setWebResearch(data.webResearch || null);
         let generatedScript = scriptContent;
         if (data.script) {
           generatedScript = data.script;
@@ -211,10 +245,13 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
             messages: finalMsgs,
             scriptContent: generatedScript,
             idea,
+            researchCompletedAt: data.researchCompletedAt,
+            webResearch: data.webResearch,
           };
 
           const existingIdx = history.findIndex(
-            (s) => s.id === modalSessionIdRef.current || s.title === sessionObj.title
+            (s) => s.id === modalSessionIdRef.current ||
+              (idea.ideaKey ? s.idea?.ideaKey === idea.ideaKey : s.title === sessionObj.title)
           );
 
           let updatedHistory;
@@ -232,13 +269,11 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       .catch((err) => {
         console.error("Initial script error:", err);
         if (isMounted) {
-          const fallbackScript = `# ${idea.title}\n\n## Hook (0:00 - 0:45)\n"${idea.hook}"\n\n**[VISUAL: High-contrast animation demonstrating the core paradox]**\n\nWelcome back to the channel. Today we are unpacking something that completely upends the conventional consensus.\n\n## Section 1: The Core Breakthrough (0:45 - 4:15)\n- Viewer demand source: ${idea.audience_demand_source || "Viewer questions"}\n- Trend surge: ${idea.trend_source || "Latest market velocity"}\n\n**[VISUAL: Technical blueprint on split screen]**\n\n## Section 2: Why It Matters (4:15 - 8:30)\n${idea.why_it_will_perform}\n\n## Outro & Call to Action (8:30 - 9:00)\nWhat do you think about this discovery? Let me know in the comments below, and subscribe for the next deep dive!`;
-          setScriptContent(fallbackScript);
           setChatMessages((prev) => [
             ...prev,
             {
               role: "assistant",
-              content: "Drafted an initial script offline. Ask me to punch up the hook, adjust tone, or add visual direction.",
+              content: err.response?.data?.error || "The script could not be generated. Please retry your request.",
             },
           ]);
         }
@@ -257,7 +292,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, chatLoading]);
 
-  const handleSendMessage = async (promptToSend) => {
+  const handleSendMessage = async (promptToSend, options = {}) => {
     const text = promptToSend || chatInput;
     if (!text.trim() || chatLoading) return;
 
@@ -277,17 +312,22 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
         },
         messages: updatedMessages,
         currentScript: scriptContent,
+        sessionId: modalSessionIdRef.current,
+        requestMode: options.requestMode || requestMode,
+        researchMode: options.researchMode || "auto",
       });
+      if (data.scriptUpdated) setResearchCompletedAt(data.researchCompletedAt || null);
+      setWebResearch(data.webResearch || null);
 
       let nextScript = scriptContent;
-      if (data.script) {
+      if (data.scriptUpdated === true && data.script) {
         nextScript = data.script;
         setScriptContent(data.script);
       }
       if (data.suggested_followups) setSuggestedFollowups(data.suggested_followups);
       const nextMsgs = [
         ...updatedMessages,
-        { role: "assistant", content: data.reply || "Revised the script based on that note." },
+        { role: "assistant", content: data.reply || "Here is my response.", scriptUpdated: data.scriptUpdated === true, intent: data.intent },
       ];
       setChatMessages(nextMsgs);
 
@@ -302,10 +342,13 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
           messages: nextMsgs,
           scriptContent: nextScript,
           idea,
+          researchCompletedAt: data.researchCompletedAt,
+          webResearch: data.webResearch,
         };
 
         const existingIdx = history.findIndex(
-          (s) => s.id === sessionObj.id || s.title === sessionObj.title
+          (s) => s.id === sessionObj.id ||
+            (idea.ideaKey ? s.idea?.ideaKey === idea.ideaKey : s.title === sessionObj.title)
         );
 
         let updatedHistory;
@@ -322,7 +365,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       console.error("Chat message error:", err);
       setChatMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Got it — let's keep refining the pacing or sections." },
+        { role: "assistant", content: err.response?.data?.error || "The script could not be updated. Your current draft is preserved; please retry." },
       ]);
     } finally {
       setChatLoading(false);
@@ -348,6 +391,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-ink-950/70 backdrop-blur-sm animate-fade-in">
       <div
+        ref={dialogRef} role="dialog" aria-modal="true" aria-label="Script Studio"
         className="relative w-full max-w-6xl h-[92vh] flex flex-col bg-white dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border shadow-[0_24px_70px_-20px_rgba(0,0,0,0.35)] overflow-hidden animate-modal-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -390,6 +434,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               </button>
             )}
             <button
+              ref={closeRef}
               onClick={onClose}
               aria-label="Close"
               className="p-2 rounded-lg text-text-muted hover:text-text-primary dark:hover:text-white hover:bg-surface-100 dark:hover:bg-dark-border transition-colors"
@@ -399,10 +444,14 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
           </div>
         </div>
 
+        <div className="flex lg:hidden p-2 gap-2 border-b border-surface-200 dark:border-dark-border" role="group" aria-label="Workspace view">
+          {['draft', 'chat'].map(pane => <button key={pane} type="button" onClick={() => setMobilePane(pane)} aria-pressed={mobilePane === pane}
+            className={`flex-1 rounded-lg py-2 text-xs font-semibold ${mobilePane === pane ? 'bg-primary-600 text-white' : 'bg-surface-100 dark:bg-dark-border'}`}>{pane === 'draft' ? 'Draft & research' : 'Chat'}</button>)}
+        </div>
         {/* Workspace */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
           {/* Manuscript pane */}
-          <div className="lg:col-span-7 flex flex-col border-r border-surface-200 dark:border-dark-border overflow-hidden bg-[#FBFAF8] dark:bg-dark-surface">
+          <div className={`lg:col-span-7 ${mobilePane === "draft" ? "flex" : "hidden lg:flex"} flex-col min-h-0 border-r border-surface-200 dark:border-dark-border overflow-hidden bg-[#FBFAF8] dark:bg-dark-surface`}>
             <div className="flex items-center justify-between px-6 sm:px-8 py-3 border-b border-surface-200/70 dark:border-dark-border">
               <span className="font-serif italic text-sm text-text-muted dark:text-dark-text-muted">
                 Script draft
@@ -412,26 +461,19 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-6">
-              {chatLoading && !scriptContent ? (
-                <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
-                  <IoSparkles className="w-5 h-5 text-primary-400 animate-pulse" />
-                  <p className="font-serif italic text-sm text-text-muted dark:text-dark-text-muted">
-                    Writing your script…
-                  </p>
-                </div>
-              ) : scriptContent ? (
-                <div>{renderMarkdownScript(scriptContent)}</div>
-              ) : (
-                <p className="font-serif italic text-sm text-text-muted text-center py-10">
-                  No script yet.
-                </p>
-              )}
-            </div>
+            <ScriptWorkspace research={webResearch} loading={chatLoading}
+              onResearch={mode => handleSendMessage(mode === 'images' ? 'Find relevant images for this video and show original source pages. Do not change the script.' :
+                'Find authoritative web references for this video. Do not change the script.', { requestMode: 'chat', researchMode: mode })}>
+              <div className="max-w-3xl mx-auto px-6 sm:px-8 py-6">
+                {scriptContent ? renderMarkdownScript(scriptContent) : <div className="text-center py-12 text-text-muted space-y-3">
+                  <IoSparkles className="w-7 h-7 mx-auto" /><p>{chatLoading ? 'Preparing your draft and references…' : 'Your script will appear here. Questions are answered in chat.'}</p>
+                </div>}
+              </div>
+            </ScriptWorkspace>
           </div>
 
           {/* Collaboration pane */}
-          <div className="lg:col-span-5 flex flex-col overflow-hidden bg-surface-50/60 dark:bg-dark-surface-light/20">
+          <div className={`lg:col-span-5 ${mobilePane === "chat" ? "flex" : "hidden lg:flex"} flex-col min-h-0 overflow-hidden bg-surface-50/60 dark:bg-dark-surface-light/20`}>
             <div className="flex items-center gap-2 px-5 py-3 border-b border-surface-200 dark:border-dark-border">
               <span className="text-[0.8rem] font-medium text-text-secondary dark:text-dark-text">
                 Working with Nova
@@ -455,7 +497,8 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                           : "bg-white dark:bg-dark-surface border border-surface-200 dark:border-dark-border text-text-primary dark:text-dark-text rounded-tl-sm"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                      {!isUser && msg.intent && <p className="text-[10px] uppercase tracking-wider text-primary-600 dark:text-primary-300 mb-2">{msg.scriptUpdated ? 'Draft updated' : 'Answer · draft unchanged'}</p>}
+                      {isUser ? <p className="whitespace-pre-wrap">{msg.content}</p> : <ScriptChatContent content={msg.content} research={webResearch} />}
                     </div>
                   </div>
                 );
@@ -476,6 +519,14 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               <div ref={chatEndRef} />
             </div>
 
+            {scriptResearch && <div className="px-4 py-2 text-xs flex justify-between gap-2">
+              <span>{researchUpdateAvailable ? "Competitor research is ready." :
+                researchCompletedAt ? "Saved research applied." : "Research: " + scriptResearch.status}</span>
+              {researchUpdateAvailable && <button type="button" disabled={chatLoading} className="underline disabled:opacity-50"
+                onClick={() => handleSendMessage("Update this draft using the latest saved competitor research. Address supported audience needs and differentiate the angle without copying competitors.", { requestMode: "edit" })}>
+                Update with research
+              </button>}
+            </div>}
             {suggestedFollowups.length > 0 && (
               <div className="px-4 pb-3 flex gap-2 overflow-x-auto">
                 {suggestedFollowups.map((sug, i) => (
@@ -492,6 +543,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
             )}
 
             <div className="px-4 py-3 border-t border-surface-200 dark:border-dark-border">
+              <ScriptRequestMode value={requestMode} onChange={setRequestMode} disabled={chatLoading} />
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -499,14 +551,16 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                 }}
                 className="flex items-center gap-2"
               >
-                <input
+                <textarea
+                  rows={2}
+                  onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); handleSendMessage(); } }}
                   ref={inputRef}
-                  type="text"
-                  placeholder="Punch up the hook, add visual cues, simplify tone…"
+                  aria-label="Message Nova AI"
+                  placeholder={requestMode === "edit" ? "Describe the changes to apply…" : "Ask a question or request an edit…"}
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   disabled={chatLoading}
-                  className="flex-1 px-3.5 py-2.5 bg-white dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-xl text-[0.85rem] text-text-primary dark:text-dark-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400/60 focus:border-primary-400 transition-shadow"
+                  className="flex-1 px-3.5 py-2.5 bg-white dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-xl resize-none text-[0.85rem] text-text-primary dark:text-dark-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400/60 focus:border-primary-400 transition-shadow"
                 />
                 <button
                   type="submit"

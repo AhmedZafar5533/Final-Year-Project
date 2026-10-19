@@ -1,0 +1,226 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------
+   IntelRadar theme
+   Palette (Coolors "264653 / 2A9D8F / E9C46A / F4A261 / E76F51"),
+   with the green and coral deepened so text on them passes contrast.
+   Light mode: cool mist page, white cards, persian-green primary.
+   Bricolage Grotesque for display, DM Sans for text (loaded in
+   app/layout.tsx via next/font).
+   ------------------------------------------------------------------ */
+
+:root {
+  --radius: 0.875rem;
+
+  /* Surfaces: a cool mist page, white cards */
+  --background: #f1f6f6;
+  --foreground: #14303a;
+  --card: #ffffff;
+  --card-foreground: #14303a;
+  --popover: #ffffff;
+  --popover-foreground: #14303a;
+
+  /* Persian green, deepened. White text on it is 5.1:1 */
+  --primary: #1f7a70;
+  --primary-foreground: #ffffff;
+  --secondary: #e0efec;
+  --secondary-foreground: #14524a;
+  --muted: #e6eeee;
+  --muted-foreground: #4f6870;
+  --accent: #e0efec;
+  --accent-foreground: #14524a;
+
+  --border: #d6e2e3;
+  --input: #c5d5d7;
+  --ring: #1f7a70;
+
+  /* Status */
+  --success: #1e8a58;
+  --warning: #a9650f;
+  --critical: #c93e25;
+  --info: #3b78a8;
+  --destructive: var(--critical);
+
+  /* Rivals. Slot 1 is always the selected competitor (= primary). */
+  --chart-1: #1f7a70; /* persian green */
+  --chart-2: #e0a02f; /* saffron */
+  --chart-3: #e76f51; /* burnt coral */
+  --chart-4: #3b78a8; /* steel blue */
+  --chart-5: #8160c9; /* soft violet */
+}
+
+.dark {
+  --background: #0d191e;
+  --foreground: #e7f1f2;
+  --card: #132329;
+  --card-foreground: #e7f1f2;
+  --popover: #16282f;
+  --popover-foreground: #e7f1f2;
+
+  --primary: #4cc2b0;
+  --primary-foreground: #06211d;
+  --secondary: #1b3139;
+  --secondary-foreground: #bfe6df;
+  --muted: #1a2d34;
+  --muted-foreground: #92aab1;
+  --accent: #1b3139;
+  --accent-foreground: #bfe6df;
+
+  --border: #24383f;
+  --input: #2f464e;
+  --ring: #4cc2b0;
+
+  --success: #4cc98d;
+  --warning: #f0b64a;
+  --critical: #ff7b5c;
+  --info: #6aa6d6;
+  --destructive: var(--critical);
+
+  --chart-1: #4cc2b0;
+  --chart-2: #f0b64a;
+  --chart-3: #ff8a6c;
+  --chart-4: #6aa6d6;
+  --chart-5: #a98ae6;
+}
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-critical: var(--critical);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-info: var(--info);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+
+/* ---------- Component classes used across the dashboard ---------- */
+
+/* Page backdrop: one quiet glow top-left, one top-right. */
+.bg-atmosphere {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(56rem 26rem at 8% -10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 70%),
+    radial-gradient(40rem 22rem at 104% -4%, color-mix(in oklab, var(--chart-2) 12%, transparent), transparent 70%);
+  background-repeat: no-repeat;
+}
+
+/* Fine dot grid that fades out away from its corner. Sits behind the hero. */
+.dot-grid {
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--foreground) 16%, transparent) 1px,
+    transparent 1.2px
+  );
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 0% 0%, #000 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 80% at 0% 0%, #000 10%, transparent 75%);
+}
+
+/* Small tinted tile behind an icon */
+.icon-chip {
+  background: color-mix(in oklab, var(--primary) 9%, var(--card));
+}
+
+/* Hover lift for tiles that are interactive */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-1px);
+}
+
+/* Live engine dot */
+.status-dot {
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--success) 55%, transparent);
+  animation: status-pulse 2.4s ease-out infinite;
+}
+@keyframes status-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--success) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+/* Page-load entrance. One short, staggered settle when the dashboard first
+   renders; nothing re-animates on scroll. */
+.reveal {
+  animation: reveal-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .status-dot {
+    animation: none;
+  }
+  .card-lift {
+    transition: none;
+  }
+}

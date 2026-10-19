@@ -1,0 +1,10 @@
+use_default_settings: true
+server:
+  # Private local instance. Compose exposes it only on host loopback.
+  limiter: false
+  public_instance: false
+  image_proxy: false
+search:
+  formats:
+    - html
+    - json

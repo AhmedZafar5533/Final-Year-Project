@@ -1,14 +1,13 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import connectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js'
 import youtubeRoutes from './routes/youtubeRoutes.js'
 import trendsRoutes from './routes/trendsRoutes.js'
-
-dotenv.config()
+import ideaResearchRoutes from './routes/ideaResearchRoutes.js'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -33,6 +32,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/youtube', youtubeRoutes)
 app.use('/api/trends', trendsRoutes)
+app.use('/api/idea-research', ideaResearchRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)

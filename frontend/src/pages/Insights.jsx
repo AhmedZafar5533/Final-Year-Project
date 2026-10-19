@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, memo } from "react";
+import { useState, useEffect, useMemo, useCallback, memo, createElement } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   IoSparkles,
@@ -21,6 +21,9 @@ import { DashboardSkeleton } from "../components/common/Loader";
 import trendsService from "../services/trendsService";
 import ScriptStudioModal from "../components/insights/ScriptStudioModal";
 import useRecommendations from "../hooks/useRecommendations";
+import useIdeaResearch from "../hooks/useIdeaResearch";
+import CompetitorResearchPanel from "../components/insights/CompetitorResearchPanel";
+const EMPTY_RECOMMENDATIONS = [];
 
 // ──────────────────────────────────────────────────────────────────────────
 // Small shared building blocks
@@ -42,7 +45,7 @@ const StatCard = memo(
           <div
             className={`p-2 sm:p-2.5 rounded-xl ${gradient} shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0`}
           >
-            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+            {createElement(Icon, { className: "w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" })}
           </div>
           <span className="text-xs sm:text-sm font-medium text-text-muted dark:text-dark-text-muted leading-tight">
             {label}
@@ -153,12 +156,6 @@ const ideaTypeConfig = {
 // space, and the footer is a compact split action bar.
 // ─────────────────────────────────────────────────────────────────────────
 
-const ideaTypePillClasse = {
-  overlap: "bg-warning-50 dark:bg-warning-900/20 text-warning-700 dark:text-warning-400 border-warning-200 dark:border-warning-800",
-  demand: "bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 border-sky-200 dark:border-sky-800",
-  trend: "bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800",
-};
-
 // ─────────────────────────────────────────────────────────────────────────
 // VARIANT D — "Ranked Score"
 //
@@ -244,7 +241,7 @@ const ScoreRing = ({ score, color }) => {
   );
 };
 
-const IdeaCard = memo(({ idea, onLaunch, index = 0 }) => {
+const IdeaCard = memo(({ idea, onLaunch, index = 0, research, researchBusy, researchEnabled, onResearch, onViewResearch }) => {
   const [showEvidence, setShowEvidence] = useState(false);
   const type = ideaTypeConfig[idea.recommendation_type];
   const dotColor = typeDotColor[idea.recommendation_type] || "bg-primary-500";
@@ -337,6 +334,23 @@ const IdeaCard = memo(({ idea, onLaunch, index = 0 }) => {
           </div>
         )}
 
+        <div className="mt-4 mb-3 border-t border-surface-100 dark:border-dark-border pt-3 text-xs space-y-2">
+          <p className="text-text-muted" role="status">
+            {!researchEnabled ? "Refresh recommendations to enable competitor research." :
+              research ? (research.status === "running" ? "Researching: " + research.stage + "…" :
+                research.status === "queued" ? "Research queued" :
+                research.status === "partial" ? "Partial research available" :
+                research.status === "failed" ? "Research needs attention" : "Competitor research ready") :
+              "Check competitors and potential content gaps"}
+            {research?.stale && " · Out of date"}
+          </p>
+          <button type="button" disabled={!researchEnabled || researchBusy}
+            onClick={() => research ? onViewResearch(idea, research) : onResearch(idea)}
+            className="font-semibold text-primary-700 dark:text-primary-300 underline disabled:opacity-50">
+            {researchBusy ? "Queuing…" : research ? "View research" : "Research competitors"}
+          </button>
+        </div>
+
         {/* Footer — the type color appears exactly once more here, on the
             action itself, tying the ring / dot / CTA together */}
         <div className="mt-auto pt-4 flex items-center justify-between border-t border-surface-100 dark:border-dark-border/60">
@@ -417,13 +431,21 @@ const Insights = () => {
 
   const [insights, setInsights] = useState([]);
   const [isLoading, setIsLoading] = useState(() => !trendsService.getCachedIntelligence());
-  const [category, setCategory] = useState("all");
-  const [appliedInsights, setAppliedInsights] = useState([]);
+  const [appliedInsights] = useState([]);
 
   // Recommendations tab filter: 'all' | 'overlap' | 'demand' | 'trend'
   const [recTab, setRecTab] = useState("all");
   // Active idea selected for AI Script Studio modal
   const [selectedIdea, setSelectedIdea] = useState(null);
+  const [selectedResearch, setSelectedResearch] = useState(null);
+  const { jobs: researchJobs, start: startResearch, record: recordResearch,
+    busyKey: researchBusyKey, error: researchError } = useIdeaResearch(channelIntel?._id, channelIntel?.researchRevision);
+  const closeResearch = useCallback(() => setSelectedResearch(null), []);
+  const viewResearch = useCallback((idea, job) => setSelectedResearch({ id: job._id, title: idea.title }), []);
+  const researchIdea = useCallback(async idea => {
+    const job = await startResearch(idea.ideaKey);
+    if (job) setSelectedResearch({ id: job._id, title: idea.title });
+  }, [startResearch]);
 
   const {
     recommendations,
@@ -472,9 +494,9 @@ const Insights = () => {
   const masterSummary = channelIntel?.masterSummary;
 
   // Recommendations lists
-  const overlapRecs = masterSummary?.overlap_recommendations || [];
-  const demandRecs = masterSummary?.demand_recommendations || [];
-  const trendRecs = masterSummary?.trend_recommendations || [];
+  const overlapRecs = masterSummary?.overlap_recommendations || EMPTY_RECOMMENDATIONS;
+  const demandRecs = masterSummary?.demand_recommendations || EMPTY_RECOMMENDATIONS;
+  const trendRecs = masterSummary?.trend_recommendations || EMPTY_RECOMMENDATIONS;
 
   const allRecs = useMemo(() => {
     return [
@@ -502,8 +524,12 @@ const Insights = () => {
   );
 
   const handleLaunchStudio = useCallback(
-    (idea) => navigate("/studio", { state: { idea } }),
-    [navigate],
+    (idea) => navigate("/studio", { state: { idea: {
+      ...idea,
+      researchRef: channelIntel?._id && idea.ideaKey
+        ? { intelligenceId: channelIntel._id, ideaKey: idea.ideaKey } : undefined,
+    } } }),
+    [navigate, channelIntel?._id],
   );
 
   if (isLoading && loadingIntel) {
@@ -875,7 +901,10 @@ const Insights = () => {
         {displayedRecs.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
             {displayedRecs.map((idea, index) => (
-              <IdeaCard key={idea.id || index} idea={idea} onLaunch={handleLaunchStudio} />
+              <IdeaCard key={idea.ideaKey || idea.id || index} idea={idea} index={index} onLaunch={handleLaunchStudio}
+                research={researchJobs[idea.ideaKey]} researchBusy={researchBusyKey === idea.ideaKey}
+                researchEnabled={Boolean(channelIntel?._id && channelIntel?.researchRevision && idea.ideaKey)}
+                onResearch={researchIdea} onViewResearch={viewResearch} />
             ))}
           </div>
         ) : (
@@ -886,8 +915,14 @@ const Insights = () => {
       </div>
 
       {/* AI Script Studio Modal */}
+      {researchError && <p role="alert" className="text-sm text-error-600">{researchError}</p>}
+      {selectedResearch && <CompetitorResearchPanel researchId={selectedResearch.id} title={selectedResearch.title}
+        onClose={closeResearch} onUpdated={recordResearch} />}
+
       {selectedIdea && (
-        <ScriptStudioModal idea={selectedIdea} channelNiche={niche} onClose={() => setSelectedIdea(null)} />
+        <ScriptStudioModal idea={{ ...selectedIdea, researchRef: channelIntel?._id && selectedIdea.ideaKey
+          ? { intelligenceId: channelIntel._id, ideaKey: selectedIdea.ideaKey } : undefined }}
+          channelNiche={niche} onClose={() => setSelectedIdea(null)} />
       )}
 
       {/* Recommendations */}

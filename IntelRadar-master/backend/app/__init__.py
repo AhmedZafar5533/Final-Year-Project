@@ -1,0 +1,1 @@
+"""IntelRadar backend application package."""

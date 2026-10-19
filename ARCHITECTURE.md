@@ -1,5 +1,26 @@
 # Antigravity Studio & OnlyCreators: Comprehensive System Architecture & Engineering Specification
 
+> **Competitor research:** Saved idea versions now have MongoDB-backed research jobs,
+> an independent Node worker, YouTube and optional Brave discovery, and an internal
+> Python page collector on port 8001 adapted from IntelRadar. DeepSeek produces
+> validated, source-linked reports used by Insights and Script Studio.
+> See [README.md](README.md) for setup and
+> [COMPETITOR_RESEARCH_PLAN.md](COMPETITOR_RESEARCH_PLAN.md) for the design.
+
+> **October 2026 migration:** Sentiment now calls DeepSeek directly from
+> `backend/services/sentimentService.js`. Local transformer loading, lexicon
+> fallbacks, and precomputed sentiment fallbacks have been removed. The Python
+> service provides transcripts only; `transformers` and `torch` are commented out
+> in its requirements. `DEEPSEEK_API_KEY` is required for nonempty sentiment
+> requests and `DEEPSEEK_MODEL` defaults to `deepseek-flash` across DeepSeek calls.
+> Batches are validated by request ID, counts are computed in JavaScript, and
+> identical requests share work and cache labels for five minutes. Failures
+> return HTTP 503; LLM confidence percentages are not produced.
+> The RoBERTa, DistilBERT, dual-tier sentiment, local-model endpoint, and
+> `MODEL_NAME` descriptions below (and in the existing PDF) are historical.
+> See [README.md](README.md) and
+> [sentiment_service/README.md](sentiment_service/README.md) for current setup.
+
 > **Version**: 2.4.1  
 > **Classification**: Production Engineering Reference & System Blueprint  
 > **Target Audience**: Core Engineers, Systems Architects, and Technical Evaluators  

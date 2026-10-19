@@ -1,0 +1,53 @@
+import { useId, useState } from 'react';
+import { IoDocumentTextOutline, IoGlobeOutline, IoImageOutline, IoPulseOutline, IoSearchOutline } from 'react-icons/io5';
+import ScriptWebSources from './ScriptWebSources';
+
+export default function ScriptWorkspace({ research, loading, children, onResearch }) {
+  const [tab, setTab] = useState('draft');
+  const id = useId();
+  const sourceCount = new Set([...(research?.sources || []), ...(research?.searchResults || [])].map(source => source.url)).size;
+  const tabs = [['draft', 'Draft', <IoDocumentTextOutline className="w-4 h-4" />], ['sources', `Sources (${sourceCount})`, <IoGlobeOutline className="w-4 h-4" />],
+    ['images', `Images (${research?.images?.length || 0})`, <IoImageOutline className="w-4 h-4" />], ['activity', 'Activity', <IoPulseOutline className="w-4 h-4" />]];
+  const search = mode => { setTab(mode); onResearch(mode); };
+  return <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+    <div className="border-b border-surface-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 pt-2">
+      <div role="tablist" aria-label="Script workspace" className="flex overflow-x-auto gap-1">
+        {tabs.map(([value, label, icon]) => <button key={value} role="tab" type="button" id={`${id}-${value}`} aria-selected={tab === value}
+          aria-controls={`${id}-panel`} onClick={() => setTab(value)} onKeyDown={event => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            const index = tabs.findIndex(item => item[0] === value);
+            const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+            setTab(tabs[next][0]); document.getElementById(`${id}-${tabs[next][0]}`)?.focus();
+          }} tabIndex={tab === value ? 0 : -1}
+          className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-3 text-xs font-semibold border-b-2 transition-colors ${tab === value ? 'border-primary-600 text-primary-700 dark:text-primary-300' : 'border-transparent text-text-muted hover:text-primary-600'}`}>
+          {icon}{label}</button>)}
+      </div>
+      {!!research?.warnings?.length && <button type="button" onClick={() => setTab('sources')}
+        className="text-left text-[11px] text-amber-700 dark:text-amber-300 pb-2 w-full truncate" title={research.warnings.join(' ')}>
+        Research needs attention · View details in Sources
+      </button>}
+      <div className="flex items-center justify-between gap-2 py-2.5 text-[11px]">
+        <span className="text-text-muted truncate">{loading ? 'Working on your request…' : research?.status ? `Research: ${research.status.replaceAll('_', ' ')}` : 'Ready to write and research'}</span>
+        <div className="flex shrink-0 gap-2"><button type="button" disabled={loading} onClick={() => search('sources')}
+          className="flex items-center gap-1 rounded-lg border border-surface-200 dark:border-dark-border px-2.5 py-1.5 hover:border-primary-400 disabled:opacity-40"><IoSearchOutline />Find sources</button>
+          <button type="button" disabled={loading} onClick={() => search('images')}
+            className="flex items-center gap-1 rounded-lg border border-surface-200 dark:border-dark-border px-2.5 py-1.5 hover:border-primary-400 disabled:opacity-40"><IoImageOutline />Find images</button></div>
+      </div>
+    </div>
+    <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-${tab}`} className="flex-1 min-h-0 overflow-y-auto bg-surface-50/50 dark:bg-dark-surface-light/10">
+      {tab === 'draft' ? children : <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+        {tab === 'activity' ? <div className="space-y-4"><h3 className="font-semibold">Research activity</h3>
+          {loading && <p role="status" className="text-xs animate-pulse text-primary-700 dark:text-primary-300">Request in progress. Live stages are available in the backend terminal.</p>}
+          {!(research?.activity?.length) && <p className="text-sm text-text-muted">Run a search to see its stages, provider results and collection status.</p>}
+          <ol className="space-y-3">{research?.activity?.map((entry, index) => <li key={index} className="border-l-2 border-primary-200 dark:border-primary-800 pl-4 py-1 text-xs">
+            <p className="font-semibold">{entry.event.replaceAll('.', ' · ').replaceAll('_', ' ')}</p>
+            <p className="mt-1 text-text-muted break-words">{[entry.provider, entry.query, entry.url, entry.status, entry.results !== undefined ? `${entry.results} results` : null,
+              entry.error, entry.characters ? `${entry.characters} characters` : null].filter(Boolean).join(' · ')}</p>
+          </li>)}</ol>
+          {!!research?.queries?.length && <div><h4 className="font-semibold text-xs mb-2">Search queries</h4>{research.queries.map((query, index) => <p key={index} className="text-xs text-text-muted py-1">{query}</p>)}</div>}
+        </div> : <ScriptWebSources research={research} loading={loading} view={tab} />}
+      </div>}
+    </div>
+  </div>;
+}

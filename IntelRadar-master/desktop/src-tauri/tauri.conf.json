@@ -1,0 +1,37 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "IntelRadar",
+  "version": "0.1.0",
+  "identifier": "com.intelradar.app",
+  "build": {
+    "frontendDist": "../../frontend/out",
+    "devUrl": "http://localhost:3000",
+    "beforeDevCommand": "node scripts/dev-frontend.mjs",
+    "beforeBuildCommand": "node scripts/build-frontend.mjs"
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Productivity",
+    "shortDescription": "Competitive intelligence without the busywork.",
+    "longDescription": "Scan competitors' websites, pricing, reviews and news, then turn the findings into a client-ready intelligence report.",
+    "copyright": "© 2026 IntelRadar",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "resources/engine/*",
+      "resources/playwright/**/*"
+    ]
+  }
+}

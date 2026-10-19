@@ -14,6 +14,13 @@ import {
 import { getCommentsSentiment } from '../services/sentimentService.js';
 import { getVideoTranscriptData, extractTimestampSentiments } from '../services/transcriptService.js';
 import { fetchAndSynthesizeMarketTrends } from '../services/trendService.js';
+import { attachResearchIdentity } from '../services/research/identity.js';
+import { prepareIntelligenceResearch, scheduleAutomaticResearch, researchForScript } from '../services/research/queue.js';
+import ScriptWebResearch from '../models/ScriptWebResearch.js';
+import { collectScriptWebResearch, scriptResearchResponse } from '../services/research/scriptWebResearch.js';
+import { classifyScriptRequest } from '../services/research/scriptIntent.js';
+import { createResearchLogger } from '../services/research/logger.js';
+import { randomUUID } from 'node:crypto';
 import {
   generateVideoIntelligence,
   detectChannelNiche,
@@ -633,13 +640,13 @@ export const getVideoComments = async (req, res) => {
   const { videoId } = req.query;
   if (!videoId) return res.status(400).json({ error: 'Video ID required' });
 
-  if (videoId.startsWith('vid')) {
-    const { comments, totalComments } = getMockComments(videoId, 100);
-    const { comments: enrichedComments, sentimentSummary } = await getCommentsSentiment(comments, videoId);
-    return res.json({ comments: enrichedComments, totalComments, sentimentSummary });
-  }
-
   try {
+    if (videoId.startsWith('vid')) {
+      const { comments, totalComments } = getMockComments(videoId, 100);
+      const { comments: enrichedComments, sentimentSummary } = await getCommentsSentiment(comments, videoId);
+      return res.json({ comments: enrichedComments, totalComments, sentimentSummary });
+    }
+
     const { youtube } = await getAuthenticatedClients(req.user._id);
 
     const response = await youtube.commentThreads.list({
@@ -666,10 +673,17 @@ export const getVideoComments = async (req, res) => {
 
     res.json({ comments: enrichedComments, totalComments: rawComments.length, sentimentSummary });
   } catch (error) {
+    if (error.code === 'SENTIMENT_UNAVAILABLE') {
+      return res.status(503).json({ error: error.message });
+    }
     if (error.message === 'YouTube not connected') {
       const { comments, totalComments } = getMockComments(videoId, 100);
-      const { comments: enrichedComments, sentimentSummary } = await getCommentsSentiment(comments, videoId);
-      return res.json({ comments: enrichedComments, totalComments, sentimentSummary });
+      try {
+        const { comments: enrichedComments, sentimentSummary } = await getCommentsSentiment(comments, videoId);
+        return res.json({ comments: enrichedComments, totalComments, sentimentSummary });
+      } catch (sentimentErr) {
+        return res.status(sentimentErr.statusCode || 500).json({ error: sentimentErr.message });
+      }
     }
     if (error.errors?.[0]?.reason === 'commentsDisabled' || error.message?.includes('commentsDisabled')) {
       return res.json({ comments: [], commentsDisabled: true, sentimentSummary: null });
@@ -745,6 +759,7 @@ export const getVideoInsights = async (req, res) => {
         const sentimentResult = await getCommentsSentiment(rawComments, videoId);
         comments = sentimentResult.comments;
       } catch (authErr) {
+        if (authErr.code === 'SENTIMENT_UNAVAILABLE') throw authErr;
         console.warn('Live API clients unavailable for video insights, using defaults:', authErr.message);
       }
     }
@@ -787,7 +802,7 @@ export const getVideoInsights = async (req, res) => {
     });
   } catch (error) {
     console.error('Video Insights Error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 
@@ -817,6 +832,8 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
       const channel = channelResponse.data.items?.[0];
       if (channel) {
         channelMeta = {
+          youtubeChannelId: channel.id,
+          researchLanguage: channel.snippet?.defaultLanguage || 'en',
           title: channel.snippet?.title || 'YouTube Channel',
           description: channel.snippet?.description || '',
           subscriberCount: channel.statistics?.subscriberCount || '0',
@@ -931,6 +948,8 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
 
   const channelId = isDemo ? 'demo-antigravity-studio' : `channel-${userId}`;
   const payload = {
+    youtubeChannelId: channelMeta.youtubeChannelId || '',
+    researchLanguage: channelMeta.researchLanguage || 'en',
     userId: isDemo ? null : userId,
     channelId,
     channelTitle: channelMeta.title,
@@ -942,6 +961,7 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
     analyzedAt: new Date(),
     status: 'completed'
   };
+  attachResearchIdentity(payload, true);
 
   if (mongoose.connection.readyState === 1) {
     try {
@@ -950,6 +970,10 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
         payload,
         { upsert: true, returnDocument: 'after' }
       );
+      // Schedule after persistence; research never delays the recommendation response.
+      setImmediate(() => scheduleAutomaticResearch(updated).catch(() => {
+        console.warn('Competitor research scheduling is unavailable.');
+      }));
       return updated;
     } catch (dbErr) {
       console.warn('MongoDB save skipped, using memory cache:', dbErr.message);
@@ -983,7 +1007,7 @@ export const getChannelIntelligence = async (req, res) => {
       try {
         const existing = await ChannelIntelligence.findOne({ channelId });
         if (existing) {
-          return res.json(existing);
+          return res.json(await prepareIntelligenceResearch(existing));
         }
       } catch (e) {}
     }
@@ -1027,19 +1051,75 @@ export const analyzeChannelIntelligence = async (req, res) => {
 
 // 10. AI Script Studio Chatbot Endpoint
 export const handleScriptStudioChat = async (req, res) => {
-  const { idea, channelContext, messages = [], currentScript = '' } = req.body;
+  const { idea, channelContext, messages = [], currentScript = '', sessionId, requestMode = 'auto', researchMode = 'auto' } = req.body;
+  const log = createResearchLogger('script', randomUUID().slice(0, 8));
 
   try {
+    if (!Array.isArray(messages) || messages.length > 60 || messages.some(message =>
+      !message || !['user', 'assistant'].includes(message.role) || typeof message.content !== 'string' || message.content.length > 40000
+    )) return res.status(400).json({ error: 'Invalid script conversation.' });
+    if (typeof currentScript !== 'string' || currentScript.length > 120000 ||
+      !['auto', 'chat', 'edit'].includes(requestMode) || !['auto', 'sources', 'images'].includes(researchMode) ||
+      (sessionId !== undefined && (typeof sessionId !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(sessionId)))) {
+      return res.status(400).json({ error: 'Invalid script session or draft.' });
+    }
+    log('request.started', { sessionId, mode: requestMode, researchMode });
+    let intent = 'chat';
+    try { intent = await classifyScriptRequest({ messages, currentScript, requestMode, log }); }
+    catch { log('intent.fallback', { intent: 'chat', reason: 'Classification unavailable; draft protected' }); }
+    log('intent.selected', { intent });
+    let researchContext = null;
+    if (idea?.researchRef) {
+      try { researchContext = await researchForScript(req.user._id, idea.researchRef); }
+      catch { /* Script writing remains available during a research database outage. */ }
+    }
+    let previous = {};
+    if (sessionId) {
+      try { previous = await ScriptWebResearch.findOne({ userId: req.user._id, sessionId, expiresAt: { $gt: new Date() } }).lean() || {}; }
+      catch { /* New web collection can proceed without saved references. */ }
+    }
+    const webResearchContext = await collectScriptWebResearch({
+      idea: researchContext?.idea || idea, messages, currentScript, previous, intent, researchMode, logger: log
+    });
+    if (sessionId) {
+      try {
+        await ScriptWebResearch.init();
+        await ScriptWebResearch.updateOne({ userId: req.user._id, sessionId }, { $set: {
+          sources: webResearchContext.sources, images: webResearchContext.images, searchResults: webResearchContext.searchResults,
+          expiresAt: new Date(Date.now() + 30 * 86400000)
+        } }, { upsert: true });
+      } catch { webResearchContext.warnings.push('References could not be saved on the server for later edits.'); }
+    }
+    log('response.started', { intent });
     const response = await chatScriptStudio({
-      idea,
+      idea: researchContext?.idea || idea,
       channelContext,
       messages,
-      currentScript
+      currentScript,
+      researchContext,
+      webResearchContext: { ...webResearchContext, searchResults: undefined, activity: undefined },
+      intent
     });
+    if (intent === 'chat') response.script = null;
+    const webResearch = scriptResearchResponse(webResearchContext, response);
+    // Exportable references use server-collected URLs rather than model-generated links.
+    if (response.script) {
+      const references = webResearch.sources.filter(source => source.cited)
+        .map(source => `[${source.id}] ${source.title.replace(/[\r\n]/g, ' ')} — ${source.url}`);
+      const images = webResearch.images.filter(image => image.cited)
+        .map(image => `[${image.id}] ${image.title.replace(/[\r\n]/g, ' ')} — ${image.url} (Licensing: ${image.license})`);
+      response.script = response.script.split('\n## Research references\n')[0] +
+        (references.length || images.length ? '\n\n## Research references\n' + [...references, ...images].join('\n\n') : '');
+    }
 
-    res.json(response);
+    const scriptUpdated = intent !== 'chat' && Boolean(response.script) && response.script !== currentScript;
+    log('request.completed', { intent, scriptUpdated, sources: webResearch.sources.length, images: webResearch.images.length });
+    res.json({ ...response, intent, scriptUpdated, webResearch, researchApplied: scriptUpdated && response.researchUsed === true,
+      researchCompletedAt: scriptUpdated && response.researchUsed ? researchContext?.researchedAt : null,
+      researchStale: Boolean(response.researchUsed && researchContext?.stale) });
   } catch (error) {
+    log('request.failed', { status: error.statusCode || 500, error: error.name });
     console.error('Script Studio Chat Error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(error.statusCode || 500).json({ error: error.message });
   }
 };

@@ -1,0 +1,47 @@
+# ------------------------------------------------------------------
+# IntelRadar — repository-wide ignores
+# Package-specific rules also live in backend/.gitignore and
+# frontend/.gitignore.
+# ------------------------------------------------------------------
+
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+.pnpm-store/
+
+# Logs
+*.log
+
+# Backend runtime artifacts
+backend/data/*.json
+backend/media_storage/
+backend/screenshots/
+
+# Vendored third-party checkout (unused by the app).
+# "Browser Use/" is a full copy of the browser-use project; the backend talks to
+# Playwright directly and never imports it, so it is kept out of the repo.
+# Delete the folder locally, or clone the project separately if you need it.
+Browser Use/

@@ -42,6 +42,7 @@ const MarketTrendSchema = new mongoose.Schema({
 }, { _id: false });
 
 const NextVideoRecommendationSchema = new mongoose.Schema({
+  ideaKey: String,
   id: { type: String, required: true },
   title: { type: String, required: true },
   hook: { type: String, required: true },
@@ -61,6 +62,9 @@ const NextVideoRecommendationSchema = new mongoose.Schema({
 }, { _id: false });
 
 const ChannelIntelligenceSchema = new mongoose.Schema({
+  researchRevision: String,
+  youtubeChannelId: String,
+  researchLanguage: String,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   channelId: { type: String, required: true, index: true },
   channelTitle: { type: String, default: 'Channel' },

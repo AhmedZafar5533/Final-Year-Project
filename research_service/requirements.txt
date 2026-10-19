@@ -1,0 +1,8 @@
+# Deterministic collection only; no Gemini, Whisper, torch, or transformers.
+fastapi>=0.110,<1
+uvicorn>=0.28,<1
+# Enables uvicorn --env-file .env for the shared collector token.
+python-dotenv>=1,<2
+aiohttp>=3.10,<4
+trafilatura>=2,<3
+playwright>=1.48,<2

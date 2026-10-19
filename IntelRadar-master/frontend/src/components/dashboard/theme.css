@@ -1,0 +1,103 @@
+/* ------------------------------------------------------------------
+   IntelRadar theme — drop-in token values for globals.css
+
+   Palette (Coolors "264653 / 2A9D8F / E9C46A / F4A261 / E76F51"),
+   with the green and coral deepened so text on them passes contrast.
+
+   HOW TO USE
+   1. In your globals.css, replace the VALUES inside your existing
+      `:root { ... }` and `.dark { ... }` blocks with the ones below.
+      Keep any tokens not listed here (sidebar-*, etc.) as they are.
+   2. Paste the two utilities at the bottom (.bg-atmosphere, .dot-grid).
+   3. Keep your existing `.reveal` and `.status-dot` rules untouched.
+   ------------------------------------------------------------------ */
+
+:root {
+  --radius: 0.875rem;
+
+  /* Surfaces: a cool mist page, white cards */
+  --background: #f1f6f6;
+  --foreground: #14303a;
+  --card: #ffffff;
+  --card-foreground: #14303a;
+  --popover: #ffffff;
+  --popover-foreground: #14303a;
+
+  /* Persian green, deepened. White text on it is 5.1:1 */
+  --primary: #1f7a70;
+  --primary-foreground: #ffffff;
+  --secondary: #e0efec;
+  --secondary-foreground: #14524a;
+  --muted: #e6eeee;
+  --muted-foreground: #4f6870;
+  --accent: #e0efec;
+  --accent-foreground: #14524a;
+
+  --border: #d6e2e3;
+  --input: #c5d5d7;
+  --ring: #1f7a70;
+
+  /* Status */
+  --success: #1e8a58;
+  --warning: #a9650f;
+  --critical: #c93e25;
+
+  /* Rivals. Slot 1 is always the selected competitor (= primary). */
+  --chart-1: #1f7a70; /* persian green */
+  --chart-2: #e0a02f; /* saffron */
+  --chart-3: #e76f51; /* burnt coral */
+  --chart-4: #3b78a8; /* steel blue */
+  --chart-5: #8160c9; /* soft violet */
+}
+
+.dark {
+  --background: #0d191e;
+  --foreground: #e7f1f2;
+  --card: #132329;
+  --card-foreground: #e7f1f2;
+  --popover: #16282f;
+  --popover-foreground: #e7f1f2;
+
+  --primary: #4cc2b0;
+  --primary-foreground: #06211d;
+  --secondary: #1b3139;
+  --secondary-foreground: #bfe6df;
+  --muted: #1a2d34;
+  --muted-foreground: #92aab1;
+  --accent: #1b3139;
+  --accent-foreground: #bfe6df;
+
+  --border: #24383f;
+  --input: #2f464e;
+  --ring: #4cc2b0;
+
+  --success: #4cc98d;
+  --warning: #f0b64a;
+  --critical: #ff7b5c;
+
+  --chart-1: #4cc2b0;
+  --chart-2: #f0b64a;
+  --chart-3: #ff8a6c;
+  --chart-4: #6aa6d6;
+  --chart-5: #a98ae6;
+}
+
+/* Page backdrop: one quiet glow top-left, one top-right. */
+.bg-atmosphere {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(56rem 26rem at 8% -10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 70%),
+    radial-gradient(40rem 22rem at 104% -4%, color-mix(in oklab, var(--chart-2) 12%, transparent), transparent 70%);
+  background-repeat: no-repeat;
+}
+
+/* Fine dot grid that fades out away from its corner. Sits behind the hero. */
+.dot-grid {
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--foreground) 16%, transparent) 1px,
+    transparent 1.2px
+  );
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 0% 0%, #000 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 80% at 0% 0%, #000 10%, transparent 75%);
+}

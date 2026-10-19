@@ -1,0 +1,39 @@
+# IntelRadar backend — direct runtime dependencies, pinned to the versions
+# currently installed in backend/.venv.
+#
+# Setup:
+#   python -m pip install -r requirements.txt
+#   python -m playwright install chromium      # browser for the live-scan engine
+#   cp .env.example .env                        # then add your GEMINI_API_KEY
+#
+# System requirement: ffmpeg on PATH (used by yt-dlp to extract audio for
+# transcription). Install e.g. `apt install ffmpeg`.
+
+# API service
+fastapi==0.143.0
+uvicorn==0.54.0
+pydantic==2.13.5
+python-dotenv==1.2.2
+
+# Web crawling + live browser engine
+crawl4ai==0.9.4
+playwright==1.63.0
+
+# LLM-driven browser agent engine (optional "agent" scan mode)
+browser-use==0.13.11
+
+# Live signals: recent news + YouTube comments (no API keys required)
+feedparser==6.0.14
+trafilatura==2.3.1
+youtube-comment-downloader==0.1.84
+
+# Continuous monitoring + alerts
+apscheduler==3.11.3
+apprise==2.0.1
+
+# Video ingestion + local speech-to-text
+yt-dlp==2026.8.19
+faster-whisper==1.2.1
+
+# LLM analysis (Google Gemini)
+google-genai==1.65.0

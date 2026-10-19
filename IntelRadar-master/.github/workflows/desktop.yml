@@ -1,0 +1,84 @@
+name: Desktop build
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Apple Silicon
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          # Intel Macs (macos-13 runners are retired; this label is current)
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Install JavaScript dependencies
+        run: |
+          pnpm --dir frontend install --no-frozen-lockfile
+          pnpm --dir desktop install --no-frozen-lockfile
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt pyinstaller
+
+      - name: Build engine binary
+        run: python desktop/engine/build.py
+
+      - name: Bundle Chromium for Playwright
+        shell: bash
+        run: |
+          export PLAYWRIGHT_BROWSERS_PATH="$GITHUB_WORKSPACE/desktop/src-tauri/resources/playwright"
+          python -m playwright install chromium
+
+      - name: Build Tauri app
+        run: pnpm --dir desktop tauri build --target ${{ matrix.target }}
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: intelradar-${{ matrix.target }}
+          if-no-files-found: error
+          path: |
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*
+            desktop/src-tauri/target/release/bundle/**/*

@@ -21,6 +21,11 @@ import {
   IoLibraryOutline,
 } from "react-icons/io5";
 import trendsService from "../services/trendsService";
+import useScriptResearch from "../hooks/useScriptResearch";
+import ScriptWorkspace from "../components/insights/ScriptWorkspace";
+import ScriptRequestMode from "../components/insights/ScriptRequestMode";
+import ScriptChatContent from "../components/insights/ScriptChatContent";
+import DOMPurify from "dompurify";
 
 const STORAGE_KEY = "onlycreators_script_history";
 const FONT_LINK_ID = "script-studio-display-font";
@@ -131,13 +136,13 @@ function formatUpdatedAt(iso) {
 
 function formatInlineMarkdown(str) {
   if (!str) return "";
-  return str
+  return DOMPurify.sanitize(str
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-text-primary dark:text-white">$1</strong>')
     .replace(/\*(.*?)\*/g, '<em class="italic text-primary-600 dark:text-primary-300">$1</em>')
     .replace(
       /`(.*?)`/g,
       '<code class="px-1.5 py-0.5 rounded bg-surface-200 dark:bg-dark-border font-mono text-[0.7rem] text-primary-700 dark:text-primary-300">$1</code>',
-    );
+    ), { ALLOWED_TAGS: ["strong", "em", "code"], ALLOWED_ATTR: ["class"] });
 }
 
 function renderMarkdownScript(text) {
@@ -282,6 +287,11 @@ const ScriptStudio = () => {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [requestMode, setRequestMode] = useState("auto");
+  const [mobilePane, setMobilePane] = useState("draft");
+  const activeResearchSession = history.find(session => session.id === activeSessionId);
+  const { job: scriptResearch, availableUpdate: researchUpdateAvailable } =
+    useScriptResearch(activeResearchSession?.idea, activeResearchSession?.researchCompletedAt);
   const [suggestedFollowups, setSuggestedFollowups] = useState([
     "Punch up the opening hook for higher retention",
     "Add 3 visual B-roll cues for theoretical sections",
@@ -320,7 +330,8 @@ const ScriptStudio = () => {
   const handleCreateSessionForIdea = (idea) => {
     // Check if a session for this idea already exists in history
     const existing = history.find(
-      (s) => (s.idea && s.idea.title === idea.title) || s.title === idea.title
+      (s) => idea.ideaKey ? s.idea?.ideaKey === idea.ideaKey :
+        (s.idea && s.idea.title === idea.title) || s.title === idea.title
     );
 
     if (existing) {
@@ -382,6 +393,8 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
         },
         messages: newMessages,
         currentScript: "",
+        sessionId,
+        requestMode: "edit",
       })
       .then((data) => {
         const generatedScript = data.script || `# ${idea.title}\n\n## Hook\n"${idea.hook || ""}"`;
@@ -405,6 +418,8 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                   updatedAt: new Date().toISOString(),
                   messages: finalMsgs,
                   scriptContent: generatedScript,
+                  researchCompletedAt: data.researchCompletedAt,
+                  webResearch: data.webResearch,
                 }
               : s
           );
@@ -414,6 +429,17 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       })
       .catch((err) => {
         console.error("Failed to generate script for idea:", err);
+        const failedMessages = [...newMessages, { role: "assistant",
+          content: err.response?.data?.error || "The script could not be generated. Please retry your request." }];
+        setScriptContent("");
+        setChatMessages(failedMessages);
+        setHistory(previous => {
+          const updated = previous.map(session => session.id === sessionId ? {
+            ...session, scriptContent: "", messages: failedMessages,
+          } : session);
+          saveScriptHistory(updated);
+          return updated;
+        });
       })
       .finally(() => {
         setChatLoading(false);
@@ -509,7 +535,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     }
   };
 
-  const syncActiveSessionToHistory = (newScript, newMessages, newTitle) => {
+  const syncActiveSessionToHistory = (newScript, newMessages, newTitle, researchCompletedAt, webResearch) => {
     if (!activeSessionId) return;
 
     setHistory((prev) => {
@@ -521,6 +547,8 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
             updatedAt: new Date().toISOString(),
             scriptContent: newScript !== undefined ? newScript : s.scriptContent,
             messages: newMessages !== undefined ? newMessages : s.messages,
+            researchCompletedAt: researchCompletedAt || s.researchCompletedAt,
+            webResearch: webResearch || s.webResearch,
           };
         }
         return s;
@@ -534,7 +562,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, chatLoading]);
 
-  const handleSendMessage = async (promptToSend) => {
+  const handleSendMessage = async (promptToSend, options = {}) => {
     const text = promptToSend || chatInput;
     if (!text.trim() || chatLoading) return;
 
@@ -554,7 +582,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
 
     try {
       const data = await trendsService.chatScriptStudio({
-        idea: { title: titleToSet || currentSession?.title || text },
+        idea: currentSession?.idea || { title: titleToSet || currentSession?.title || text },
         channelContext: {
           niche: "Science & Technology",
           audience: "Curious enthusiasts",
@@ -562,10 +590,13 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
         },
         messages: updatedMessages,
         currentScript: scriptContent,
+        sessionId: activeSessionId,
+        requestMode: options.requestMode || requestMode,
+        researchMode: options.researchMode || "auto",
       });
 
       let nextScript = scriptContent;
-      if (data.script) {
+      if (data.scriptUpdated === true && data.script) {
         nextScript = data.script;
         setScriptContent(data.script);
       }
@@ -573,17 +604,19 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
 
       const assistantMsg = {
         role: "assistant",
-        content: data.reply || "I've updated the script with your feedback!",
+        content: data.reply || "Here is my response.",
+        scriptUpdated: data.scriptUpdated === true,
+        intent: data.intent,
       };
       const finalMessages = [...updatedMessages, assistantMsg];
       setChatMessages(finalMessages);
 
-      syncActiveSessionToHistory(nextScript, finalMessages, titleToSet);
+      syncActiveSessionToHistory(nextScript, finalMessages, titleToSet, data.researchCompletedAt, data.webResearch);
     } catch (err) {
       console.error("Chat script error:", err);
       const fallbackAssistantMsg = {
         role: "assistant",
-        content: "I received your instruction! I've updated the script structure below.",
+        content: err.response?.data?.error || "The script could not be updated. Your current draft is preserved; please retry.",
       };
       const finalMessages = [...updatedMessages, fallbackAssistantMsg];
       setChatMessages(finalMessages);
@@ -618,9 +651,6 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
   }, [scriptContent]);
 
   const estimatedMinutes = Math.max(1, Math.round(wordCount / 140));
-  // Standard screenplay pacing runs roughly 250 words per page — used here
-  // only as a flavor stamp, not a precise measure.
-  const estimatedPages = Math.max(1, Math.round(wordCount / 250));
 
   const filteredHistory = useMemo(() => {
     if (!historySearch.trim()) return history;
@@ -881,7 +911,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               </h1>
               <p className="font-mono-label text-[0.62rem] sm:text-[0.65rem] uppercase tracking-wide text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
                 {chatLoading && <IoRadioButtonOn className="w-2 h-2 text-rose-500 animate-pulse flex-shrink-0" aria-hidden="true" />}
-                <span className="truncate">{chatLoading ? "Nova is drafting" : "Nova AI Scriptwriting Engine"}</span>
+                <span className="truncate">{chatLoading ? "Researching and drafting" : "Nova AI Scriptwriting Engine"}</span>
               </p>
             </div>
           </div>
@@ -924,10 +954,14 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
           </div>
         </div>
 
+        <div className="flex md:hidden border-b border-surface-200 dark:border-dark-border p-2 gap-2" role="group" aria-label="Workspace view">
+          {['draft', 'chat'].map(pane => <button key={pane} type="button" onClick={() => setMobilePane(pane)} aria-pressed={mobilePane === pane}
+            className={`flex-1 rounded-lg py-2 text-xs font-semibold ${mobilePane === pane ? 'bg-primary-600 text-white' : 'bg-surface-100 dark:bg-dark-border'}`}>{pane === 'draft' ? 'Draft & research' : 'Chat'}</button>)}
+        </div>
         {/* Split Grid */}
         <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 overflow-hidden">
           {/* Script Viewer — styled as a bound page */}
-          <div className="md:col-span-7 flex flex-col min-h-0 border-b md:border-b-0 md:border-r border-surface-200 dark:border-dark-border overflow-hidden">
+          <div className={`md:col-span-7 ${mobilePane === "draft" ? "flex" : "hidden md:flex"} flex-col min-h-0 border-b md:border-b-0 md:border-r border-surface-200 dark:border-dark-border overflow-hidden`}>
             <div className="flex items-center justify-between gap-2 px-4 sm:px-5 py-2.5 sm:py-3 border-b border-surface-200 dark:border-dark-border bg-surface-50/60 dark:bg-dark-surface-light/30 flex-shrink-0">
               <span className="font-mono-label text-[0.65rem] sm:text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-text-secondary dark:text-dark-text-muted flex items-center gap-1.5">
                 <IoDocumentTextOutline className="w-3.5 h-3.5" aria-hidden="true" />
@@ -940,34 +974,20 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               </span>
             </div>
 
-            <div className="script-page relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-              <div className="max-w-[640px] mx-auto p-5 sm:p-8 md:p-10 space-y-2 break-words">
-                {scriptContent ? (
-                  renderMarkdownScript(scriptContent)
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-[50vh] text-center p-8 space-y-3">
-                    <IoDocumentTextOutline className="w-12 h-12 text-text-muted opacity-40" aria-hidden="true" />
-                    <p className="text-sm text-text-muted text-balance max-w-sm">
-                      Your generated YouTube script will appear here formatted with hooks, chapter timestamps, and
-                      director visual cues.
-                    </p>
-                  </div>
-                )}
+            <ScriptWorkspace key={activeSessionId} research={activeResearchSession?.webResearch} loading={chatLoading}
+              onResearch={mode => handleSendMessage(mode === 'images' ? 'Find relevant images for this video and show their original source pages. Do not change the script.' :
+                'Find authoritative web references for the facts in this video. Do not change the script.', { requestMode: 'chat', researchMode: mode })}>
+              <div className="script-page max-w-[720px] mx-auto p-5 sm:p-8 md:p-10 space-y-2 break-words">
+                {scriptContent ? renderMarkdownScript(scriptContent) : <div className="flex flex-col items-center justify-center min-h-64 text-center space-y-4 text-text-muted">
+                  <IoDocumentTextOutline className="w-12 h-12 opacity-40" /><h2 className="font-display text-xl">Your next video starts here</h2>
+                  <p className="text-sm max-w-sm leading-relaxed">Ask a question, research a topic, or tell Nova to write a script. Your draft and references have their own space.</p>
+                </div>}
               </div>
-
-              {scriptContent && (
-                <div
-                  className="page-stamp hidden sm:block sticky bottom-4 float-right mr-6 mb-2 px-2.5 py-1 border-2 border-text-muted/30 dark:border-white/15 text-text-muted/50 dark:text-white/25 font-mono-label text-[0.6rem] uppercase tracking-widest select-none pointer-events-none"
-                  aria-hidden="true"
-                >
-                  Draft · ~{estimatedPages} {estimatedPages === 1 ? "page" : "pages"}
-                </div>
-              )}
-            </div>
+            </ScriptWorkspace>
           </div>
 
           {/* AI Chatbot Timeline — the "control room" console */}
-          <div className="md:col-span-5 flex flex-col min-h-0 overflow-hidden bg-surface-50 dark:bg-dark-surface-light/20">
+          <div className={`md:col-span-5 ${mobilePane === "chat" ? "flex" : "hidden md:flex"} flex-col min-h-0 overflow-hidden bg-surface-50 dark:bg-dark-surface-light/20`}>
             <div className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 border-b border-surface-200 dark:border-dark-border flex-shrink-0">
               <IoChatbubbleEllipsesOutline className="w-3.5 h-3.5 text-primary-600 dark:text-primary-400 flex-shrink-0" aria-hidden="true" />
               <span className="font-mono-label text-[0.65rem] sm:text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-text-secondary dark:text-dark-text-muted">
@@ -999,10 +1019,10 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                     >
                       {!isUser && (
                         <div className="font-mono-label text-[0.6rem] uppercase tracking-wide text-primary-600 dark:text-primary-400 mb-1">
-                          Nova AI Writer
+                          {msg.scriptUpdated === true ? "Draft updated" : msg.intent === "chat" ? "Answer · draft unchanged" : "Nova"}
                         </div>
                       )}
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                      {isUser ? <p className="whitespace-pre-wrap">{msg.content}</p> : <ScriptChatContent content={msg.content} research={activeResearchSession?.webResearch} />}
                     </div>
                   </div>
                 );
@@ -1013,6 +1033,16 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
             </div>
 
             {/* Suggested Followups Chips */}
+            {scriptResearch && <div className="px-3 py-2 border-t border-surface-200 dark:border-dark-border text-xs flex items-center justify-between gap-2">
+              <span>{researchUpdateAvailable ? "New competitor research is available for this draft." :
+                activeResearchSession?.researchCompletedAt ? "This draft uses saved competitor research." :
+                "Competitor research: " + scriptResearch.status}</span>
+              {researchUpdateAvailable && <button type="button" disabled={chatLoading}
+                className="font-semibold text-primary-700 dark:text-primary-300 underline disabled:opacity-50"
+                onClick={() => handleSendMessage("Update this draft using the latest saved competitor research. Address supported audience needs and differentiate the angle without copying competitors.", { requestMode: "edit" })}>
+                Update with research
+              </button>}
+            </div>}
             {suggestedFollowups.length > 0 && (
               <div className="p-2.5 sm:p-3 border-t border-surface-200 dark:border-dark-border flex gap-2 overflow-x-auto overscroll-x-contain flex-shrink-0">
                 {suggestedFollowups.map((sug, i) => (
@@ -1032,6 +1062,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
 
             {/* Input Form */}
             <div className="p-2.5 sm:p-3 border-t border-surface-200 dark:border-dark-border bg-white dark:bg-dark-surface flex-shrink-0">
+              <ScriptRequestMode value={requestMode} onChange={setRequestMode} disabled={chatLoading} />
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -1042,16 +1073,17 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                 <label htmlFor="script-chat-input" className="sr-only">
                   Message Nova AI
                 </label>
-                <input
+                <textarea
+                  rows={2}
+                  onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); handleSendMessage(); } }}
                   id="script-chat-input"
-                  type="text"
                   name="script-chat-message"
                   autoComplete="off"
-                  placeholder="Ask Nova: refine hook, add visual cues…"
+                  placeholder={requestMode === "edit" ? "Describe the changes to apply…" : "Ask a question or request an edit…"}
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   disabled={chatLoading}
-                  className="flex-1 min-w-0 px-3.5 py-2.5 bg-surface-100 dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-full text-xs sm:text-sm text-text-primary dark:text-dark-text placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 transition-shadow disabled:opacity-60"
+                  className="flex-1 min-w-0 px-3.5 py-2.5 bg-surface-100 dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-xl resize-none text-xs sm:text-sm text-text-primary dark:text-dark-text placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 transition-shadow disabled:opacity-60"
                 />
                 <button
                   type="submit"

@@ -288,7 +288,7 @@ export const getLiveTrends = async (req, res) => {
               updatedAt: new Date()
             }
           },
-          { upsert: true, new: true }
+          { upsert: true, returnDocument: 'after' }
         );
       } catch (saveErr) {
         console.warn('Could not cache synthesized trends in ChannelIntelligence:', saveErr.message);
@@ -417,9 +417,8 @@ export const getPythonServiceHealth = async (req, res) => {
         success: true,
         data: {
           status: "online",
-          model: data.model || "cardiffnlp/twitter-roberta-base-sentiment-latest",
-          classes: data.classes || ["POSITIVE", "NEUTRAL", "NEGATIVE"],
-          service: "FastAPI Sentiment & NLP Microservice",
+          transcript_available: Boolean(data.transcript_available),
+          service: data.service || "YouTube Transcript Service",
         }
       });
     }
@@ -430,7 +429,7 @@ export const getPythonServiceHealth = async (req, res) => {
       data: {
         status: "offline",
         message: "Python microservice offline on port 8000. Start it with ./start.sh in sentiment_service.",
-        service: "FastAPI Sentiment & NLP Microservice",
+        service: "YouTube Transcript Service",
       }
     });
   }

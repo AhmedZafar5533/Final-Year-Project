@@ -109,6 +109,7 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
   const [activeTab, setActiveTab] = useState("sentiment"); // 'sentiment', 'intelligence', 'chapters', 'transcript', 'comments'
   const [loadingComments, setLoadingComments] = useState(true);
   const [loadingInsights, setLoadingInsights] = useState(true);
+  const [commentsError, setCommentsError] = useState(null);
 
   const [commentsData, setCommentsData] = useState({
     comments: [],
@@ -139,6 +140,7 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
       .getVideoComments(videoId)
       .then((res) => {
         if (isMounted) {
+          setCommentsError(null);
           setCommentsData({
             comments: res.comments || [],
             totalComments: res.totalComments || res.comments?.length || 0,
@@ -147,7 +149,12 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
           });
         }
       })
-      .catch((err) => console.warn("Comments sentiment error:", err.message))
+      .catch((err) => {
+        console.warn("Comments sentiment error:", err.message);
+        if (isMounted) {
+          setCommentsError("Sentiment analysis is temporarily unavailable. Please try again later.");
+        }
+      })
       .finally(() => {
         if (isMounted) setLoadingComments(false);
       });
@@ -210,7 +217,7 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
   }, [onClose]);
 
   const sentimentSummary = commentsData.sentimentSummary;
-  const comments = commentsData.comments || [];
+  const comments = commentsData.comments;
 
   const pieData = useMemo(() => {
     if (!sentimentSummary) return [];
@@ -422,15 +429,14 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
                       className="w-5 h-5 text-accent-600"
                       aria-hidden="true"
                     />
-                    RoBERTa Neural Sentiment Intelligence
+                    DeepSeek Sentiment Analysis
                   </h3>
                   <p className="text-xs sm:text-sm text-text-muted dark:text-dark-text-muted">
-                    3-class sentiment inference powered by the Twitter-RoBERTa
-                    neural pipeline
+                    Positive, neutral, and negative feedback across analyzed comments
                   </p>
                 </div>
                 <span className="px-3 py-1 text-xs font-semibold rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
-                  CardiffNLP RoBERTa Base
+                  DeepSeek
                 </span>
               </div>
 
@@ -442,9 +448,12 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
                     aria-label="Loading sentiment analysis"
                   />
                   <p className="text-sm text-text-muted dark:text-dark-text-muted">
-                    Running RoBERTa 3-class neural inference on video
-                    comments…
+                    Analyzing video comments with DeepSeek…
                   </p>
+                </div>
+              ) : commentsError ? (
+                <div role="alert" className="p-8 text-center bg-surface-100 dark:bg-dark-surface-light rounded-2xl">
+                  <p className="text-text-muted dark:text-dark-text-muted">{commentsError}</p>
                 </div>
               ) : commentsData.commentsDisabled ? (
                 <div className="p-8 text-center bg-surface-100 dark:bg-dark-surface-light rounded-2xl">

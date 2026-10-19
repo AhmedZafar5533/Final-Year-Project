@@ -374,7 +374,7 @@ export const analyticsService = {
   },
 
   /**
-   * Get comments with RoBERTa sentiment analysis for a specific video
+   * Get comments with DeepSeek sentiment analysis for a specific video
    */
   async getVideoComments(videoId) {
     try {
