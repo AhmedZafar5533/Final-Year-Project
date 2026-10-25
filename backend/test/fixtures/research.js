@@ -6,24 +6,24 @@ export const videos = videoIds.map((id, index) => ({
     defaultAudioLanguage: 'en', thumbnails: { medium: { url: 'https://example.org/thumbnail.jpg' } }
   }, contentDetails: { duration: 'PT10M' }, statistics: { viewCount: '10000', likeCount: '300', commentCount: '100' }
 }));
-export const transcriptText = 'This practical guide demonstrates study tools with real examples. '.repeat(8);
 
 export function evidenceFixture() {
   return {
-    competitors: videos.map(video => ({ videoId: video.id, channelId: video.snippet.channelId, transcriptComplete: true })),
+    basis: 'public_metadata',
+    competitors: videos.map(video => ({ videoId: video.id, channelId: video.snippet.channelId })),
     sources: videos.flatMap(video => [
       { id: video.id + ':description', videoId: video.id, kind: 'description', text: video.snippet.description, url: 'https://youtube.com/watch?v=' + video.id, complete: true },
-      { id: video.id + ':transcript:0', videoId: video.id, kind: 'transcript', text: transcriptText, url: 'https://youtube.com/watch?v=' + video.id, complete: true },
+      { id: video.id + ':title', videoId: video.id, kind: 'title', text: video.snippet.title, url: 'https://youtube.com/watch?v=' + video.id, complete: true },
       { id: video.id + ':comment:comment-1', videoId: video.id, kind: 'comment', text: 'How can I apply this to exam preparation?', url: 'https://youtube.com/watch?v=' + video.id + '&lc=comment-1', complete: true }
     ]),
-    limitations: [], coverage: { videoCount: 3, channelCount: 3, completeTranscripts: 3, pageCount: 0, commentCount: 3 }
+    limitations: [], coverage: { videoCount: 3, channelCount: 3, metadataVideoCount: 3, pageCount: 0, commentCount: 3 }
   };
 }
 
 export function reportFixture(evidence = evidenceFixture()) {
   const claim = (value, sourceIds) => ({ text: value, sourceIds });
   const first = evidence.competitors[0].videoId;
-  const complete = evidence.sources.filter(source => source.kind === 'transcript' && source.complete);
+  const complete = evidence.sources.filter(source => source.kind === 'description');
   return {
     summary: claim('The examined examples describe study workflows.', [first + ':description']),
     competitors: evidence.competitors.map(video => ({
@@ -34,7 +34,7 @@ export function reportFixture(evidence = evidenceFixture()) {
           quote: 'How can I apply this to exam preparation?' }] : []
     })),
     coverageMatrix: [{ topic: 'Study tools', coveredBy: [first], sourceIds: [first + ':description'] }],
-    gaps: complete.length >= 2 ? [{
+    gaps: complete.length >= 2 && evidence.sources.some(source => source.id === first + ':comment:comment-1') ? [{
       title: 'Potential exam preparation examples',
       finding: claim('An exam preparation walkthrough may address an observed question.', [first + ':comment:comment-1']),
       comparison: claim('Compare the examined demonstrations before choosing a new example.', complete.slice(0, 2).map(source => source.id)),

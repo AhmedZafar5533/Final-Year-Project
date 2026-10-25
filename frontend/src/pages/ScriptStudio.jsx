@@ -25,7 +25,8 @@ import useScriptResearch from "../hooks/useScriptResearch";
 import ScriptWorkspace from "../components/insights/ScriptWorkspace";
 import ScriptRequestMode from "../components/insights/ScriptRequestMode";
 import ScriptChatContent from "../components/insights/ScriptChatContent";
-import DOMPurify from "dompurify";
+import ScriptManuscript from "../components/insights/ScriptManuscript";
+import { exportScriptMarkdown } from "../utils/scriptVisuals";
 
 const STORAGE_KEY = "onlycreators_script_history";
 const FONT_LINK_ID = "script-studio-display-font";
@@ -132,100 +133,6 @@ function formatUpdatedAt(iso) {
   } catch {
     return "";
   }
-}
-
-function formatInlineMarkdown(str) {
-  if (!str) return "";
-  return DOMPurify.sanitize(str
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-text-primary dark:text-white">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em class="italic text-primary-600 dark:text-primary-300">$1</em>')
-    .replace(
-      /`(.*?)`/g,
-      '<code class="px-1.5 py-0.5 rounded bg-surface-200 dark:bg-dark-border font-mono text-[0.7rem] text-primary-700 dark:text-primary-300">$1</code>',
-    ), { ALLOWED_TAGS: ["strong", "em", "code"], ALLOWED_ATTR: ["class"] });
-}
-
-function renderMarkdownScript(text) {
-  if (!text) return null;
-  const lines = text.split("\n");
-  return lines.map((line, idx) => {
-    if (line.startsWith("# ")) {
-      return (
-        <h1
-          key={idx}
-          className="font-display text-2xl sm:text-3xl md:text-4xl font-semibold text-text-primary dark:text-white mt-2 mb-5 pb-5 border-b-2 border-text-primary/10 dark:border-white/10 text-balance leading-[1.15]"
-        >
-          {line.substring(2)}
-        </h1>
-      );
-    }
-    // Chapter / scene headers are rendered as production slug lines —
-    // uppercase mono with a rule, the way a screenplay marks INT./EXT.
-    // scene headings. This is a functional convention for this content,
-    // not decoration.
-    if (line.startsWith("## ")) {
-      return (
-        <div key={idx} className="flex items-center gap-2.5 mt-8 mb-3">
-          <span
-            className="w-2 h-2 flex-shrink-0 bg-primary-500"
-            aria-hidden="true"
-            style={{ clipPath: "polygon(0 0, 100% 50%, 0 100%)" }}
-          />
-          <h2 className="font-mono-label text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.12em] text-primary-700 dark:text-primary-400">
-            {line.substring(3)}
-          </h2>
-          <span className="flex-1 h-px bg-surface-200 dark:bg-dark-border" aria-hidden="true" />
-        </div>
-      );
-    }
-    if (line.startsWith("### ")) {
-      return (
-        <h3
-          key={idx}
-          className="text-sm sm:text-base font-bold text-accent-700 dark:text-accent-400 mt-3 mb-1"
-        >
-          {line.substring(4)}
-        </h3>
-      );
-    }
-    if (line.startsWith("---")) {
-      return <hr key={idx} className="my-5 border-surface-200 dark:border-dark-border" />;
-    }
-    if (line.startsWith("- ")) {
-      return (
-        <div key={idx} className="flex items-start gap-2 my-1 pl-2 text-sm text-text-secondary dark:text-dark-text">
-          <span className="text-primary-500 font-bold" aria-hidden="true">
-            •
-          </span>
-          <span dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line.substring(2)) }} />
-        </div>
-      );
-    }
-    // Director / visual cues styled like a taped-on production note —
-    // slightly tilted, dashed border, torn from the flow of the page.
-    if (line.startsWith("**[VISUAL:") || line.startsWith("[VISUAL:")) {
-      return (
-        <div key={idx} className="my-4 flex">
-          <div
-            className="director-note relative max-w-full px-4 py-3 bg-primary-50/70 dark:bg-primary-950/30 border border-dashed border-primary-400/70 dark:border-primary-700/70 text-[0.7rem] sm:text-xs font-mono-label tracking-tight text-primary-900 dark:text-primary-300"
-            aria-label="Director's visual cue"
-          >
-            <span dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line) }} />
-          </div>
-        </div>
-      );
-    }
-    if (line.trim() === "") {
-      return <div key={idx} className="h-2" aria-hidden="true" />;
-    }
-    return (
-      <p
-        key={idx}
-        className="my-1.5 text-sm sm:text-[0.95rem] text-text-secondary dark:text-dark-text leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line) }}
-      />
-    );
-  });
 }
 
 // Small building blocks kept local to this file for readability.
@@ -628,7 +535,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
 
   const handleCopyScript = () => {
     if (!scriptContent) return;
-    navigator.clipboard.writeText(scriptContent);
+    navigator.clipboard.writeText(exportScriptMarkdown(scriptContent, activeResearchSession?.webResearch));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -636,7 +543,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
   const handleDownloadScript = () => {
     if (!scriptContent) return;
     const element = document.createElement("a");
-    const file = new Blob([scriptContent], { type: "text/markdown" });
+    const file = new Blob([exportScriptMarkdown(scriptContent, activeResearchSession?.webResearch)], { type: "text/markdown" });
     element.href = URL.createObjectURL(file);
     element.download = "youtube_script.md";
     document.body.appendChild(element);
@@ -978,7 +885,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               onResearch={mode => handleSendMessage(mode === 'images' ? 'Find relevant images for this video and show their original source pages. Do not change the script.' :
                 'Find authoritative web references for the facts in this video. Do not change the script.', { requestMode: 'chat', researchMode: mode })}>
               <div className="script-page max-w-[720px] mx-auto p-5 sm:p-8 md:p-10 space-y-2 break-words">
-                {scriptContent ? renderMarkdownScript(scriptContent) : <div className="flex flex-col items-center justify-center min-h-64 text-center space-y-4 text-text-muted">
+                {scriptContent ? <ScriptManuscript text={scriptContent} research={activeResearchSession?.webResearch} /> : <div className="flex flex-col items-center justify-center min-h-64 text-center space-y-4 text-text-muted">
                   <IoDocumentTextOutline className="w-12 h-12 opacity-40" /><h2 className="font-display text-xl">Your next video starts here</h2>
                   <p className="text-sm max-w-sm leading-relaxed">Ask a question, research a topic, or tell Nova to write a script. Your draft and references have their own space.</p>
                 </div>}

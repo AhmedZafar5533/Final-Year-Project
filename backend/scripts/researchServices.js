@@ -49,7 +49,8 @@ async function check() {
       const good = response.ok && count > 0;
       failed ||= !good;
       console.log(`${good ? 'OK' : 'FAIL'} ${name}: HTTP ${response.status}, ${count} ${name === 'Page collection' ? 'characters' : 'results'}`);
-      if (data.unresponsive_engines?.length) console.log('  Unavailable engines:', data.unresponsive_engines.map(item => item[0]).join(', '));
+      if (data.unresponsive_engines?.length) console.log('  Unavailable engines:', data.unresponsive_engines.map(item =>
+        Array.isArray(item) ? `${item[0]} (${item[1] || 'unavailable'})` : String(item)).join(', '));
     } catch (error) {
       failed = true;
       console.error(`FAIL ${name}: ${error.cause?.code || error.name}. Start the services and check backend/.env URLs.`);

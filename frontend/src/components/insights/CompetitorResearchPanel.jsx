@@ -116,10 +116,15 @@ export default function CompetitorResearchPanel({ researchId, title, onClose, on
             <p className="text-sm leading-relaxed"><EvidenceClaim claim={report.summary} sources={sources} /></p>
             <p className="text-xs text-text-muted mt-3">
               {report.coverage.videoCount} videos · {report.coverage.channelCount} channels ·{" "}
-              {report.coverage.completeTranscripts} complete captions · {report.coverage.commentCount} sampled comments ·{" "}
+              {report.coverage.commentCount} sampled top comments ·{" "}
               {report.coverage.pageCount} web pages
             </p>
           </div>
+          {!!evidence?.channelBaseline?.channels?.length && <div className="rounded-xl bg-surface-50 dark:bg-dark-surface-light p-4 space-y-2">
+            <h3 className="font-bold text-sm">Shared niche competitor sample</h3>
+            <p className="text-xs text-text-muted">Idea-specific videos are selected from these saved channels and a supplementary topic search.</p>
+            <div className="flex flex-wrap gap-3 text-sm">{evidence.channelBaseline.channels.map(channel => <a key={channel.channelId} href={link(channel.url)} target="_blank" rel="noopener noreferrer" className="underline text-primary-700 dark:text-primary-300">{channel.title}</a>)}</div>
+          </div>}
           {!!report.communitySignals?.length && <div><h3 className="font-bold mb-2">Questions from community discussions</h3>
             <ul className="list-disc pl-5 text-sm space-y-2">{report.communitySignals.map((item, index) =>
               <li key={index}><EvidenceClaim claim={item} sources={sources} /></li>)}</ul>
@@ -134,18 +139,17 @@ export default function CompetitorResearchPanel({ researchId, title, onClose, on
                 <p className="text-xs">Views: {video.metrics.views?.toLocaleString() ?? "unavailable"} · Likes: {video.metrics.likes?.toLocaleString() ?? "unavailable"}</p>
                 <p className="text-xs text-text-muted">Observed {date(video.observedAt)} · Average views/day since publication: {video.averageViewsPerDay?.toLocaleString() ?? "unavailable"}</p>
                 <p><EvidenceClaim claim={summary?.approach} sources={sources} /></p>
-                <div><h4 className="font-semibold">Observed topics</h4>
+                <div><h4 className="font-semibold">Topics advertised in metadata</h4>
                   <ul className="list-disc pl-5 mt-1 space-y-1">{summary?.coveredTopics.map((item, index) =>
                     <li key={index}><EvidenceClaim claim={item} sources={sources} /></li>)}</ul></div>
                 {!!summary?.audienceNeeds.length && <div><h4 className="font-semibold">Questions in sampled comments</h4>
                   <ul className="list-disc pl-5 mt-1 space-y-2">{summary.audienceNeeds.map((item, index) =>
                     <li key={index}><EvidenceClaim claim={item} sources={sources} /></li>)}</ul></div>}
-                <p className="text-xs text-text-muted">{video.commentSampleSize} comments sampled · Captions:{" "}
-                  {video.transcriptComplete ? "complete" : video.transcriptAvailable ? "partial" : "unavailable"}</p>
+                <p className="text-xs text-text-muted">{video.commentSampleSize} top comments sampled{video.fromChannelBaseline ? ' · Saved niche competitor' : ' · Topic discovery'}</p>
               </article>;
             })}</div>
           </div>
-          {!!report.coverageMatrix.length && <div className="overflow-x-auto"><h3 className="font-bold mb-2">Coverage in the examined material</h3>
+          {!!report.coverageMatrix.length && <div className="overflow-x-auto"><h3 className="font-bold mb-2">Topics in sampled titles and descriptions</h3>
             <table className="text-sm w-full"><thead><tr className="border-b text-left"><th className="p-2">Topic</th><th className="p-2">Observed in</th></tr></thead>
               <tbody>{report.coverageMatrix.map((row, index) => <tr key={index} className="border-b border-surface-200 dark:border-dark-border">
                 <td className="p-2">{row.topic}</td><td className="p-2">
@@ -153,8 +157,9 @@ export default function CompetitorResearchPanel({ researchId, title, onClose, on
                   <EvidenceClaim claim={{ text: "", sourceIds: row.sourceIds }} sources={sources} />
                 </td></tr>)}</tbody></table>
           </div>}
-          <div><h3 className="font-bold mb-3">Potential gaps</h3>
-            {!report.gaps.length && <p className="text-sm text-text-muted">The collected evidence does not establish a supported gap. Suggestions below are creative directions.</p>}
+          <div><h3 className="font-bold mb-3">Opportunities to test</h3>
+            <p className="text-xs text-text-muted mb-3">Public metadata can suggest a different angle, but cannot establish what a full video omits.</p>
+            {!report.gaps.length && <p className="text-sm text-text-muted">No audience-backed comparative opportunity was established in this sample. Suggestions below are creative directions.</p>}
             {report.gaps.map((gap, index) => <article key={index} className="rounded-xl border border-primary-200 dark:border-primary-800 p-4 mb-3 space-y-2 text-sm">
               <h4 className="font-semibold">{gap.title}</h4>
               <p><EvidenceClaim claim={gap.finding} sources={sources} /></p>
@@ -179,6 +184,7 @@ export default function CompetitorResearchPanel({ researchId, title, onClose, on
               <a href={link(source.url)} target="_blank" rel="noopener noreferrer" className="underline">[{source.number}] {source.title}</a>
               <p className="text-xs text-text-muted">{source.kind} · Collected {date(source.collectedAt)}{!source.complete && " · Partial extraction"}</p>
               {source.publishedAt && <p className="text-xs text-text-muted">Page publication date: {source.publishedAt}</p>}
+              {source.sourceType && <p className="text-xs text-text-muted">{source.sourceType} · {source.sourceCaveat}</p>}
               <p className="mt-1 text-xs whitespace-pre-wrap">{source.text}</p>
             </li>)}</ol>
           </details>

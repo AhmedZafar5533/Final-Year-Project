@@ -8,3 +8,7 @@ search:
   formats:
     - html
     - json
+outgoing:
+  # The upstream default is 3 seconds, too short for many research/image queries.
+  request_timeout: 6.0
+  max_request_timeout: 10.0

@@ -7,6 +7,7 @@ No live provider or application backend is contacted.
 
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 from urllib.parse import urlsplit
@@ -31,13 +32,17 @@ def main():
             "why_it_will_perform": "A practical response to viewer questions.", "estimated_potential": "High"}
     intelligence = {
         "_id": intelligence_id, "researchRevision": "revision-1", "isDemo": False,
-        "channelTitle": "Study Channel", "niche": {"primary_niche": "Study techniques", "sub_niches": []},
+        "channelTitle": "Study Channel", "youtubeChannelId": "own-channel", "niche": {"primary_niche": "Study techniques", "sub_niches": []},
         "videoAnalyses": [], "marketTrends": [],
         "masterSummary": {
             "executive_overview": "Practical study workflows.", "overlap_recommendations": [idea],
             "demand_recommendations": [], "trend_recommendations": [], "next_video_recommendations": [idea],
         },
     }
+    landscape = {"status": "completed", "basis": "public_metadata", "analyzedAt": "2026-10-19T01:00:00Z", "expiresAt": "2026-10-20T01:00:00Z", "limitations": [],
+                 "channels": [{"channelId": "peer-channel", "title": "Study Peer", "url": "https://www.youtube.com/channel/peer-channel", "scale": "Similar scale", "subscriberCount": 12000,
+                               "selectionReason": "Public metadata matches study techniques and revision.", "sample": {"videoCount": 3, "medianViews": 10000, "averageUploadSpacingDays": 3},
+                               "videos": [{**video, "comments": [{"id": "sample-comment", "text": "Can you explain revision schedules?"}]} for video in fixtures["videos"]]}]}
     evidence = fixtures["evidence"]
     for source in evidence["sources"]:
         source.update({"title": "Study workflow evidence", "collectedAt": "2026-10-18T12:00:00Z"})
@@ -48,7 +53,7 @@ def main():
             "url": "https://www.youtube.com/watch?v=" + video["id"],
             "publishedAt": video["snippet"]["publishedAt"], "observedAt": "2026-10-18T12:00:00Z",
             "metrics": {"views": 10000, "likes": 300, "comments": 100}, "averageViewsPerDay": 200,
-            "commentSampleSize": 1, "transcriptAvailable": True,
+            "commentSampleSize": 1, "fromChannelBaseline": True,
         })
     detail = {
         "_id": job_id, "intelligenceId": intelligence_id, "ideaKey": idea_key,
@@ -80,8 +85,9 @@ def main():
                     "access-control-allow-headers": "authorization,content-type",
                     "access-control-allow-methods": "GET,POST,OPTIONS",
                 }
-                if parsed.hostname == "example.org" and parsed.path.endswith("thumb.png"):
-                    route.fulfill(content_type="image/svg+xml", body='<svg xmlns="http://www.w3.org/2000/svg" width="300" height="180"><rect width="300" height="180" fill="#dcece8"/><circle cx="150" cy="90" r="45" fill="#377e70"/></svg>')
+                if parsed.hostname == "example.org" and parsed.path.endswith(("thumb.png", "diagram.png")):
+                    # Both hotlinked URLs fail; the authenticated collector fallback must recover.
+                    route.abort()
                     return
                 if "/api/" not in parsed.path:
                     if parsed.hostname in {"127.0.0.1", "localhost"}:
@@ -92,11 +98,19 @@ def main():
                 if request.method == "OPTIONS":
                     route.fulfill(status=204, headers=headers)
                     return
+                if parsed.path.endswith("/script-studio/image"):
+                    assert request.post_data_json == {"imageId": "I123456abcdef"}
+                    route.fulfill(headers=headers, content_type="image/svg+xml", body='<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><rect width="1920" height="1080" fill="#dcece8"/></svg>')
+                    return
                 body, status = {}, 200
                 if parsed.path.endswith("/auth/me"):
                     body = {"user": user}
                 elif parsed.path.endswith("/youtube/channel-intelligence"):
                     body = intelligence
+                elif parsed.path.endswith("/youtube/channel-competitors/refresh"):
+                    assert request.post_data_json == {"intelligenceId": intelligence_id}
+                    intelligence["competitorLandscape"] = landscape
+                    body = landscape
                 elif parsed.path.endswith("/idea-research") and request.method == "GET":
                     body = {"jobs": [{key: value for key, value in detail.items() if key not in {"report", "evidence"}}] if started else []}
                 elif parsed.path.endswith("/idea-research") and request.method == "POST":
@@ -112,7 +126,7 @@ def main():
                     body = {
                         "intent": "chat" if is_chat else "refine", "scriptUpdated": not is_chat,
                         "reply": "Gravity is an interaction. [S123456abcdef]" if is_chat else "Drafted with the saved research.",
-                        "script": "# A Practical Study Workflow\n\n## Real examples\nUse a worked revision example.\n<img src=x onerror=window.researchXss=1>",
+                        "script": "# A Practical Study Workflow\n\n## Real examples\n[IMAGE:I123456abcdef]\nUse a worked revision example.\n<img src=x onerror=window.researchXss=1>",
                         "suggested_followups": ["Make the examples clearer"], "researchApplied": True,
                         "researchCompletedAt": "2026-10-18T11:00:00Z" if len(script_requests) == 1 else detail["completedAt"],
                         "webResearch": {
@@ -121,9 +135,10 @@ def main():
                             "activity": [{"event": "search.completed", "provider": "searxng", "results": 3}],
                             "searchResults": [{"url": "https://example.net/discovered", "title": "Discovered research paper", "snippet": "Search excerpt only", "provider": "searxng"}],
                             "sources": [{"id": "S123456abcdef", "title": "Original study reference", "url": "https://example.org/study",
-                                         "collectedAt": "2026-10-18T12:00:00Z", "excerpt": "A collected study excerpt.", "cited": True, "complete": False}],
+                                         "collectedAt": "2026-10-18T12:00:00Z", "excerpt": "A collected study excerpt.", "cited": True, "complete": False, "sourceType": "Research publisher", "sourceCaveat": "Check the original paper."}],
                             "images": [{"id": "I123456abcdef", "title": "Study diagram candidate", "url": "https://example.org/image-page",
-                                        "imageUrl": "https://example.org/diagram.png", "thumbnailUrl": "https://example.org/thumb.png", "license": "Not verified"}],
+                                        "imageUrl": "https://example.org/diagram.png", "thumbnailUrl": "https://example.org/thumb.png", "license": "Not verified", "width": 1920, "height": 1080, "caption": "A visual guide to the study workflow", "alt": "Study workflow diagram"}],
+                            "imagePlacements": [{"imageId": "I123456abcdef", "sectionHeading": "Real examples", "caption": "A visual guide to the study workflow", "alt": "Study workflow diagram"}],
                         },
                     }
                     if is_chat:
@@ -134,12 +149,21 @@ def main():
 
             page.route("**/*", handle)
             page.goto(base + "/insights")
+            channel_panel = page.get_by_role("region", name="Niche competitor channels")
+            channel_panel.get_by_role("button", name="Find niche competitors").click()
+            expect(channel_panel.get_by_role("link", name="Study Peer")).to_be_visible(timeout=15000)
+            channel_panel.get_by_text("Recent videos and viewer questions", exact=True).click()
+            expect(channel_panel.get_by_text("“Can you explain revision schedules?”", exact=True).first).to_be_visible()
+            expect(channel_panel.get_by_text("Median sample views", exact=False)).to_be_visible()
+            assert page.evaluate("JSON.parse(localStorage.getItem('onlycreators_channel_intelligence')).data.competitorLandscape.channels[0].title") == "Study Peer"
+            channel_panel.screenshot(path="/tmp/onlycreators-channel-competitors.png")
             expect(page.get_by_role("button", name="Research competitors")).to_be_enabled(timeout=15000)
             page.get_by_role("button", name="Research competitors").click()
             dialog = page.get_by_role("dialog", name=idea["title"])
             expect(dialog).to_be_visible()
             expect(dialog.get_by_role("heading", name="Competing videos")).to_be_visible(timeout=10000)
-            expect(dialog.get_by_role("heading", name="Potential gaps")).to_be_visible()
+            expect(dialog.get_by_role("heading", name="Opportunities to test")).to_be_visible()
+            expect(dialog.get_by_text("complete captions", exact=False)).to_have_count(0)
             assert started[0] == {"intelligenceId": intelligence_id, "ideaKey": idea_key}
             dialog.get_by_role("button", name="Refresh research").click()
             expect(dialog.get_by_role("heading", name="Competing videos")).to_be_visible()
@@ -159,11 +183,25 @@ def main():
             expect(sources.get_by_role("link", name="[S123456abcdef] Original study reference")).to_have_attribute("href", "https://example.org/study")
             expect(sources.get_by_role("link", name="Discovered research paper")).to_be_visible()
             page.get_by_role("tab", name="Images", exact=False).click()
-            expect(sources.get_by_role("img", name="Study diagram candidate")).to_be_attached()
+            expect(sources.get_by_role("img", name="Study diagram candidate")).to_be_visible(timeout=15000)
+            expect(sources.get_by_text(re.compile(r"1920\s*×\s*1080"))).to_have_count(0)
             expect(sources.get_by_text("Licensing reported by search: Not verified")).to_be_attached()
             page.get_by_role("tab", name="Activity", exact=True).click()
             expect(page.get_by_text("search · completed")).to_be_visible()
             page.get_by_role("tab", name="Draft", exact=True).click()
+            figure = page.get_by_role("figure", name="Script visual: A visual guide to the study workflow")
+            expect(figure).to_be_visible()
+            expect(figure.get_by_role("img", name="Study workflow diagram")).to_be_visible()
+            page.wait_for_function("document.querySelector('figure img')?.naturalWidth === 1920")
+            expect(figure.get_by_role("link", name="Open image: Study diagram candidate")).to_have_attribute("href", re.compile(r"^blob:"))
+            expect(figure).not_to_contain_text("1920")
+            expect(figure).not_to_contain_text("Resolution")
+            with page.expect_download() as download_info:
+                page.get_by_role("button", name="Export script as Markdown file").click()
+            exported = Path(download_info.value.path()).read_text()
+            assert "![Study workflow diagram](https://example.org/diagram.png)" in exported
+            assert "[Original image source](https://example.org/image-page)" in exported
+            page.screenshot(path="/tmp/onlycreators-inline-images.png", full_page=True)
             original_draft = page.locator(".script-page").inner_text()
             page.get_by_role("textbox", name="Message Nova AI").fill("What is gravity?")
             page.get_by_role("button", name="Send message", exact=True).click()
@@ -193,7 +231,7 @@ def main():
             page.get_by_role("button", name="Ask only", exact=True).click()
             assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
             page.screenshot(path="/tmp/onlycreators-script-mobile.png", full_page=True)
-            print("Browser smoke passed: competitor report, script sources/images, follow-up session references, persisted reload, and sanitized script rendering.")
+            print("Browser smoke passed: niche channel discovery and saved cards, metadata-based competitor report, script sources/images, follow-up sessions, persisted reload, and sanitized script rendering.")
         finally:
             browser.close()
 

@@ -8,7 +8,8 @@ from unittest.mock import AsyncMock, patch
 from fastapi import HTTPException
 
 from collectors import MAX_BYTES, PublicResolver, extract_text, fetch_public, validate_url
-from main import CollectRequest, collect
+from main import CollectRequest, collect, ImageRequest, image
+import main
 
 
 class UrlTests(unittest.TestCase):
@@ -48,6 +49,32 @@ class UrlTests(unittest.TestCase):
 
 
 class AsyncTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        main.page_cache.clear()
+        main.page_tasks.clear()
+        main.slots = asyncio.Semaphore(2)
+
+    async def test_concurrent_and_repeated_collection_reuses_successful_page_fetches(self):
+        evidence = {"url": "https://example.org/cache-test", "title": "Study", "text": "Actual collected text. " * 20}
+        async def slow_page(url):
+            await asyncio.sleep(0.01)
+            return evidence
+        with patch("main.collect_page", AsyncMock(side_effect=slow_page)) as collector:
+            first, second = await asyncio.gather(main.cached_page(evidence["url"]), main.cached_page(evidence["url"]))
+            first["text"] = "caller mutation"
+            third = await main.cached_page(evidence["url"])
+            self.assertEqual(second["text"], evidence["text"])
+            self.assertEqual(third["text"], evidence["text"])
+            self.assertEqual(collector.await_count, 1)
+
+    async def test_failed_collection_is_not_cached(self):
+        evidence = {"url": "https://example.org/recover", "text": "Recovered page text. " * 20}
+        with patch("main.collect_page", AsyncMock(side_effect=[ValueError("Unavailable"), evidence])) as collector:
+            with self.assertRaises(ValueError):
+                await main.cached_page(evidence["url"])
+            self.assertEqual(await main.cached_page(evidence["url"]), evidence)
+            self.assertEqual(collector.await_count, 2)
+
     async def test_resolver_rejects_private_dns_answers(self):
         records = [{"host": "127.0.0.1", "hostname": "example.org", "port": 80, "family": socket.AF_INET}]
         with patch("collectors.DefaultResolver.resolve", AsyncMock(return_value=records)):
@@ -115,6 +142,33 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError):
             await fetch_public(Session(), "https://example.org/article")
 
+    async def test_image_fetch_rejects_html_and_enforces_its_byte_limit(self):
+        class Content:
+            async def iter_chunked(self, size):
+                yield b"x" * 11
+
+        class Response:
+            status = 200
+            headers = {"Content-Type": "text/html"}
+            content = Content()
+            charset = None
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *args):
+                return False
+
+        class Session:
+            def get(self, *args, **kwargs):
+                return Response()
+
+        with self.assertRaisesRegex(ValueError, "content type"):
+            await fetch_public(Session(), "https://example.org/photo", allowed_types=("image/png",), max_bytes=10)
+        Response.headers = {"Content-Type": "image/png"}
+        with self.assertRaisesRegex(ValueError, "size limit"):
+            await fetch_public(Session(), "https://example.org/photo", allowed_types=("image/png",), max_bytes=10)
+
     async def test_api_requires_a_configured_token(self):
         with patch.dict(os.environ, {"RESEARCH_SERVICE_TOKEN": ""}):
             with self.assertRaises(HTTPException) as raised:
@@ -143,6 +197,18 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
                     await collect(CollectRequest(url="https://example.org/article"), "Bearer test-token")
         self.assertEqual(raised.exception.status_code, 502)
         self.assertNotIn("Private", raised.exception.detail)
+
+    async def test_image_collection_requires_token_and_returns_only_collected_bytes(self):
+        request = ImageRequest(url="https://example.org/photo.png", source_url="https://example.org/article")
+        with patch.dict(os.environ, {"RESEARCH_SERVICE_TOKEN": "test-token"}):
+            with patch("main.collect_image", AsyncMock(return_value={"body": b"image fixture", "content_type": "image/png"})) as collector:
+                with self.assertRaises(HTTPException):
+                    await image(request, "Bearer wrong")
+                collector.assert_not_called()
+                result = await image(request, "Bearer test-token")
+                self.assertEqual(result.body, b"image fixture")
+                self.assertEqual(result.media_type, "image/png")
+                collector.assert_awaited_once_with(request.url, request.source_url)
 
 
 if __name__ == "__main__":

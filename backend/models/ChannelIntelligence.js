@@ -65,6 +65,8 @@ const ChannelIntelligenceSchema = new mongoose.Schema({
   researchRevision: String,
   youtubeChannelId: String,
   researchLanguage: String,
+  channelSubscriberCount: Number,
+  competitorLandscape: mongoose.Schema.Types.Mixed,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   channelId: { type: String, required: true, index: true },
   channelTitle: { type: String, default: 'Channel' },

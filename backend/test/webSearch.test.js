@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, mock, test } from 'node:test';
-import { searchWeb, webSearchProviders } from '../services/research/webSearch.js';
+import { searchWeb, searchImages, webSearchProviders } from '../services/research/webSearch.js';
 import { collectEvidence } from '../services/research/evidence.js';
 import { validateReport } from '../services/research/analysis.js';
 import { evidenceFixture, reportFixture } from './fixtures/research.js';
@@ -56,10 +56,58 @@ for (const failure of ['forbidden', 'empty', 'malformed']) {
 }
 
 test('explicit SearXNG failure does not silently call Brave', async () => {
-  const fetchMock = mock.method(globalThis, 'fetch', async () => new Response('', { status: 503 }));
+  const fetchMock = mock.method(globalThis, 'fetch', async value => {
+    assert.equal(new URL(value).hostname, 'search.test');
+    return new Response('', { status: 503 });
+  });
   const result = await searchWeb('explicit failed search', 'en', { ...config, webProvider: 'searxng' }, run());
   assert.deepEqual(result.results, []);
+  assert.equal(fetchMock.mock.callCount(), 2); // One bounded transient retry, still SearXNG only.
+});
+
+test('an empty restrictive search retries a broader query once and records engine failure reasons', async () => {
+  const events = [];
+  const queries = [];
+  mock.method(globalThis, 'fetch', async value => {
+    const query = new URL(value).searchParams.get('q');
+    queries.push(query);
+    return Response.json(query.includes('site:')
+      ? { results: [], unresponsive_engines: [['bing', 'CAPTCHA']] }
+      : { results: [{ url: 'https://support.google.com/youtube/answer/example', title: 'YouTube audience retention' }] });
+  });
+  const execution = { ...run(), log: (event, details) => events.push({ event, ...details }) };
+  const result = await searchWeb('YouTube audience retention original study site:research.google', 'en', { ...config, webProvider: 'searxng' }, execution);
+  assert.equal(result.results.length, 1);
+  assert.deepEqual(queries, ['YouTube audience retention original study site:research.google', 'YouTube audience retention']);
+  assert.equal(execution.usage.webRequests, 2);
+  assert.equal(events.find(item => item.event === 'search.failed').error, 'EMPTY_RESULTS');
+  assert.deepEqual(events.find(item => item.event === 'search.failed').engineFailures, [{ engine: 'bing', reason: 'CAPTCHA' }]);
+  assert.ok(events.some(item => item.event === 'search.retry'));
+});
+
+test('image searches retry a shorter query and stop after a second empty response', async () => {
+  const queries = [];
+  mock.method(globalThis, 'fetch', async value => {
+    queries.push(new URL(value).searchParams.get('q'));
+    return Response.json({ results: [], unresponsive_engines: [['google images', 'timeout']] });
+  });
+  const result = await searchImages('YouTube Analytics audience retention graph screenshot', 'en', config, run());
+  assert.deepEqual(queries, ['YouTube Analytics audience retention graph screenshot', 'YouTube Analytics audience retention graph']);
+  assert.equal(result.results.length, 0);
+  assert.match(result.warnings[0], /google images: timeout/);
+});
+
+test('HTTP failures do not trigger broader-query retries and invalid JSON is diagnosed', async () => {
+  const events = [];
+  const execution = { ...run(), log: (event, details) => events.push({ event, ...details }) };
+  const fetchMock = mock.method(globalThis, 'fetch', async () => new Response('Forbidden', { status: 403 }));
+  await searchWeb('YouTube retention site:example.org', 'en', { ...config, webProvider: 'searxng' }, execution);
   assert.equal(fetchMock.mock.callCount(), 1);
+  assert.equal(events.at(-1).error, 'HTTP_ERROR');
+  fetchMock.mock.mockImplementation(async () => new Response('<html>Not JSON</html>'));
+  const invalid = await searchImages('unique malformed image search', 'en', config, execution);
+  assert.equal(events.at(-1).error, 'INVALID_JSON');
+  assert.match(invalid.warnings[0], /invalid response/);
 });
 
 test('cancellation prevents provider fallback', async () => {

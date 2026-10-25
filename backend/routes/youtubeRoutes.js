@@ -9,9 +9,11 @@ import {
   disconnectYoutube,
   getChannelIntelligence,
   analyzeChannelIntelligence,
-  handleScriptStudioChat
+  handleScriptStudioChat,
+  refreshChannelCompetitors
 } from '../controllers/youtubeController.js';
 import { protect } from '../middleware/authMiddleware.js';
+import { getScriptImage } from '../controllers/scriptImageController.js';
 
 const router = express.Router();
 
@@ -26,8 +28,10 @@ router.post('/disconnect', protect, disconnectYoutube);
 // Channel Ingestion, Niche Detection & Strategy Synthesis
 router.get('/channel-intelligence', protect, getChannelIntelligence);
 router.post('/channel-intelligence/analyze', protect, analyzeChannelIntelligence);
+router.post('/channel-competitors/refresh', protect, refreshChannelCompetitors);
 
 // Interactive AI Script Studio Chatbot
 router.post('/script-studio/chat', protect, handleScriptStudioChat);
+router.post('/script-studio/image', protect, getScriptImage);
 
 export default router;

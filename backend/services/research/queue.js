@@ -68,7 +68,10 @@ export async function enqueueResearch(userId, intelligence, ideaKey, refresh = f
           niche: intelligence.niche?.primary_niche || '',
           audience: intelligence.niche?.target_audience || '',
           ownChannelId: intelligence.youtubeChannelId || '',
-          language: intelligence.researchLanguage || 'en'
+          language: intelligence.researchLanguage || 'en',
+          nicheDetails: intelligence.niche?.toObject ? intelligence.niche.toObject() : intelligence.niche,
+          channelTitle: intelligence.channelTitle,
+          ownSubscribers: intelligence.channelSubscriberCount
         }
       });
       created = true;

@@ -86,7 +86,9 @@ different domains, reserving one slot for a Reddit thread when available. Search
 snippets are discovery metadata and are never used as evidence of unseen page or
 comment contents. Reddit access can fail; unavailable pages are explicitly noted.
 Community observations are anecdotal, and cannot establish an absence in competitor
-coverage. Missing captions still prevent unsupported content-gap conclusions.
+coverage. Competitor research uses public titles, descriptions, metrics and sampled
+top comments without fetching captions. Its opportunities are metadata-based
+hypotheses, not verified omissions from full videos.
 
 The container uses default upstream engines, whose availability varies. Successful
 startup does not guarantee useful search results. Inspect `docker compose logs`

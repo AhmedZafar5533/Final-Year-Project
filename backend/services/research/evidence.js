@@ -1,5 +1,6 @@
-import { fetchJson } from './providers.js';
-import { publicHttpUrl, primaryLanguage } from './discovery.js';
+import { publicHttpUrl } from './discovery.js';
+import { sourceQuality } from './quality.js';
+import { collectPublicPage } from './pages.js';
 
 export async function mapLimited(items, limit, action) {
   const result = new Array(items.length);
@@ -26,7 +27,7 @@ export async function collectEvidence(discovery, config, run) {
     const observedAt = new Date().toISOString();
     const sourceIds = [];
     const add = source => {
-      const record = { ...source, videoId: id, url: source.url || url, title: video.snippet.title, collectedAt: observedAt };
+      const record = { ...source, videoId: id, url: source.url || url, title: video.snippet.title, collectedAt: source.collectedAt || observedAt };
       sources.push(record);
       sourceIds.push(record.id);
     };
@@ -35,53 +36,23 @@ export async function collectEvidence(discovery, config, run) {
       comments: numberOrNull(video.statistics?.commentCount)
     };
     const days = (Date.now() - Date.parse(video.snippet.publishedAt)) / 86400000;
-    add({ id: id + ':description', kind: 'description',
-      text: (video.snippet.description || '').slice(0, 6000), complete: (video.snippet.description || '').length <= 6000 });
-    let transcriptComplete = false;
-    let transcriptAvailable = false;
-    try {
-      run.usage.transcriptRequests = (run.usage.transcriptRequests || 0) + 1;
-      const data = await fetchJson(config.transcriptUrl + '/transcript?' +
-        new URLSearchParams({ videoId: id, languages: primaryLanguage(run.language) }), {}, run.signal);
-      const segments = (data.transcript || []).filter(segment => typeof segment.text === 'string');
-      const rawLength = segments.reduce((sum, segment) => sum + segment.text.length, 0);
-      let consumed = 0;
-      const selected = [];
-      for (const segment of segments) {
-        const room = 16000 - consumed;
-        if (room <= 0) break;
-        const bounded = segment.text.slice(0, room);
-        selected.push({ ...segment, text: bounded });
-        consumed += bounded.length;
-      }
-      transcriptAvailable = consumed >= 300;
-      transcriptComplete = transcriptAvailable && consumed === rawLength && selected.length === segments.length;
-      // Timestamped blocks provide small, verifiable evidence references.
-      let block = '', start = 0, blockIndex = 0;
-      const flush = () => {
-        if (!block) return;
-        add({ id: id + ':transcript:' + blockIndex++, kind: 'transcript', text: block,
-          start, url: url + '&t=' + Math.floor(start), complete: transcriptComplete });
-      };
-      for (const segment of selected) {
-        if (block && block.length + segment.text.length > 1800) { flush(); block = ''; }
-        if (!block) start = Number(segment.start) || 0;
-        block += (block ? ' ' : '') + segment.text;
-      }
-      flush();
-      if (!segments.length) limitations.push('Captions unavailable for ' + id + '.');
-      else if (consumed < rawLength) limitations.push('Only the beginning of captions was examined for ' + id + '.');
-    } catch (error) {
-      run.log?.('captions.failed', { videoId: id, status: error.upstreamStatus, error: error.cause?.code || error.name });
-      limitations.push('Captions could not be collected for ' + id + '.');
-    }
-
+    add({ id: id + ':title', kind: 'title', text: video.snippet.title, complete: true });
+    if (video.snippet.description?.trim()) add({ id: id + ':description', kind: 'description',
+      text: video.snippet.description.slice(0, 6000), complete: video.snippet.description.length <= 6000 });
+    add({ id: id + ':metadata', kind: 'metadata', complete: true,
+      text: JSON.stringify({ publishedAt: video.snippet.publishedAt, duration: video.contentDetails?.duration, ...stats }) });
     const comments = new Map();
     const orders = [];
-    for (const order of ['relevance', 'time']) {
+    if (Array.isArray(video.sampledComments)) {
+      orders.push('relevance');
+      for (const comment of video.sampledComments) if (comment.id && comment.text) comments.set(comment.id, {
+        textOriginal: comment.text, likeCount: comment.likes, publishedAt: comment.publishedAt, complete: comment.complete
+      });
+    }
+    for (const order of (Array.isArray(video.sampledComments) ? [] : ['relevance'])) {
       try {
         const result = await discovery.google('commentThreads', {
-          part: 'snippet', videoId: id, maxResults: '25', order, textFormat: 'plainText'
+          part: 'snippet', videoId: id, maxResults: '20', order, textFormat: 'plainText'
         });
         orders.push(order);
         for (const item of result.items || []) {
@@ -93,10 +64,11 @@ export async function collectEvidence(discovery, config, run) {
     for (const [commentId, comment] of comments) {
       const raw = String(comment.textOriginal || comment.textDisplay || '');
       add({ id: id + ':comment:' + commentId, kind: 'comment',
-        text: raw.slice(0, 600),
-        url: url + '&lc=' + encodeURIComponent(commentId), complete: raw.length <= 600 });
+        text: raw.slice(0, 600), likes: numberOrNull(comment.likeCount), publishedAt: comment.publishedAt || null,
+        ...(video.commentsObservedAt ? { collectedAt: video.commentsObservedAt } : {}),
+        url: url + '&lc=' + encodeURIComponent(commentId), complete: comment.complete !== false && raw.length <= 600 });
     }
-    run.log?.('video.completed', { videoId: id, transcriptComplete, comments: comments.size });
+    run.log?.('video.completed', { videoId: id, basis: 'public_metadata', comments: comments.size });
     return {
       videoId: id, url, title: video.snippet.title, channelId: video.snippet.channelId,
       channelTitle: video.snippet.channelTitle, publishedAt: video.snippet.publishedAt,
@@ -104,30 +76,33 @@ export async function collectEvidence(discovery, config, run) {
       averageViewsPerDay: stats.views == null || !Number.isFinite(days) || days < 1 ? null : Math.round(stats.views / days),
       thumbnailUrl: publicHttpUrl(video.snippet.thumbnails?.medium?.url) || null,
       selectionReason: 'Selected using topic relevance, total views, average views per day, audience language and duration similarity, with channel diversity. Missing performance metrics receive no performance bonus.',
-      commentSampleSize: comments.size, commentOrders: orders, transcriptAvailable, transcriptComplete, sourceIds
+      commentSampleSize: comments.size, commentOrders: orders, fromChannelBaseline: Boolean(video.fromChannelBaseline), sourceIds
     };
   });
 
-  await mapLimited(discovery.pages, 2, async (page, index) => {
+  let collectedPages = 0;
+  const collectedUrls = new Set();
+  await mapLimited((discovery.pageCandidates || discovery.pages).slice(0, 6), 2, async (page, index) => {
+    if (collectedPages >= 3 || run.signal?.aborted) return;
     if (!config.serviceToken) {
       limitations.push('Web page collection is not configured.');
       return;
     }
     try {
       run.log?.('page.started', { url: page.url });
-      run.usage.pageRequests = (run.usage.pageRequests || 0) + 1;
-      const result = await fetchJson(config.serviceUrl + '/collect', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + config.serviceToken },
-        body: JSON.stringify({ url: page.url })
-      }, run.signal);
+      const result = await collectPublicPage(page, config, run);
       const url = publicHttpUrl(result.url);
       if (!url || typeof result.text !== 'string' || result.text.length < 100) throw new Error('Unusable page');
+      if (collectedPages >= 3 || collectedUrls.has(url)) return;
+      collectedPages++;
+      collectedUrls.add(url);
       const discussion = /(^|\.)reddit\.com$/i.test(new URL(url).hostname) && /\/comments\//.test(new URL(url).pathname);
       sources.push({ id: 'web:' + index, kind: discussion ? 'discussion' : 'web', url, title: String(result.title || page.title).slice(0, 300),
+        sourceType: sourceQuality(url).type, sourceCaveat: sourceQuality(url).caveat,
         text: result.text.slice(0, 12000), complete: result.complete === true && result.text.length <= 12000,
         searchProvider: page.provider || null,
         publishedAt: typeof result.publishedAt === 'string' ? result.publishedAt.slice(0, 40) : null,
-        collectedAt: new Date().toISOString(), mode: result.mode });
+        collectedAt: typeof result.collectedAt === 'string' ? result.collectedAt.slice(0, 40) : new Date().toISOString(), mode: result.mode });
       if (!result.complete || result.text.length > 12000) limitations.push('Only partial page text was examined: ' + url);
       if (discussion) limitations.push('Reddit evidence includes only readable text collected from the linked page; it does not establish full comment coverage or representative audience demand.');
       run.log?.('page.completed', { url, characters: Math.min(result.text.length, 12000), complete: result.complete });
@@ -137,12 +112,12 @@ export async function collectEvidence(discovery, config, run) {
     }
   });
   return {
-    competitors, sources, queries: discovery.queries,
+    competitors, sources, channelBaseline: discovery.channelBaseline || null, basis: 'public_metadata', queries: discovery.queries,
     limitations: [...new Set(limitations)],
     coverage: {
       videoCount: competitors.length,
       channelCount: new Set(competitors.map(video => video.channelId)).size,
-      completeTranscripts: competitors.filter(video => video.transcriptComplete).length,
+      metadataVideoCount: competitors.length,
       pageCount: sources.filter(source => ['web', 'discussion'].includes(source.kind)).length,
       discussionCount: sources.filter(source => source.kind === 'discussion').length,
       commentCount: competitors.reduce((sum, video) => sum + video.commentSampleSize, 0)

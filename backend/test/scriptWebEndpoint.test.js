@@ -118,3 +118,23 @@ test('automatic refinement classification applies the requested script change', 
   assert.equal(res.body.scriptUpdated, true);
   assert.equal(res.body.script, '# Draft\nA shorter hook.');
 });
+
+test('image placements embed in the draft and persist captions for subsequent chat-only answers', async () => {
+  const image = { id: 'I123456abcdef', title: 'Original diagram', url: 'https://example.org/diagram', imageUrl: 'https://example.org/diagram.png' };
+  const writes = [];
+  mock.method(ScriptWebResearch, 'findOne', () => ({ lean: async () => ({ sources: [], images: [image] }) }));
+  mock.method(ScriptWebResearch, 'init', async () => {});
+  mock.method(ScriptWebResearch, 'updateOne', async (query, update) => { writes.push({ query, update }); });
+  mock.method(globalThis, 'fetch', async () => Response.json({ choices: [{ message: { content: JSON.stringify({
+    reply: 'Added a relevant visual.', script: '# Video\n## The mechanism\nAn explanation.',
+    imagePlacements: [{ imageId: image.id, sectionHeading: 'The mechanism', caption: 'Mechanism diagram', alt: 'A mechanism diagram' }]
+  }) } }] }));
+  const res = response();
+  await handler({ user: { _id: 'owner-one' }, body: { sessionId: 'image-session', requestMode: 'edit', currentScript: '# Video',
+    messages: [{ role: 'user', content: 'Embed a relevant image in the script.' }] } }, res);
+  assert.equal(res.code, 200);
+  assert.ok(res.body.script.includes('## The mechanism\n[IMAGE:I123456abcdef]'));
+  assert.equal(res.body.webResearch.images[0].caption, 'Mechanism diagram');
+  assert.equal(writes.at(-1).update.$set.images[0].alt, 'A mechanism diagram');
+  assert.deepEqual(writes.at(-1).query, { userId: 'owner-one', sessionId: 'image-session' });
+});

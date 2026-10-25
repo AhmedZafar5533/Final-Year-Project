@@ -7,13 +7,14 @@ public-address resolver as ordinary fetching. No inference models are imported.
 import asyncio
 import ipaddress
 import socket
+from datetime import datetime, timezone
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import aiohttp
 import trafilatura
 from aiohttp.resolver import DefaultResolver
 
-MAX_BYTES = 512 * 1024
+MAX_BYTES = 2 * 1024 * 1024
 MAX_TEXT = 12000
 
 
@@ -49,7 +50,7 @@ class PublicResolver(DefaultResolver):
         return records
 
 
-async def fetch_public(session, url, allowed_types=("text/html", "application/xhtml+xml", "text/plain")):
+async def fetch_public(session, url, allowed_types=("text/html", "application/xhtml+xml", "text/plain"), max_bytes=MAX_BYTES):
     target = validate_url(url)
     for _ in range(5):
         async with session.get(target, allow_redirects=False) as response:
@@ -67,13 +68,28 @@ async def fetch_public(session, url, allowed_types=("text/html", "application/xh
             content = bytearray()
             async for chunk in response.content.iter_chunked(8192):
                 content.extend(chunk)
-                if len(content) > MAX_BYTES:
+                if len(content) > max_bytes:
                     raise ValueError("Page exceeds the collection size limit")
             return {
                 "url": target, "body": bytes(content), "content_type": content_type,
                 "encoding": response.charset or "utf-8",
             }
     raise ValueError("Too many redirects")
+
+
+async def collect_image(url, source_url):
+    """Fetch image bytes with the same public-DNS and redirect checks as pages."""
+    source = validate_url(source_url)
+    parsed = urlsplit(source)
+    connector = aiohttp.TCPConnector(resolver=PublicResolver(), use_dns_cache=False, limit=2)
+    async with aiohttp.ClientSession(
+        connector=connector, timeout=aiohttp.ClientTimeout(total=10, connect=4), trust_env=False,
+        headers={"User-Agent": "Mozilla/5.0 OnlyCreatorsResearch/1.0", "Accept": "image/avif,image/webp,image/*;q=0.8",
+                 "Referer": urlunsplit((parsed.scheme, parsed.netloc, "/", "", ""))},
+    ) as session:
+        return await fetch_public(session, url, allowed_types=(
+            "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/svg+xml",
+        ), max_bytes=6 * 1024 * 1024)
 
 
 def extract_text(body, encoding="utf-8"):
@@ -151,7 +167,7 @@ async def render_public(session, url):
 
 async def collect_page(url, render=True):
     connector = aiohttp.TCPConnector(resolver=PublicResolver(), use_dns_cache=False, limit=4)
-    timeout = aiohttp.ClientTimeout(total=15, connect=5)
+    timeout = aiohttp.ClientTimeout(total=6, connect=3)
     async with aiohttp.ClientSession(
         connector=connector, timeout=timeout, trust_env=False,
         headers={"User-Agent": "OnlyCreatorsResearch/1.0"},
@@ -161,12 +177,13 @@ async def collect_page(url, render=True):
             raw = fetched["body"].decode(fetched["encoding"], errors="replace")
             result = {"title": "", "text": raw[:MAX_TEXT], "complete": len(raw) <= MAX_TEXT}
         else:
-            result = extract_text(fetched["body"], fetched["encoding"])
-        result.update({"url": fetched["url"], "mode": "http"})
+            result = await asyncio.to_thread(extract_text, fetched["body"], fetched["encoding"])
+        result.update({"url": fetched["url"], "mode": "http", "collectedAt": datetime.now(timezone.utc).isoformat()})
         if len(result["text"]) < 300 and render:
             try:
-                rendered = await asyncio.wait_for(render_public(session, fetched["url"]), timeout=17)
+                rendered = await asyncio.wait_for(render_public(session, fetched["url"]), timeout=7)
                 if len(rendered["text"]) > len(result["text"]):
+                    rendered["collectedAt"] = result["collectedAt"]
                     return rendered
             except Exception:
                 # The caller can still use an honest partial HTTP extraction.

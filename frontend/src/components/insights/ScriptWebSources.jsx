@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { IoOpenOutline, IoImageOutline, IoWarningOutline, IoSearchOutline } from 'react-icons/io5';
+import ResearchImage from './ResearchImage';
 
 const safeLink = value => {
   try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password ? url.href : undefined; }
@@ -8,17 +8,12 @@ const safeLink = value => {
 const domain = value => { try { return new URL(value).hostname.replace(/^www\./, ''); } catch { return 'Source'; } };
 
 function ImageCandidate({ image }) {
-  const [failed, setFailed] = useState(false);
   return <article className="overflow-hidden rounded-xl border border-surface-200 dark:border-dark-border bg-white dark:bg-dark-surface">
-    <a href={safeLink(image.url)} target="_blank" rel="noopener noreferrer" className="block bg-surface-100 dark:bg-dark-border">
-      {!failed && safeLink(image.thumbnailUrl) ? <img src={safeLink(image.thumbnailUrl)} alt={image.title || 'Candidate visual reference'}
-        loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} className="h-40 w-full object-contain" /> :
-        <span className="h-40 flex flex-col items-center justify-center text-text-muted gap-2 text-xs"><IoImageOutline className="w-8 h-8" />Preview unavailable · open original</span>}
-    </a>
+    <div className="bg-surface-100 dark:bg-dark-border"><ResearchImage key={`${image.id}:${image.imageUrl}:${image.thumbnailUrl}`} image={image} alt={image.title} thumbnailFirst className="h-40 w-full object-contain" /></div>
     <div className="p-3 space-y-2">
       <a href={safeLink(image.url)} target="_blank" rel="noopener noreferrer" className="font-medium text-sm hover:underline line-clamp-2">{image.title || 'Original source page'}</a>
       <p className="text-xs text-text-muted">{domain(image.url)}</p>
-      <a href={safeLink(image.imageUrl)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary-700 dark:text-primary-300 underline">Open full image <IoOpenOutline /></a>
+      <a href={safeLink(image.url)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary-700 dark:text-primary-300 underline">Open original source <IoOpenOutline /></a>
       <p className="text-xs text-text-muted">Licensing reported by search: {image.license || 'Not verified'}{image.attribution && ` · ${image.attribution}`}</p>
     </div>
   </article>;
@@ -44,8 +39,10 @@ export default function ScriptWebSources({ research, loading, view = 'all' }) {
         <div className="flex items-start justify-between gap-3"><a href={safeLink(source.url)} target="_blank" rel="noopener noreferrer" className="font-semibold text-sm hover:underline">[{source.id}] {source.title}</a>
           <span className="shrink-0 rounded-md bg-primary-50 dark:bg-primary-950/40 px-2 py-1 text-[10px] text-primary-700 dark:text-primary-300">{source.cited ? 'Referenced' : `Source ${index + 1}`}</span></div>
         <p className="text-xs text-text-muted">{domain(source.url)} · {source.complete ? 'Collected page text' : 'Partial page excerpt'}</p>
+        {source.sourceType && <p className="text-xs font-medium text-primary-700 dark:text-primary-300">{source.sourceType}</p>}
         <p className="text-xs leading-relaxed whitespace-pre-wrap">{source.excerpt}</p>
         <p className="text-[11px] text-text-muted">Collected {new Date(source.collectedAt).toLocaleString()}{source.publishedAt && ` · Published ${source.publishedAt}`}</p>
+        {source.sourceCaveat && <p className="text-[11px] text-text-muted">{source.sourceCaveat}</p>}
       </article>)}
       {!!discovered.length && <div className="space-y-3"><h4 className="text-xs uppercase tracking-wider font-semibold text-text-muted">Discovered links · full text not collected</h4>
         {discovered.map(item => <article key={item.url} className="border border-surface-200 dark:border-dark-border rounded-xl p-4 space-y-2">

@@ -2,23 +2,54 @@ import { getDeepSeekConfig } from '../../config/deepseek.js';
 import { researchError } from '../../config/research.js';
 
 export async function fetchJson(url, options = {}, signal, timeoutMs = 20000) {
-  const response = await fetch(url, {
-    ...options,
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs)
-  });
-  if (!response.ok) {
-    const error = researchError('A research provider is temporarily unavailable.');
-    error.upstreamStatus = response.status;
-    error.retryable = response.status === 429 || response.status >= 500;
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs)
+    });
+    if (!response.ok) {
+      const error = researchError('A research provider is temporarily unavailable.');
+      error.upstreamStatus = response.status;
+      error.retryable = response.status === 429 || response.status >= 500;
+      const retryAfter = response.headers.get('retry-after');
+      if (retryAfter) error.retryAfterMs = Math.max(0, /^\d+$/.test(retryAfter) ? Number(retryAfter) * 1000 : Date.parse(retryAfter) - Date.now()) || 0;
+      await response.body?.cancel();
+      throw error;
+    }
+    return await response.json();
+  } catch (error) {
+    if (!signal?.aborted && error.retryable === undefined && (error.name === 'TimeoutError' ||
+      ['ECONNRESET', 'ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'ETIMEDOUT', 'UND_ERR_CONNECT_TIMEOUT',
+        'UND_ERR_SOCKET', 'UND_ERR_HEADERS_TIMEOUT'].includes(error.cause?.code))) error.retryable = true;
     throw error;
   }
-  return response.json();
+}
+
+export async function withTransientRetry(action, { signal, log, event = 'provider.retry', ...details } = {}) {
+  signal?.throwIfAborted();
+  try { return await action(); }
+  catch (error) {
+    signal?.throwIfAborted();
+    // Long rate-limit cooldowns belong to the worker/provider fallback, not immediate retries.
+    if (error.retryable !== true || error.retryAfterMs > 2000) throw error;
+    const delayMs = Math.max(300, error.retryAfterMs || 0);
+    log?.(event, { ...details, attempt: 2, delayMs, status: error.upstreamStatus, error: error.cause?.code || error.name });
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(done, delayMs);
+      function done() { signal?.removeEventListener('abort', abort); resolve(); }
+      function abort() { clearTimeout(timer); reject(signal.reason); }
+      signal?.addEventListener('abort', abort, { once: true });
+      if (signal?.aborted) abort();
+    });
+    signal?.throwIfAborted();
+    return action();
+  }
 }
 
 export async function deepSeekJson(system, input, { signal, usage = {}, log } = {}, validate = value => value) {
   const config = getDeepSeekConfig();
   if (!config.apiKey || config.apiKey === 'your_deepseek_api_key_here') {
-    throw researchError('DeepSeek research is not configured.');
+    throw Object.assign(researchError('DeepSeek research is not configured.'), { retryable: false });
   }
   for (let attempt = 0; attempt < 2; attempt++) {
     signal?.throwIfAborted();

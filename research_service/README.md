@@ -25,11 +25,22 @@ can require additional OS libraries on a fresh Linux installation.
 The `--env-file .env` option loads the collector's local environment file.
 An already exported environment variable takes precedence over that file.
 
+Page collection has a 15-second total budget including its queue, with bounded
+HTTP and browser stages. Public page bodies are limited to 2 MB and extracted text
+to 12,000 characters. Successful extractions are cached for 15 minutes (up to 48
+pages), retaining their original collection time. Concurrent requests for the same
+URL share a fetch; failures are not cached. Image and page collection use separate
+concurrency slots so image retries cannot block factual source collection.
+
 - `GET /health` returns liveness and token configuration status.
 - `POST /collect` accepts `{"url":"https://example.org/article"}` with
   `Authorization: Bearer <RESEARCH_SERVICE_TOKEN>`.
 - Responses contain the final URL, title, bounded text, extraction mode, and
   whether the extracted text was truncated.
+- `POST /image` accepts `{"url":"https://example.org/photo.png","source_url":"https://example.org/article"}`
+  with the same bearer token. It returns image bytes (up to 6 MB), with public-DNS
+  and redirect checks. Express uses this as a fallback for saved research images
+  that cannot load directly in the browser. HTML responses are rejected.
 
 Public destination checks apply to initial URLs, DNS answers, and redirects.
 Browser requests are fulfilled through the same restricted HTTP fetcher; downloads,

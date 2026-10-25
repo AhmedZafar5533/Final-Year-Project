@@ -3,6 +3,7 @@ import { discover } from './discovery.js';
 import { collectEvidence } from './evidence.js';
 import { analyzeEvidence } from './analysis.js';
 import { createResearchLogger } from './logger.js';
+import { getChannelCompetitors } from './channelCompetitors.js';
 
 export async function runResearch(job, { signal, stage = async () => {} } = {}) {
   const config = researchConfig();
@@ -13,7 +14,20 @@ export async function runResearch(job, { signal, stage = async () => {} } = {}) 
   const run = { signal, usage, language: job.context?.language || 'en', log };
   log('research.started');
   await reportStage('planning');
-  const discovery = await discover(job.idea, job.context || {}, config, run);
+  const context = { ...(job.context || {}), refreshComments: job.generation > 0 };
+  if (job.userId && context.ownChannelId) {
+    try {
+      await reportStage('channel competitors');
+      context.channelCompetitors = await getChannelCompetitors({ userId: job.userId,
+        channel: { youtubeChannelId: context.ownChannelId, title: context.channelTitle, subscriberCount: context.ownSubscribers, researchLanguage: context.language },
+        niche: context.nicheDetails || { primary_niche: context.niche }, config, signal, log, usage });
+    } catch (error) {
+      signal.throwIfAborted();
+      log('channels.unavailable', { error: error.name });
+    }
+  }
+  const discovery = await discover(job.idea, context, config, run);
+  if (job.userId && context.ownChannelId && !context.channelCompetitors) discovery.limitations.push('Saved channel competitors were unavailable; topic discovery was used.');
   log('discovery.completed', { videos: discovery.videos.length, pages: discovery.pages.length });
   await reportStage('collecting');
   const evidence = await collectEvidence(discovery, config, run);

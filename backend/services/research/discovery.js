@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto';
 import { researchError } from '../../config/research.js';
-import { fetchJson, deepSeekJson } from './providers.js';
+import { fetchJson, deepSeekJson, withTransientRetry } from './providers.js';
 import { searchWeb, webSearchProviders } from './webSearch.js';
+import { publicHttpUrl } from './urls.js';
+import { rankSourceCandidates } from './quality.js';
 
 const searchCache = new Map();
 const validVideoId = id => /^[a-zA-Z0-9_-]{11}$/.test(id || '');
@@ -9,17 +11,7 @@ export function primaryLanguage(value) {
   const language = typeof value === 'string' ? value.split(/[-_]/)[0].toLowerCase() : 'en';
   return /^[a-z]{2}$/.test(language) ? language : 'en';
 }
-export function publicHttpUrl(value) {
-  try {
-    const url = new URL(value);
-    if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) return null;
-    // DNS and redirect checks are enforced again by the collector.
-    if (url.port && !['80', '443'].includes(url.port)) return null;
-    if (!url.hostname.includes('.') || /^(localhost|127\.|0\.|10\.|192\.168\.|169\.254\.)/i.test(url.hostname)) return null;
-    url.hash = '';
-    return url.href;
-  } catch { return null; }
-}
+export { publicHttpUrl } from './urls.js';
 
 async function cachedJson(url, options, signal, onMiss = () => {}) {
   const key = createHash('sha256').update(url).digest('hex');
@@ -59,7 +51,8 @@ export function selectCompetitors(items, idea, context) {
       const dailyViews = knownViews && ageDays >= 1 ? views / ageDays : 0;
       const momentum = Math.min(1.5, Math.log10(1 + dailyViews) / 3);
       const topic = terms.size ? matches / terms.size : 0;
-      return { video, matches, score: topic * 8 + (formatMatch ? 2 : 0) + reach + momentum + 0.1 / (index + 1) };
+      const knownChannel = context.channelCompetitors?.channels?.some(channel => channel.channelId === video.snippet.channelId);
+      return { video, matches, score: topic * 8 + (formatMatch ? 2 : 0) + reach + momentum + (knownChannel && matches ? 0.75 : 0) + 0.1 / (index + 1) };
     });
   // Keep broad search hits from displacing topical videos when there is enough topical evidence.
   const topical = candidates.filter(candidate => candidate.matches > 0);
@@ -83,11 +76,13 @@ export async function discover(idea, context, config, run) {
   if (!config.youtubeKey || config.youtubeKey === 'your_youtube_api_key') {
     throw researchError('YouTube research is not configured. Set the backend YouTube API key.');
   }
-  const queries = await deepSeekJson(
+  let queries;
+  const limitations = [];
+  try { queries = await deepSeekJson(
     'Generate focused competitor discovery queries for this YouTube idea and audience. Return JSON ' +
     '{"youtubeQueries":["exact topic","audience question","recent topic"],"webQueries":["topic explanation","practical topic guide"]}. ' +
     'Use one to three YouTube queries and one or two web queries, each at most 160 characters. Do not supply URLs.',
-    { idea, context }, run, result => {
+    { idea, context }, { ...run, signal: run.signal ? AbortSignal.any([run.signal, AbortSignal.timeout(12000)]) : AbortSignal.timeout(12000) }, result => {
       for (const [field, max] of [['youtubeQueries', 3], ['webQueries', 2]]) {
         if (!Array.isArray(result?.[field]) || !result[field].length || result[field].length > max ||
           result[field].some(q => typeof q !== 'string' || !q.trim() || q.length > 160 || /https?:\/\//i.test(q))) {
@@ -97,19 +92,34 @@ export async function discover(idea, context, config, run) {
       }
       return result;
     }
-  );
-  const limitations = [];
-  const ids = new Set();
+  ); } catch (error) {
+    run.signal?.throwIfAborted();
+    if (error.retryable === false) throw error;
+    const topic = String(idea.title || '').replace(/https?:\/\/\S+/gi, '').trim().slice(0, 140);
+    if (!topic) throw error;
+    queries = { youtubeQueries: [topic], webQueries: [topic] };
+    limitations.push('Query planning was unavailable; discovery used the saved idea topic.');
+    run.log?.('plan.fallback', { error: error.name });
+  }
+  const baselineVideos = context.channelCompetitors?.channels?.flatMap(channel => channel.videos || []) || [];
+  const ids = new Set(baselineVideos.filter(video => validVideoId(video.id)).slice(0, 30).map(video => video.id));
+  if (ids.size) {
+    queries.youtubeQueries = queries.youtubeQueries.slice(0, 1);
+    run.log?.('channels.baseline_used', { channels: context.channelCompetitors.channels.length, videos: ids.size });
+    if (context.channelCompetitors.stale) limitations.push('The saved competitor channel sample is out of date.');
+  }
   let lastSearchError;
   const google = async (method, params) => {
     run.log?.('youtube.request', { method, query: params.q });
     const url = 'https://www.googleapis.com/youtube/v3/' + method + '?' +
       new URLSearchParams({ ...params, key: config.youtubeKey });
     const count = () => { run.usage.youtubeRequests = (run.usage.youtubeRequests || 0) + 1; };
-    if (method === 'search') return cachedJson(url, {}, run.signal, count);
-    // A report refresh gets fresh metrics and comment samples, not cached observations.
-    count();
-    return fetchJson(url, {}, run.signal);
+    return withTransientRetry(async () => {
+      if (method === 'search') return cachedJson(url, {}, run.signal, count);
+      // A report refresh gets fresh metrics and comment samples, not cached observations.
+      count();
+      return fetchJson(url, {}, run.signal);
+    }, { signal: run.signal, log: run.log, event: 'youtube.retry', method });
   };
   const searches = [];
   for (const [index, q] of queries.youtubeQueries.entries()) {
@@ -120,7 +130,7 @@ export async function discover(idea, context, config, run) {
     searches.push({ query: q, order, publishedAfter: params.publishedAfter || null });
     try {
       const data = await google('search', params);
-      for (const item of data.items || []) if (validVideoId(item.id?.videoId)) ids.add(item.id.videoId);
+      for (const item of data.items || []) if (validVideoId(item.id?.videoId) && ids.size < 48) ids.add(item.id.videoId);
     } catch (error) {
       lastSearchError = error;
       limitations.push('One YouTube discovery query could not be completed.');
@@ -166,11 +176,29 @@ export async function discover(idea, context, config, run) {
     pages.push(page);
   };
   // Reserve one of the three collection slots for a discussion when one is found.
-  candidates.filter(page => page.kind === 'web').forEach(page => {
+  const rankedPages = rankSourceCandidates(candidates, idea.title || '');
+  rankedPages.filter(page => page.kind === 'web').forEach(page => {
     if (pages.length < 2) addPage(page);
   });
-  addPage(candidates.find(page => page.kind === 'discussion'));
-  candidates.forEach(addPage);
+  addPage(rankedPages.find(page => page.kind === 'discussion'));
+  rankedPages.forEach(addPage);
   if (providers.length && !pages.length) limitations.push('No usable general web pages or discussions were discovered.');
-  return { videos, pages, queries: { youtube: searches, web: webSearches }, limitations: [...new Set(limitations)], google };
+  const pageCandidates = [...pages];
+  const candidateDomains = new Set(pages.map(page => page.host));
+  for (const page of rankedPages) {
+    if (pageCandidates.length >= 6) break;
+    if (candidateDomains.has(page.host)) continue;
+    candidateDomains.add(page.host);
+    pageCandidates.push(page);
+  }
+  const channelIds = new Set(context.channelCompetitors?.channels?.map(channel => channel.channelId) || []);
+  const selectedVideos = videos.map(video => {
+    const saved = baselineVideos.find(item => item.id === video.id);
+    return { ...video, fromChannelBaseline: channelIds.has(video.snippet.channelId),
+      ...(saved?.commentsSampled && !context.refreshComments ? { sampledComments: saved.comments, commentsObservedAt: context.channelCompetitors.analyzedAt } : {}) };
+  });
+  return { videos: selectedVideos, pages, pageCandidates, channelBaseline: context.channelCompetitors ? {
+    analyzedAt: context.channelCompetitors.analyzedAt, stale: Boolean(context.channelCompetitors.stale),
+    channels: context.channelCompetitors.channels.map(({ channelId, title, url, sample, selectionReason }) => ({ channelId, title, url, sample, selectionReason }))
+  } : null, queries: { youtube: searches, web: webSearches }, limitations: [...new Set(limitations)], google };
 }

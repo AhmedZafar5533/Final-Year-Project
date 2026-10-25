@@ -19,7 +19,10 @@ import { prepareIntelligenceResearch, scheduleAutomaticResearch, researchForScri
 import ScriptWebResearch from '../models/ScriptWebResearch.js';
 import { collectScriptWebResearch, scriptResearchResponse } from '../services/research/scriptWebResearch.js';
 import { classifyScriptRequest } from '../services/research/scriptIntent.js';
+import { embedScriptImages } from '../services/research/scriptImages.js';
 import { createResearchLogger } from '../services/research/logger.js';
+import { getChannelCompetitors, competitorDigest } from '../services/research/channelCompetitors.js';
+import { ownedIntelligence } from '../services/research/queue.js';
 import { randomUUID } from 'node:crypto';
 import {
   generateVideoIntelligence,
@@ -881,6 +884,13 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
     sampleVideos: targetVideos
   });
 
+  // Discover once alongside the creator's existing analysis, then share the saved sample.
+  const competitorPromise = !isDemo && channelMeta.youtubeChannelId
+    ? getChannelCompetitors({ userId, channel: channelMeta, niche: detectedNiche, youtube: liveYoutubeClient }).catch(error => {
+      console.warn('Channel competitors unavailable:', error.statusCode ? error.message : error.name);
+      return { status: 'unavailable', channels: [], limitations: ['Competitor channel discovery could not finish. Refresh competitors to retry.'] };
+    }) : Promise.resolve(null);
+
   const marketTrends = await fetchAndSynthesizeMarketTrends({
     niche: detectedNiche,
     youtubeClient: liveYoutubeClient,
@@ -939,17 +949,22 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
   const rawAnalyses = await Promise.all(videoPromises);
   const videoAnalyses = rawAnalyses.filter(Boolean);
 
+  const competitorLandscape = await competitorPromise;
+
   const masterSummary = await generateMasterChannelSynthesis({
     channel: channelMeta,
     niche: detectedNiche,
     videoAnalyses,
-    marketTrends
+    marketTrends,
+    competitorContext: competitorDigest(competitorLandscape)
   });
 
   const channelId = isDemo ? 'demo-antigravity-studio' : `channel-${userId}`;
   const payload = {
     youtubeChannelId: channelMeta.youtubeChannelId || '',
     researchLanguage: channelMeta.researchLanguage || 'en',
+    channelSubscriberCount: Number(channelMeta.subscriberCount) || 0,
+    competitorLandscape,
     userId: isDemo ? null : userId,
     channelId,
     channelTitle: channelMeta.title,
@@ -984,6 +999,21 @@ const executeChannelAnalysisPipeline = async (userId, isDemo = false) => {
 };
 
 // 8. Get Channel Intelligence
+export const refreshChannelCompetitors = async (req, res) => {
+  try {
+    const intelligence = await ownedIntelligence(req.user._id, req.body?.intelligenceId);
+    if (intelligence.isDemo || !intelligence.youtubeChannelId) return res.status(400).json({ error: 'Connect and analyze your YouTube channel first.' });
+    let youtube;
+    try { ({ youtube } = await getAuthenticatedClients(req.user._id)); } catch { /* Public API key is a fallback. */ }
+    const landscape = await getChannelCompetitors({ userId: req.user._id, youtube,
+      channel: { youtubeChannelId: intelligence.youtubeChannelId, subscriberCount: intelligence.channelSubscriberCount, researchLanguage: intelligence.researchLanguage },
+      niche: intelligence.niche.toObject ? intelligence.niche.toObject() : intelligence.niche, force: true });
+    const updated = await ChannelIntelligence.updateOne({ _id: intelligence._id, userId: req.user._id, researchRevision: intelligence.researchRevision }, { $set: { competitorLandscape: landscape } });
+    if (!updated.matchedCount) return res.status(409).json({ error: 'Channel analysis changed. Reload before refreshing competitors.' });
+    res.json(landscape);
+  } catch (error) { res.status(error.statusCode || 503).json({ error: error.statusCode ? error.message : 'Channel competitor discovery could not finish. Try again.' }); }
+};
+
 export const getChannelIntelligence = async (req, res) => {
   const { refresh } = req.query;
   const userId = req.user?._id;
@@ -1101,6 +1131,15 @@ export const handleScriptStudioChat = async (req, res) => {
       intent
     });
     if (intent === 'chat') response.script = null;
+    embedScriptImages(response, webResearchContext.images);
+    for (const placement of response.imagePlacements) {
+      const image = webResearchContext.images.find(item => item.id === placement.imageId);
+      Object.assign(image, { caption: placement.caption, alt: placement.alt, sectionHeading: placement.sectionHeading });
+    }
+    if (sessionId && response.imagePlacements.length) {
+      try { await ScriptWebResearch.updateOne({ userId: req.user._id, sessionId }, { $set: { images: webResearchContext.images } }); }
+      catch { webResearchContext.warnings.push('Image captions could not be saved on the server for later edits.'); }
+    }
     const webResearch = scriptResearchResponse(webResearchContext, response);
     // Exportable references use server-collected URLs rather than model-generated links.
     if (response.script) {

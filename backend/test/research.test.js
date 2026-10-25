@@ -6,7 +6,7 @@ import { researchForScript } from '../services/research/queue.js';
 import { validateReport } from '../services/research/analysis.js';
 import { runResearch } from '../services/research/pipeline.js';
 import { deepSeekJson } from '../services/research/providers.js';
-import { videos, transcriptText, evidenceFixture, reportFixture } from './fixtures/research.js';
+import { videos, evidenceFixture, reportFixture } from './fixtures/research.js';
 
 afterEach(() => mock.restoreAll());
 
@@ -135,14 +135,15 @@ test('valid reports retain sourced observations and derive qualitative evidence 
   const evidence = evidenceFixture();
   const report = validateReport(reportFixture(evidence), evidence);
   assert.equal(report.gaps.length, 1);
-  assert.equal(report.gaps[0].evidenceStrength, 'moderate');
+  assert.equal(report.gaps[0].evidenceStrength, 'limited');
+  assert.equal(report.gaps[0].scope, 'metadata_opportunity');
   assert.equal(report.partial, false);
   assert.equal(report.competitors[0].audienceNeeds[0].quote, 'How can I apply this to exam preparation?');
 });
 
 test('unsupported gaps are withheld when complete coverage is insufficient', () => {
   const evidence = evidenceFixture();
-  evidence.coverage.completeTranscripts = 1;
+  evidence.coverage.videoCount = 1;
   const report = validateReport(reportFixture(evidence), evidence);
   assert.deepEqual(report.gaps, []);
   assert.equal(report.partial, true);
@@ -188,8 +189,7 @@ function providerMock({ captions = true, web = true } = {}) {
         snippet: { topLevelComment: { id: 'comment-1', snippet: { textOriginal: 'How can I apply this to exam preparation?' } } }
       }] });
     }
-    if (url.hostname === 'transcript.test') return captions
-      ? Response.json({ transcript: [{ start: 0, text: transcriptText }] }) : new Response('', { status: 404 });
+    if (url.hostname === 'transcript.test') assert.fail('Competitor research must not fetch transcripts');
     if (url.hostname === 'api.search.brave.com') return Response.json({ web: { results: [
       { title: 'Unsafe result', url: 'http://127.0.0.1/private' },
       { title: 'A study guide', url: 'https://example.org/study' }
@@ -324,14 +324,15 @@ test('SearXNG powers the full report with collected Reddit evidence and bounded 
   }, { brave: false, searxng: true });
 });
 
-test('missing competitor captions yield observations without fabricated gap conclusions', async () => {
+test('competitor research completes from metadata and comments without a transcript service', async () => {
   await withConfig(async () => {
     mock.method(globalThis, 'fetch', providerMock({ captions: false }));
     const result = await runResearch({ idea: { title: 'Study tools' }, context: {} },
       { signal: AbortSignal.timeout(10000) });
-    assert.equal(result.status, 'partial');
-    assert.equal(result.evidence.coverage.completeTranscripts, 0);
-    assert.equal(result.report.gaps.length, 0);
+    assert.equal(result.status, 'completed');
+    assert.equal(result.usage.transcriptRequests, undefined);
+    assert.ok(result.evidence.sources.every(source => source.kind !== 'transcript'));
+    assert.equal(result.report.gaps[0].scope, 'metadata_opportunity');
   });
 });
 

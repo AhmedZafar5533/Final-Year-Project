@@ -38,6 +38,11 @@ let cachedIntelligence = loadCachedIntelligenceFromStorage();
 let lastIntelFetch = cachedIntelligence ? Date.now() : 0;
 
 export const trendsService = {
+  updateCompetitorLandscape(intelligenceId, landscape) {
+    if (String(cachedIntelligence?._id) !== String(intelligenceId)) return;
+    cachedIntelligence = { ...cachedIntelligence, competitorLandscape: landscape };
+    saveIntelligenceToStorage(cachedIntelligence);
+  },
   /**
    * Synchronously get whatever intelligence is already in cache/storage (no delay)
    */

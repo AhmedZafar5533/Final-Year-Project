@@ -23,6 +23,7 @@ import ScriptStudioModal from "../components/insights/ScriptStudioModal";
 import useRecommendations from "../hooks/useRecommendations";
 import useIdeaResearch from "../hooks/useIdeaResearch";
 import CompetitorResearchPanel from "../components/insights/CompetitorResearchPanel";
+import ChannelCompetitorsPanel from "../components/insights/ChannelCompetitorsPanel";
 const EMPTY_RECOMMENDATIONS = [];
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -637,6 +638,12 @@ const Insights = () => {
           </div>
         </div>
       )}
+
+      {channelIntel && <ChannelCompetitorsPanel intelligenceId={channelIntel._id} landscape={channelIntel.competitorLandscape}
+        isDemo={channelIntel.isDemo} onUpdated={landscape => {
+          trendsService.updateCompetitorLandscape(channelIntel._id, landscape);
+          setChannelIntel(previous => ({ ...previous, competitorLandscape: landscape }));
+        }} />}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">

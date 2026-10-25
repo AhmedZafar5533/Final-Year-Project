@@ -8,134 +8,11 @@ import {
 } from "react-icons/io5";
 import trendsService from "../../services/trendsService";
 import useScriptResearch from "../../hooks/useScriptResearch";
-import DOMPurify from "dompurify";
+import ScriptManuscript from "./ScriptManuscript";
+import { exportScriptMarkdown } from "../../utils/scriptVisuals";
 import ScriptWorkspace from "./ScriptWorkspace";
 import ScriptRequestMode from "./ScriptRequestMode";
 import ScriptChatContent from "./ScriptChatContent";
-
-/* ---------------------------------------------------------------------- */
-/* Markdown → manuscript rendering                                        */
-/* ---------------------------------------------------------------------- */
-
-function formatInlineMarkdown(str) {
-  if (!str) return "";
-  return DOMPurify.sanitize(str
-    .replace(
-      /\*\*(.*?)\*\*/g,
-      '<strong class="font-semibold text-text-primary dark:text-white">$1</strong>',
-    )
-    .replace(
-      /\*(.*?)\*/g,
-      '<em class="italic text-primary-700 dark:text-primary-300">$1</em>',
-    )
-    .replace(
-      /`(.*?)`/g,
-      '<code class="px-1.5 py-0.5 rounded-md bg-surface-100 dark:bg-dark-border font-mono text-[0.7rem] tracking-tight text-primary-700 dark:text-primary-300">$1</code>',
-    ), { ALLOWED_TAGS: ["strong", "em", "code"], ALLOWED_ATTR: ["class"] });
-}
-
-// Pulls a leading "(0:00 - 0:45)" style timecode off a heading so it can be
-// set in its own monospace column, the way a call sheet or shot list would.
-function splitTimecode(line) {
-  const match = line.match(/^(.*?)(\s*\(\s*[\d:]+\s*-\s*[\d:]+\s*\))\s*$/);
-  if (!match) return { label: line, time: null };
-  return { label: match[1].trim(), time: match[2].replace(/[()]/g, "").trim() };
-}
-
-function renderMarkdownScript(text) {
-  if (!text) return null;
-  const lines = text.split("\n");
-  let sceneIndex = 0;
-
-  return lines.map((line, idx) => {
-    if (line.startsWith("# ")) {
-      const { label, time } = splitTimecode(line.substring(2));
-      return (
-        <div
-          key={idx}
-          className="mt-7 mb-3 pb-2 flex items-baseline justify-between gap-4 border-b border-surface-200 dark:border-dark-border"
-        >
-          <h1 className="font-serif text-xl sm:text-2xl text-text-primary dark:text-white">
-            {label}
-          </h1>
-          {time && (
-            <span className="font-mono text-[0.7rem] text-text-muted dark:text-dark-text-muted whitespace-nowrap">
-              {time}
-            </span>
-          )}
-        </div>
-      );
-    }
-    if (line.startsWith("## ")) {
-      sceneIndex += 1;
-      const { label, time } = splitTimecode(line.substring(3));
-      return (
-        <div key={idx} className="mt-6 mb-2 flex items-baseline gap-3">
-          <span className="font-mono text-[0.7rem] text-primary-500/70 dark:text-primary-400/70">
-            {String(sceneIndex).padStart(2, "0")}
-          </span>
-          <h2 className="font-serif text-base sm:text-lg text-primary-800 dark:text-primary-300">
-            {label}
-          </h2>
-          {time && (
-            <span className="font-mono text-[0.7rem] text-text-muted dark:text-dark-text-muted ml-auto whitespace-nowrap">
-              {time}
-            </span>
-          )}
-        </div>
-      );
-    }
-    if (line.startsWith("### ")) {
-      return (
-        <h3
-          key={idx}
-          className="mt-4 mb-1 font-serif italic text-sm sm:text-base text-accent-700 dark:text-accent-400"
-        >
-          {line.substring(4)}
-        </h3>
-      );
-    }
-    if (line.startsWith("---")) {
-      return <div key={idx} className="my-4 border-t border-dashed border-surface-200 dark:border-dark-border" />;
-    }
-    if (line.startsWith("- ")) {
-      return (
-        <div key={idx} className="flex items-start gap-2.5 my-1 pl-1 text-[0.925rem] text-text-secondary dark:text-dark-text">
-          <span className="mt-2 w-1 h-1 rounded-full bg-primary-400 flex-shrink-0" />
-          <span dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line.substring(2)) }} />
-        </div>
-      );
-    }
-    if (line.startsWith("**[VISUAL:") || line.startsWith("[VISUAL:")) {
-      const cleaned = line.replace(/^\*\*|\*\*$/g, "");
-      return (
-        <div
-          key={idx}
-          className="my-3 pl-3.5 border-l-2 border-accent-400/60 dark:border-accent-500/50"
-        >
-          <span
-            className="text-[0.8rem] font-mono text-accent-700/90 dark:text-accent-400/90"
-            dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(cleaned) }}
-          />
-        </div>
-      );
-    }
-    if (line.trim() === "") {
-      return <div key={idx} className="h-2.5" />;
-    }
-    return (
-      <p
-        key={idx}
-        className="my-2 font-serif text-[0.95rem] text-text-secondary dark:text-dark-text leading-[1.75] max-w-[68ch]"
-        dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(line) }}
-      />
-    );
-  });
-}
-
-/* ---------------------------------------------------------------------- */
-/* Type meta — one quiet label instead of a row of loud badges            */
-/* ---------------------------------------------------------------------- */
 
 const TYPE_META = {
   overlap: { label: "Overlap pick", dot: "bg-warning-500" },
@@ -375,7 +252,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
 
   const handleCopyScript = () => {
     if (!scriptContent) return;
-    navigator.clipboard.writeText(scriptContent);
+    navigator.clipboard.writeText(exportScriptMarkdown(scriptContent, webResearch));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -465,7 +342,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               onResearch={mode => handleSendMessage(mode === 'images' ? 'Find relevant images for this video and show original source pages. Do not change the script.' :
                 'Find authoritative web references for this video. Do not change the script.', { requestMode: 'chat', researchMode: mode })}>
               <div className="max-w-3xl mx-auto px-6 sm:px-8 py-6">
-                {scriptContent ? renderMarkdownScript(scriptContent) : <div className="text-center py-12 text-text-muted space-y-3">
+                {scriptContent ? <ScriptManuscript text={scriptContent} research={webResearch} /> : <div className="text-center py-12 text-text-muted space-y-3">
                   <IoSparkles className="w-7 h-7 mx-auto" /><p>{chatLoading ? 'Preparing your draft and references…' : 'Your script will appear here. Questions are answered in chat.'}</p>
                 </div>}
               </div>

@@ -64,7 +64,7 @@ test('script research collects actual page text and optional image metadata with
       ] });
     }
     if (url.hostname === 'script-collector.test') return Response.json({
-      url: JSON.parse(options.body).url, title: 'Original research', text: 'Collected paper text. '.repeat(200),
+      url: JSON.parse(options.body).url, title: 'Original research', text: 'Collected paper text. '.repeat(400),
       complete: true, publishedAt: '2026-10-18'
     });
     assert.fail('Unexpected request');
@@ -72,7 +72,7 @@ test('script research collects actual page text and optional image metadata with
   const pack = await collectScriptWebResearch({ config, idea: { title: 'Fusion' }, messages: [{ role: 'user', content: 'Draft' }] });
   assert.deepEqual(categories.sort(), ['general', 'images']);
   assert.equal(pack.sources.length, 1);
-  assert.equal(pack.sources[0].text.length, 3000);
+  assert.equal(pack.sources[0].text.length, 6000);
   assert.equal(pack.sources[0].complete, false);
   assert.ok(!pack.sources[0].text.includes('UNSEEN SNIPPET'));
   assert.match(pack.sources[0].id, /^S[a-f0-9]{12}$/);
@@ -105,6 +105,25 @@ test('web outage returns an explicit unavailable state rather than fake evidence
   assert.equal(pack.status, 'unavailable');
   assert.equal(pack.sources.length, 0);
   assert.ok(pack.warnings.length);
+});
+
+test('a deadline after page collection retains new evidence and marks the result partial', async () => {
+  const controller = new AbortController();
+  mock.method(globalThis, 'fetch', async (value, options) => {
+    const url = new URL(value);
+    if (url.hostname === 'script-planner.test') return json({ queries: ['deadline source test'], imageQueries: [] });
+    if (url.hostname === 'script-search.test') return Response.json({ results: [{ url: 'https://example.edu/study', title: 'Study' }] });
+    if (url.hostname === 'script-collector.test') {
+      controller.abort(new Error('deadline'));
+      return Response.json({ url: JSON.parse(options.body).url, title: 'Study', text: 'Real collected study evidence. '.repeat(20), complete: true });
+    }
+    assert.fail('Unexpected outbound request');
+  });
+  const pack = await collectScriptWebResearch({ config, signal: controller.signal, idea: { title: 'Deadline study' } });
+  assert.equal(pack.sources.length, 1);
+  assert.match(pack.sources[0].text, /Real collected study evidence/);
+  assert.equal(pack.status, 'partial');
+  assert.ok(pack.warnings.some(warning => warning.includes('time limit')));
 });
 
 test('draft references reject fabricated IDs and warn when collected evidence is not cited', () => {

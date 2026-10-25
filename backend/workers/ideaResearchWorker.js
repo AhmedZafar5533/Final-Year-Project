@@ -78,7 +78,7 @@ export async function runOneResearchJob({ Model = IdeaResearch, pipeline = runRe
     log('job.failed', { retry, attempt: job.attempts, status: error.upstreamStatus, error: error.cause?.code || error.name, timedOut: signal.aborted });
     await Model.updateOne(owner, {
       $set: { status: retry ? 'queued' : 'failed', eligible: retry,
-        nextAttemptAt: new Date(Date.now() + 30000 * job.attempts),
+        nextAttemptAt: new Date(Date.now() + Math.max(30000 * job.attempts, Math.min(error.retryAfterMs || 0, 300000))),
         error: retry ? 'A provider is unavailable. Research will retry.' :
           error.statusCode ? error.message : 'Research could not finish. Check service configuration and retry.' },
       $unset: { leaseToken: '', leaseExpiresAt: '' }

@@ -14,8 +14,7 @@ export function researchConfig() {
     braveKey: process.env.BRAVE_SEARCH_API_KEY?.trim() || '',
     webProvider: process.env.WEB_SEARCH_PROVIDER?.trim().toLowerCase() || 'auto',
     searxngUrl: process.env.SEARXNG_URL?.trim() || '',
-    youtubeKey: process.env.YOUTUBE_API_KEY?.trim() || '',
-    transcriptUrl: process.env.SENTIMENT_SERVICE_URL || 'http://127.0.0.1:8000'
+    youtubeKey: process.env.YOUTUBE_API_KEY?.trim() || ''
   };
 }
 

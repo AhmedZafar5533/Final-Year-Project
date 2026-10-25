@@ -130,10 +130,30 @@ cd backend
 npm run research:worker
 ```
 
-Keep the existing transcript service running on port 8000 for caption collection.
-Competitor captions are best effort. Missing captions, disabled comments, and failed
-web requests produce explicit limitations; unsupported gap conclusions are withheld.
-Only DeepSeek performs AI inference.
+Competitor research does not fetch transcripts. It uses titles, descriptions,
+publication dates, durations, public views/likes/comment counts and up to 20 top
+comments per selected video. Disabled comments and failed web requests produce
+explicit limitations. Opportunities require audience-question evidence and a
+metadata comparison across at least two channels; they are hypotheses, not proof
+that full videos omit a topic. The transcript service remains available for the
+creator's own video features. Only DeepSeek performs AI inference.
+
+Channel strategy discovers up to five niche competitor channels, examining up to
+six recent uploads per channel and ten top comments on each channel's two most
+viewed sampled uploads. Selection excludes the creator, checks recent topical and
+language matches, and uses public subscriber scale as a ranking signal when known.
+Snapshots are stored per owner and channel in MongoDB and reused for 24 hours by
+default (`RESEARCH_FRESH_HOURS`). Their metadata patterns and viewer questions feed
+the master strategy and recommendations; no additional AI model is introduced.
+
+In **Insights → Niche competitor channels**, use **Find niche competitors** for an
+older analysis or **Refresh competitors** to replace the saved sample. Re-analyze
+channel strategy to apply updated competitors to new recommendations. Discovery
+also runs automatically alongside a new live channel strategy analysis. Demo
+channels do not generate live competitor samples. The authenticated refresh endpoint
+is `POST /api/youtube/channel-competitors/refresh` with `{ "intelligenceId": "..." }`.
+No new environment variables are needed; discovery uses connected YouTube access
+or the existing YouTube API key.
 
 Web research includes a targeted Reddit query and reserves a page slot for an
 available thread. Only successfully collected page text supports report claims;
@@ -147,12 +167,17 @@ recommendations can be researched manually. Set `RESEARCH_AUTO_COUNT=0` for manu
 research only. Reanalyze an existing saved channel to trigger automatic research;
 merely reopening Insights never starts paid jobs.
 
-Competitor discovery mixes relevance-ranked and view-ranked YouTube searches,
-examining up to 48 unique candidates before selecting five. Ranking considers
+Idea research starts from the saved channels' recent catalogue and adds one topic
+search to find relevant videos outside that set. If the baseline is unavailable,
+it falls back to topical discovery. It examines up to 48 unique candidates before
+selecting five. Ranking considers
 title relevance, format, total views and average views per day, with at most two
 videos per channel. No minimum view count is imposed on niche topics, and missing
 metrics receive no performance bonus. Refresh existing reports after changing
 the selection logic; saved reports retain their original competitor sample.
+Initial idea research can reuse sampled top comments from the channel baseline;
+refreshing an idea report fetches new comments. Web collection keeps up to six
+ranked candidates for three successful pages, replacing blocked first choices.
 
 Research persists in MongoDB and runs independently of recommendation loading.
 Restarting the worker reclaims expired leases. Refresh retains the previous report.
@@ -175,11 +200,26 @@ DeepSeek plans up to two focused factual-source queries and one SearXNG image
 query. New script generation always attempts a source query and, when SearXNG is
 configured, an image query even if the planner returns an empty plan. Pure wording
 or pacing edits can skip new searches. **Find sources** and **Find images** explicitly
-run the selected search while leaving the script unchanged. Up to three
-pages from different domains are collected; search snippets are never promoted into
-factual evidence. The planner is instructed to prefer primary studies, institutional
-material and official documentation, but search discovery does not guarantee source
-accuracy. Check important claims against the linked pages before recording.
+run the selected search while leaving the script unchanged. Discovery ranks topical
+original research, institutional material, official documentation and established
+publications ahead of commentary. Origin labels are heuristics, not verification;
+preprints are explicitly labeled without assuming peer review. Collection tries up
+to six candidate pages for three successful sources from different domains, retaining
+up to 6,000 characters per source. Search snippets are never promoted into factual
+evidence. Check important claims against the linked pages before recording.
+
+Image search considers up to 60 candidates and favors relevant originals, media
+archives and larger reported dimensions. Known small raster images (under 800 pixels
+wide or 450 pixels high), stock marketplaces and unrelated logos are excluded;
+unknown dimensions are labeled. During generation or editing, DeepSeek can select
+up to four saved images for specific script headings. These render as inline figures
+with captions, source links and uncropped images, without resolution labels. Both
+image views try original and thumbnail URLs, then an authenticated collector fallback
+for saved research images when remote loading fails. Restart the Express API and
+page collector after this update; no new environment variables are required.
+Copy and Markdown download include
+actual image embeds. Existing drafts can gain figures by choosing **Edit script** and
+asking to add relevant images; **Find images** only updates the candidate library.
 
 The workspace has **Draft**, **Sources**, **Images**, and **Activity** tabs. Sources
 shows collected excerpts and discovered links separately, so a failed page fetch
@@ -223,6 +263,21 @@ completed script-research trace; it is not a live stream. Common failures:
 - Search HTTP `403`: check SearXNG JSON output and instance access rules.
 - Collector HTTP `401`: check that backend and collector tokens match.
 - Empty image results: check the instance's enabled image engines.
+
+An empty SearXNG query gets one broader retry, removing restrictive site filters
+and excess keywords. Transient network errors, HTTP 429 and server errors get one
+bounded retry; longer Retry-After cooldowns go to provider fallback or worker
+rescheduling. Invalid credentials are not retried. Each Node process limits active
+search requests to two; automatic provider mode can still fall back to configured
+Brave search. The supplied SearXNG settings allow upstream engines six seconds
+instead of the default three; restart SearXNG to apply them. Logs distinguish
+`EMPTY_RESULTS`, `INVALID_RESPONSE`, `INVALID_JSON`, HTTP status and network errors,
+and include failed engine names with their reasons. A successful script response
+can still have unavailable research; check the research status and limitations.
+
+Query planning has a separate eight-second budget in Script Studio and twelve
+seconds for competitor discovery. Planner outages fall back to the saved topic.
+Interrupted script research retains already collected evidence as a partial result.
 
 Start SearXNG using [its setup guide](searxng/README.md) and the collector using
 [its setup guide](research_service/README.md), then restart the backend and worker
