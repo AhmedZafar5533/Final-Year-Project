@@ -1,4 +1,5 @@
-import { useState, useCallback, memo, useEffect } from "react";
+import UserAvatar from "../components/common/UserAvatar";
+import { createElement, useState, useCallback, memo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   IoPersonOutline,
@@ -17,6 +18,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../context/ThemeContext";
 import Card from "../components/common/Card";
+import PageHeader from "../components/common/PageHeader";
 import Input from "../components/common/Input";
 import Button from "../components/common/Button";
 import Badge from "../components/common/Badge";
@@ -25,19 +27,19 @@ import api from "../services/api";
 
 const TabButton = memo(({ active, icon: Icon, label, onClick, badge }) => (
   <button
+    type="button"
+    aria-pressed={active}
     onClick={onClick}
     className={`
-      relative flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all duration-300 w-full group
+      relative flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all duration-300 w-auto lg:w-full shrink-0 whitespace-nowrap group
       ${
         active
-          ? "bg-primary-700 text-white shadow-lg shadow-primary-900/25"
+          ? "bg-primary-50 text-primary-700 dark:bg-primary-500/15 dark:text-primary-200"
           : "text-text-secondary dark:text-dark-text-muted hover:bg-surface-100 dark:hover:bg-dark-surface-light hover:text-text-primary dark:hover:text-dark-text"
       }
     `}
   >
-    <Icon
-      className={`w-5 h-5 flex-shrink-0 ${active ? "" : "group-hover:scale-110 transition-transform"}`}
-    />
+    {createElement(Icon, { className: `w-4 h-4 flex-shrink-0` })}
     <span className="flex-1 text-left">{label}</span>
     {badge && (
       <span
@@ -48,9 +50,7 @@ const TabButton = memo(({ active, icon: Icon, label, onClick, badge }) => (
         {badge}
       </span>
     )}
-    {active && (
-      <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-full shadow-lg" />
-    )}
+
   </button>
 ));
 
@@ -107,7 +107,7 @@ const ConnectedAccount = memo(
           <img src={avatarUrl} alt={name} className="w-12 h-12 rounded-xl object-cover shadow-lg border border-surface-200 dark:border-dark-border" />
         ) : (
           <div className={`p-3.5 rounded-xl ${gradient} shadow-lg`}>
-            <Icon className="w-6 h-6 text-white" />
+            {createElement(Icon, { className: "w-6 h-6 text-white" })}
           </div>
         )}
         <div>
@@ -234,7 +234,7 @@ const Settings = ({ initialTab = "profile" }) => {
     setPreferences((prev) => ({ ...prev, theme }));
   }, [theme]);
 
-  // Automatically refresh user auth state and open Connected Accounts tab when returning from YouTube OAuth
+  // Automatically refresh user auth state and open Connected accounts tab when returning from YouTube OAuth
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("youtube") === "connected") {
@@ -259,7 +259,7 @@ const Settings = ({ initialTab = "profile" }) => {
 
   const tabs = [
     { id: "profile", label: "Profile", icon: IoPersonOutline },
-    { id: "accounts", label: "Connected Accounts", icon: IoLinkOutline },
+    { id: "accounts", label: "Connected accounts", icon: IoLinkOutline },
     { id: "preferences", label: "Preferences", icon: IoColorPaletteOutline },
     { id: "security", label: "Security", icon: IoShieldOutline },
   ];
@@ -271,10 +271,10 @@ const Settings = ({ initialTab = "profile" }) => {
           <div className="bg-white dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border shadow-sm overflow-hidden">
             <div className="p-6 border-b border-surface-200 dark:border-dark-border">
               <h2 className="text-xl font-bold text-text-primary dark:text-dark-text">
-                Profile Settings
+                Profile
               </h2>
               <p className="text-sm text-text-muted dark:text-dark-text-muted mt-1">
-                Manage your public profile information
+                Your personal details.
               </p>
             </div>
             <div className="p-6 space-y-6">
@@ -288,39 +288,9 @@ const Settings = ({ initialTab = "profile" }) => {
                 </div>
               )}
 
-              {/* Profile Picture */}
-              <div className="relative flex flex-col sm:flex-row items-center gap-6 p-6 bg-gradient-to-br from-surface-50 to-surface-100 dark:from-dark-surface-light dark:to-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border">
-                <div className="absolute -top-4 -right-4 w-32 h-32 bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 rounded-full opacity-50 blur-2xl" />
-                <div className="relative group">
-                  <img
-                    src={
-                      user?.channelAvatarUrl ||
-                      user?.avatarUrl ||
-                      user?.avatar ||
-                      user?.profilePicture ||
-                      "https://via.placeholder.com/120"
-                    }
-                    alt={user?.name}
-                    className="w-28 h-28 rounded-2xl object-cover border-4 border-white dark:border-dark-surface shadow-xl"
-                  />
-                  <button className="absolute inset-0 bg-dark-900/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                    <IoCamera className="w-8 h-8 text-white" />
-                  </button>
-                  <div className="absolute -bottom-2 -right-2 p-2 bg-primary-900 rounded-full shadow-lg">
-                    <IoSparkles className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-                <div className="text-center sm:text-left">
-                  <h3 className="text-xl font-bold text-text-primary dark:text-dark-text">
-                    {user?.name}
-                  </h3>
-                  <p className="text-text-muted dark:text-dark-text-muted">
-                    {user?.email}
-                  </p>
-                  <button className="mt-3 text-sm font-semibold text-primary-900 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
-                    Change profile photo →
-                  </button>
-                </div>
+              <div className="flex items-center gap-4 pb-5 border-b border-surface-200 dark:border-dark-border">
+                <UserAvatar src={user?.channelAvatarUrl || user?.avatarUrl || user?.avatar || user?.profilePicture} name={user?.name || user?.fullName || "Creator"} className="w-16 h-16 text-xl" />
+                <div className="min-w-0"><h3 className="font-semibold text-base text-text-primary dark:text-dark-text">{user?.name || user?.fullName}</h3><p className="text-sm text-text-muted mt-1 break-words">{user?.email}</p></div>
               </div>
 
               {/* Form Fields */}
@@ -374,7 +344,7 @@ const Settings = ({ initialTab = "profile" }) => {
                   isLoading={isLoading}
                   leftIcon={<IoSaveOutline className="w-4 h-4" />}
                 >
-                  Save Changes
+                  Save changes
                 </Button>
               </div>
             </div>
@@ -574,32 +544,12 @@ const Settings = ({ initialTab = "profile" }) => {
   };
 
   return (
-    <div className="space-y-8 pb-8">
-      {/* Header */}
-      <div className="relative">
-        {/* Decorative glow — clipped so it never widens the page on mobile */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-10 -right-10 w-60 h-60 bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 rounded-full blur-3xl opacity-50" />
-        </div>
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 sm:p-3 bg-gradient-to-br from-primary-600 to-accent-700 rounded-2xl shadow-lg flex-shrink-0">
-              <IoSparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-primary dark:text-dark-text">
-              Settings
-            </h1>
-          </div>
-          <p className="text-sm text-text-muted dark:text-dark-text-muted sm:ml-16">
-            Manage your account settings and preferences
-          </p>
-        </div>
-      </div>
-
+    <div className="page-stack">
+      <PageHeader title="Settings" description="Your profile, connected accounts, and preferences." />
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar Tabs */}
         <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border shadow-sm p-4 space-y-2 sticky top-24">
+          <div className="settings-tabs flex lg:block overflow-x-auto lg:overflow-visible bg-white dark:bg-dark-surface rounded-xl border border-surface-300 dark:border-dark-border p-2 lg:p-3 gap-1 lg:space-y-1 sticky top-24">
             {tabs.map((tab) => (
               <TabButton
                 key={tab.id}

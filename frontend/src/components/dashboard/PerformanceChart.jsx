@@ -8,15 +8,15 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { IoAnalytics, IoExpand, IoDownload } from "react-icons/io5";
+import { IoAnalytics } from "react-icons/io5";
 import { useTheme } from "../../context/ThemeContext";
 
 /** Joins conditional class fragments, skipping falsy values. */
 const cx = (...parts) => parts.filter(Boolean).join(" ");
 
 const CHART_TABS = [
-  { id: "views", label: "Views", color: "#1e4d5e", darkColor: "#6366f1", dataKey: "views" },
-  { id: "subscribers", label: "Subscribers", color: "#835CAA", darkColor: "#a78bfa", dataKey: "subscribers" },
+  { id: "views", label: "Views", color: "#1e4d5e", darkColor: "#79b49a", dataKey: "views" },
+  { id: "subscribers", label: "Subscribers", color: "#6f9d90", darkColor: "#a7c8b5", dataKey: "subscribers" },
   { id: "revenue", label: "Revenue", color: "#81837D", darkColor: "#94a3b8", dataKey: "revenue" },
 ];
 
@@ -61,25 +61,6 @@ CustomTooltip.displayName = "CustomTooltip";
 
 // ---------------------------------------------------------------------------
 
-const IconButton = ({ icon: Icon, label, isDark, ...props }) => (
-  <button
-    type="button"
-    aria-label={label}
-    title={label}
-    className={cx(
-      "p-2 rounded-lg motion-safe:transition-all motion-safe:duration-200 active:scale-95",
-      isDark
-        ? "text-dark-text-muted hover:text-dark-text hover:bg-dark-surface-light"
-        : "text-text-muted hover:text-text-primary hover:bg-surface-300"
-    )}
-    {...props}
-  >
-    <Icon className="w-4 h-4" />
-  </button>
-);
-
-// ---------------------------------------------------------------------------
-
 const PerformanceChart = memo(({ data = [] }) => {
   const [activeTab, setActiveTab] = useState("views");
   const { isDark } = useTheme();
@@ -114,19 +95,16 @@ const PerformanceChart = memo(({ data = [] }) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 pb-0 gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-primary-600 rounded-xl shadow-md">
+          <div className="panel-heading-icon">
             <IoAnalytics className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className={cx("text-lg font-semibold", textClass)}>Performance Overview</h3>
-            <p className={cx("text-sm", mutedClass)}>Track your growth over time</p>
+            <h3 className={cx("text-base font-semibold", textClass)}>Performance</h3>
+            <p className={cx("text-sm", mutedClass)}>Daily channel activity</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <IconButton icon={IoExpand} label="Expand chart" isDark={isDark} />
-          <IconButton icon={IoDownload} label="Download data" isDark={isDark} />
-        </div>
+
       </div>
 
       {/* Tabs */}
@@ -152,7 +130,7 @@ const PerformanceChart = memo(({ data = [] }) => {
                     ? "text-dark-text-muted hover:text-dark-text hover:bg-dark-surface-light"
                     : "text-text-muted hover:text-text-primary hover:bg-surface-200"
               )}
-              style={{ backgroundColor: isActive ? tabColor : "transparent" }}
+              style={{ backgroundColor: isActive ? (isDark ? "#245e4e" : tabColor) : "transparent" }}
             >
               {tab.label}
             </button>
@@ -193,6 +171,7 @@ const PerformanceChart = memo(({ data = [] }) => {
                 />
                 <Tooltip content={<CustomTooltip isDark={isDark} />} cursor={false} />
                 <Area
+                  isAnimationActive={false}
                   type="monotone"
                   dataKey={activeConfig.dataKey}
                   name={activeConfig.label}

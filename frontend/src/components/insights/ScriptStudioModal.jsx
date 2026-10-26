@@ -30,6 +30,7 @@ export const ScriptStudioModal = ({ idea, channelNiche, onClose }) => {
   const [suggestedFollowups, setSuggestedFollowups] = useState([]);
   const [copied, setCopied] = useState(false);
   const [researchCompletedAt, setResearchCompletedAt] = useState(null);
+  const [channelContext, setChannelContext] = useState(null);
   const [webResearch, setWebResearch] = useState(null);
   const { job: scriptResearch, availableUpdate: researchUpdateAvailable } = useScriptResearch(idea, researchCompletedAt);
 
@@ -81,11 +82,6 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     trendsService
       .chatScriptStudio({
         idea,
-        channelContext: {
-          niche: channelNiche?.primary_niche || "Science & Technology",
-          audience: channelNiche?.target_audience || "Curious enthusiasts",
-          tone: channelNiche?.content_tone || "Authoritative and engaging",
-        },
         messages: newMessages,
         currentScript: "",
         sessionId: modalSessionIdRef.current,
@@ -95,6 +91,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
         if (!isMounted) return;
         if (data.scriptUpdated) setResearchCompletedAt(data.researchCompletedAt || null);
         setWebResearch(data.webResearch || null);
+        setChannelContext(data.channelContext || null);
         let generatedScript = scriptContent;
         if (data.script) {
           generatedScript = data.script;
@@ -182,11 +179,6 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     try {
       const data = await trendsService.chatScriptStudio({
         idea,
-        channelContext: {
-          niche: channelNiche?.primary_niche,
-          audience: channelNiche?.target_audience,
-          tone: channelNiche?.content_tone,
-        },
         messages: updatedMessages,
         currentScript: scriptContent,
         sessionId: modalSessionIdRef.current,
@@ -195,6 +187,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       });
       if (data.scriptUpdated) setResearchCompletedAt(data.researchCompletedAt || null);
       setWebResearch(data.webResearch || null);
+      setChannelContext(data.channelContext || null);
 
       let nextScript = scriptContent;
       if (data.scriptUpdated === true && data.script) {
@@ -287,7 +280,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               )}
             </div>
             <p className="mt-0.5 text-[0.8rem] text-text-muted dark:text-dark-text-muted truncate">
-              {idea?.suggested_format || "12–15 min deep dive"} · {channelNiche?.primary_niche || "Astrophysics & Space Tech"}
+              {idea?.suggested_format || "12–15 min deep dive"} · {channelNiche?.primary_niche || "Channel script"}
             </p>
           </div>
 
@@ -338,7 +331,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               </span>
             </div>
 
-            <ScriptWorkspace research={webResearch} loading={chatLoading}
+            <ScriptWorkspace channelContext={channelContext} research={webResearch} loading={chatLoading}
               onResearch={mode => handleSendMessage(mode === 'images' ? 'Find relevant images for this video and show original source pages. Do not change the script.' :
                 'Find authoritative web references for this video. Do not change the script.', { requestMode: 'chat', researchMode: mode })}>
               <div className="max-w-3xl mx-auto px-6 sm:px-8 py-6">

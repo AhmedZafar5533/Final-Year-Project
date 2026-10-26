@@ -1,6 +1,7 @@
+import AuthAside from "../components/auth/AuthAside";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   IoMailOutline,
   IoArrowForward,
@@ -64,7 +65,7 @@ const ForgotPassword = () => {
 
     try {
       // Simulate API call - Replace with actual API call
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         setTimeout(() => {
           // Simulate success (you can also simulate failure for testing)
           resolve();
@@ -93,7 +94,7 @@ const ForgotPassword = () => {
 
       setResendCount((prev) => prev + 1);
       setResendCooldown(60);
-    } catch (err) {
+    } catch {
       setError("Failed to resend email. Please try again.");
     } finally {
       setIsLoading(false);
@@ -110,174 +111,18 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Left Side - Geometric Art */}
-      <div className="hidden lg:flex flex-1 relative items-center justify-center overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-text">
-        {/* Geometric Shapes */}
-        <div className="absolute inset-0">
-          {/* Large shapes */}
-          <motion.div
-            initial={{ x: -200, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="absolute top-20 left-20 w-48 h-48 bg-gradient-to-br from-primary-400/40 to-primary-600/20 rounded-3xl rotate-12"
-          />
-          <motion.div
-            initial={{ y: 200, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="absolute bottom-32 left-32 w-32 h-32 bg-gradient-to-br from-accent-400/50 to-accent-600/20 rounded-full"
-          />
-          <motion.div
-            initial={{ x: 200, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-            className="absolute top-1/3 right-24 w-40 h-40 bg-gradient-to-br from-primary-300/30 to-accent-400/20 rounded-2xl -rotate-12"
-          />
-          <motion.div
-            initial={{ y: -200, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-            className="absolute bottom-48 right-48 w-24 h-24 bg-gradient-to-br from-accent-300/40 to-primary-500/20 rounded-full"
-          />
-
-          {/* Small floating dots */}
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-white/20 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -30, 0],
-                opacity: [0.2, 0.5, 0.2],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 2,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-              }}
-            />
-          ))}
-
-          {/* Grid pattern */}
-          <div
-            className="absolute inset-0 opacity-5"
-            style={{
-              backgroundImage: `linear-gradient(white 1px, transparent 1px),
-                               linear-gradient(90deg, white 1px, transparent 1px)`,
-              backgroundSize: "60px 60px",
-            }}
-          />
-        </div>
-
-        {/* Center Content */}
-        <div className="relative z-10 max-w-md px-12 text-center">
-          {/* Icon */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.8, type: "spring" }}
-            className="inline-flex mb-8"
-          >
-            <div className="relative">
-              <div className="absolute -inset-4 bg-white/10 rounded-3xl blur-xl" />
-              <div className="relative w-24 h-24 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center">
-                <IoLockClosedOutline className="w-12 h-12 text-white" />
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
-            className="text-4xl font-bold text-white mb-4"
-          >
-            Secure Account
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-accent-200">
-              Recovery
-            </span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
-            className="text-xl text-white/70 mb-8"
-          >
-            We'll help you regain access to your creator dashboard safely
-          </motion.p>
-
-          {/* Security features */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4 }}
-            className="space-y-3"
-          >
-            {[
-              { icon: IoShieldCheckmark, text: "Secure encrypted link" },
-              { icon: IoTimeOutline, text: "Link expires in 1 hour" },
-              {
-                icon: IoMailOutline,
-                text: "Check spam folder if not received",
-              },
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.5 + index * 0.1 }}
-                className="flex items-center gap-3 text-left bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3"
-              >
-                <item.icon className="w-5 h-5 text-white/70" />
-                <span className="text-white/70 text-sm">{item.text}</span>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Bottom wave */}
-        <svg
-          className="absolute bottom-0 left-0 right-0"
-          viewBox="0 0 1440 120"
-          fill="none"
-        >
-          <motion.path
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, delay: 1 }}
-            d="M0 60L48 55C96 50 192 40 288 45C384 50 480 70 576 75C672 80 768 70 864 55C960 40 1056 20 1152 25C1248 30 1344 60 1392 75L1440 90V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0V60Z"
-            fill="url(#wave-gradient-forgot)"
-          />
-          <defs>
-            <linearGradient
-              id="wave-gradient-forgot"
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="0%"
-            >
-              <stop offset="0%" stopColor="rgba(255,255,255,0.05)" />
-              <stop offset="50%" stopColor="rgba(255,255,255,0.1)" />
-              <stop offset="100%" stopColor="rgba(255,255,255,0.05)" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+      <AuthAside />
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-16 py-12">
-        <motion.div
+      <div className="auth-form-panel flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-16 py-12">
+        <Motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
           className="w-full max-w-md"
         >
           {/* Logo */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -285,7 +130,7 @@ const ForgotPassword = () => {
           >
             <Link to="/" className="inline-flex items-center gap-3 group">
               <div className="relative">
-                <motion.div
+                <Motion.div
                   animate={{ rotate: [0, 360] }}
                   transition={{
                     duration: 20,
@@ -326,12 +171,12 @@ const ForgotPassword = () => {
                 </span>
               </div>
             </Link>
-          </motion.div>
+          </Motion.div>
 
           <AnimatePresence mode="wait">
             {currentStep === STEPS.EMAIL ? (
               /* Email Input Step */
-              <motion.div
+              <Motion.div
                 key="email-step"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -339,7 +184,7 @@ const ForgotPassword = () => {
                 transition={{ duration: 0.3 }}
               >
                 {/* Header */}
-                <motion.div
+                <Motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
@@ -352,12 +197,12 @@ const ForgotPassword = () => {
                     No worries! Enter your email and we'll send you a reset
                     link.
                   </p>
-                </motion.div>
+                </Motion.div>
 
                 {/* Error Message */}
                 <AnimatePresence>
                   {error && (
-                    <motion.div
+                    <Motion.div
                       initial={{ opacity: 0, y: -10, height: 0 }}
                       animate={{ opacity: 1, y: 0, height: "auto" }}
                       exit={{ opacity: 0, y: -10, height: 0 }}
@@ -365,14 +210,14 @@ const ForgotPassword = () => {
                     >
                       <IoCloseCircle className="w-5 h-5 text-error-500 flex-shrink-0" />
                       <p className="text-error-700 text-sm">{error}</p>
-                    </motion.div>
+                    </Motion.div>
                   )}
                 </AnimatePresence>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Email Field */}
-                  <motion.div
+                  <Motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 }}
@@ -408,15 +253,15 @@ const ForgotPassword = () => {
                         className="w-full pl-14 pr-5 py-4 bg-surface-100 border-2 border-transparent rounded-2xl text-text-primary placeholder:text-secondary-400 focus:outline-none focus:bg-white focus:border-primary-500 transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
-                  </motion.div>
+                  </Motion.div>
 
                   {/* Submit Button */}
-                  <motion.div
+                  <Motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
                   >
-                    <motion.button
+                    <Motion.button
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                       type="submit"
@@ -424,7 +269,7 @@ const ForgotPassword = () => {
                       className="w-full py-4 bg-primary-700 hover:bg-primary-800 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-primary-900/30 hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
-                        <motion.div
+                        <Motion.div
                           animate={{ rotate: 360 }}
                           transition={{
                             duration: 1,
@@ -439,12 +284,12 @@ const ForgotPassword = () => {
                           <IoArrowForward className="w-5 h-5" />
                         </>
                       )}
-                    </motion.button>
-                  </motion.div>
+                    </Motion.button>
+                  </Motion.div>
                 </form>
 
                 {/* Back to Login */}
-                <motion.div
+                <Motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}
@@ -457,11 +302,11 @@ const ForgotPassword = () => {
                     <IoArrowBack className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                     <span>Back to sign in</span>
                   </Link>
-                </motion.div>
-              </motion.div>
+                </Motion.div>
+              </Motion.div>
             ) : (
               /* Email Sent Step */
-              <motion.div
+              <Motion.div
                 key="sent-step"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -470,14 +315,14 @@ const ForgotPassword = () => {
                 className="text-center"
               >
                 {/* Success Icon */}
-                <motion.div
+                <Motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                   className="mb-8 inline-flex"
                 >
                   <div className="relative">
-                    <motion.div
+                    <Motion.div
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                       className="absolute -inset-4 bg-success-100 rounded-full"
@@ -486,10 +331,10 @@ const ForgotPassword = () => {
                       <IoCheckmarkCircle className="w-10 h-10 text-white" />
                     </div>
                   </div>
-                </motion.div>
+                </Motion.div>
 
                 {/* Header */}
-                <motion.div
+                <Motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
@@ -504,10 +349,10 @@ const ForgotPassword = () => {
                   <p className="text-primary-700 font-semibold text-lg mt-1">
                     {email}
                   </p>
-                </motion.div>
+                </Motion.div>
 
                 {/* Instructions */}
-                <motion.div
+                <Motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
@@ -536,10 +381,10 @@ const ForgotPassword = () => {
                       <span>Create your new password</span>
                     </li>
                   </ol>
-                </motion.div>
+                </Motion.div>
 
                 {/* Resend Email */}
-                <motion.div
+                <Motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
@@ -548,7 +393,7 @@ const ForgotPassword = () => {
                   <p className="text-text-muted text-sm mb-3">
                     Didn't receive the email?
                   </p>
-                  <motion.button
+                  <Motion.button
                     whileHover={{ scale: resendCooldown > 0 ? 1 : 1.02 }}
                     whileTap={{ scale: resendCooldown > 0 ? 1 : 0.98 }}
                     onClick={handleResend}
@@ -560,7 +405,7 @@ const ForgotPassword = () => {
                     }`}
                   >
                     {isLoading ? (
-                      <motion.div
+                      <Motion.div
                         animate={{ rotate: 360 }}
                         transition={{
                           duration: 1,
@@ -583,23 +428,23 @@ const ForgotPassword = () => {
                           : "Resend email"}
                       </>
                     )}
-                  </motion.button>
+                  </Motion.button>
 
                   {resendCount > 0 && (
-                    <motion.p
+                    <Motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="text-success-600 text-sm mt-2"
                     >
                       Email resent successfully!
-                    </motion.p>
+                    </Motion.p>
                   )}
-                </motion.div>
+                </Motion.div>
 
                 {/* Error Message */}
                 <AnimatePresence>
                   {error && (
-                    <motion.div
+                    <Motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
@@ -607,12 +452,12 @@ const ForgotPassword = () => {
                     >
                       <IoCloseCircle className="w-5 h-5 text-error-500 flex-shrink-0" />
                       <p className="text-error-700 text-sm">{error}</p>
-                    </motion.div>
+                    </Motion.div>
                   )}
                 </AnimatePresence>
 
                 {/* Actions */}
-                <motion.div
+                <Motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}
@@ -634,13 +479,13 @@ const ForgotPassword = () => {
                       <span>Back to sign in</span>
                     </Link>
                   </div>
-                </motion.div>
-              </motion.div>
+                </Motion.div>
+              </Motion.div>
             )}
           </AnimatePresence>
 
           {/* Help text */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
@@ -655,8 +500,8 @@ const ForgotPassword = () => {
                 Contact support
               </Link>
             </p>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       </div>
     </div>
   );

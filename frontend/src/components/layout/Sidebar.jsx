@@ -13,16 +13,16 @@ import {
 import { useTheme } from "../../context/ThemeContext";
 
 const navItems = [
-  { path: "/dashboard", label: "Dashboard", icon: IoGridOutline },
+  { path: "/dashboard", label: "Overview", icon: IoGridOutline },
   { path: "/trends", label: "Trends", icon: IoTrendingUpOutline },
-  { path: "/insights", label: "Insights", icon: IoBulbOutline, badge: "3" },
-  { path: "/studio", label: "AI Script Studio", icon: IoSparkles, badge: "AI" },
+  { path: "/insights", label: "Insights", icon: IoBulbOutline },
+  { path: "/studio", label: "Script Studio", icon: IoSparkles },
   { path: "/audience", label: "Audience", icon: IoPeopleOutline },
   { path: "/settings", label: "Settings", icon: IoSettingsOutline },
 ];
 
 // Shared motion tokens so every element collapses on the same curve.
-// The rail is 72px collapsed and 288px (w-72) expanded. Because the icon slot
+// The rail is 72px collapsed and 240px (w-60) expanded. Because the icon slot
 // is a fixed 40px with 16px padding on each side, the icons sit at the exact
 // same x-position in both states — nothing jumps while the rail animates.
 const EASE = "ease-[cubic-bezier(0.32,0.72,0,1)]";
@@ -71,8 +71,8 @@ const Sidebar = () => {
           transition-[width,transform] duration-300 ${EASE} motion-reduce:transition-none
           lg:z-30 lg:flex-shrink-0
           ${collapsed
-            ? "w-72 -translate-x-full lg:translate-x-0 lg:w-[72px]"
-            : "w-72 translate-x-0 lg:w-72"}
+            ? "w-60 -translate-x-full lg:translate-x-0 lg:w-[72px]"
+            : "w-60 translate-x-0 lg:w-60"}
         `}
       >
         <div className="flex flex-col h-full">
@@ -84,7 +84,7 @@ const Sidebar = () => {
             >
               {/* Logo — 40px, so it stays centred in the 72px rail */}
               <div className="relative shrink-0">
-                <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:shadow-primary-500/35 transition-shadow duration-300 motion-reduce:transition-none">
+                <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center transition-shadow duration-300 motion-reduce:transition-none">
                   <svg
                     width="22"
                     height="22"
@@ -109,11 +109,7 @@ const Sidebar = () => {
                     />
                   </svg>
                 </div>
-                {/* Online indicator */}
-                <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
-                  <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-success-500 border-2 border-surface-50 dark:border-dark-surface" />
-                </span>
+
               </div>
 
               {/* Brand — fades with the rail */}
@@ -125,7 +121,7 @@ const Sidebar = () => {
                   </span>
                 </h1>
                 <p className="text-[11px] font-medium text-text-muted dark:text-dark-text-muted">
-                  Analytics suite
+                  Creator workspace
                 </p>
               </div>
             </Link>
@@ -149,7 +145,7 @@ const Sidebar = () => {
                 collapsed ? "max-h-0 mb-0 opacity-0" : "max-h-6 mb-3 opacity-100"
               }`}
             >
-              Menu
+              Workspace
             </p>
 
             <ul className="space-y-2">
@@ -160,12 +156,13 @@ const Sidebar = () => {
                     <NavLink
                       to={item.path}
                       onClick={handleNavClick}
+                      aria-label={item.label}
                       title={collapsed ? item.label : undefined}
                       className={({ isActive }) =>
                         `group flex items-center w-full rounded-xl text-sm font-medium ${COLOR_MOTION} ${FOCUS_RING} ${
                           isActive
-                            ? "bg-gradient-to-r from-primary-700 to-primary-600 text-surface-50 shadow-md shadow-primary-900/25 dark:from-primary-500 dark:to-primary-600 dark:text-white dark:shadow-primary-500/20"
-                            : "text-text-secondary hover:text-text-primary hover:bg-surface-200 dark:text-white dark:hover:text-dark-text dark:hover:bg-dark-surface-light"
+                            ? "bg-primary-50 text-primary-700 dark:bg-primary-500/15 dark:text-primary-200"
+                            : "text-text-secondary hover:text-text-primary hover:bg-surface-200 dark:text-dark-text-muted dark:hover:text-dark-text dark:hover:bg-dark-surface-light"
                         }`
                       }
                     >
@@ -175,7 +172,7 @@ const Sidebar = () => {
                             className={`relative flex items-center justify-center w-10 h-10 rounded-xl shrink-0 ${COLOR_MOTION} ${
                               isActive
                                 ? "bg-transparent"
-                                : "bg-transparent dark:bg-dark-surface-light group-hover:bg-surface-300 dark:group-hover:bg-dark-border"
+                                : "bg-transparent group-hover:bg-surface-300 dark:group-hover:bg-dark-border"
                             }`}
                           >
                             <Icon className="w-[18px] h-[18px]" />
@@ -221,7 +218,7 @@ const Sidebar = () => {
             }`}
           >
             <p className="text-center text-[10px] leading-relaxed text-text-light dark:text-dark-text-muted">
-              v2.4.1 • © 2025 OnlyCreators
+              OnlyCreators
             </p>
           </div>
 

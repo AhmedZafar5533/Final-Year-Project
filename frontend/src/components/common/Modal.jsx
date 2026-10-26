@@ -67,13 +67,14 @@ const Modal = ({
         {(title || showCloseButton) && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-dark-border">
             {title && (
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-text">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text">
                 {title}
               </h2>
             )}
             {showCloseButton && (
               <button
                 onClick={onClose}
+                aria-label="Close dialog"
                 className="p-2 text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text hover:bg-gray-100 dark:hover:bg-dark-surface-light rounded-lg transition-colors"
               >
                 <IoClose className="w-5 h-5" />
@@ -97,7 +98,7 @@ const Modal = ({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  return createPortal(<div className="app-shell">{modalContent}</div>, document.body);
 };
 
 export default Modal;

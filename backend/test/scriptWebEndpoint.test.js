@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, mock, test } from 'node:test';
 import ScriptWebResearch from '../models/ScriptWebResearch.js';
+import ChannelIntelligence from '../models/ChannelIntelligence.js';
+import mongoose from 'mongoose';
 
 let old, handler;
 beforeEach(async () => {
@@ -18,6 +20,45 @@ afterEach(() => {
 function response() {
   return { code: 200, status(code) { this.code = code; return this; }, json(body) { this.body = body; return this; } };
 }
+
+test('new scripts, chat and edits use saved owner context and ignore client channel claims', async t => {
+  const previousState = mongoose.connection._readyState;
+  mongoose.connection._readyState = 1;
+  t.after(() => { mongoose.connection._readyState = previousState; });
+  let version = 'Long intros';
+  mock.method(ChannelIntelligence, 'findOne', filter => {
+    assert.equal(filter.userId, 'owner-one');
+    assert.equal(filter.isDemo, false);
+    return { sort() { return this; }, select() { return this; }, maxTimeMS() { return this; },
+      async lean() { return { _id: '507f1f77bcf86cd799439011', channelTitle: 'Cooking',
+        analyzedAt: new Date(), niche: { primary_niche: 'Cooking', target_audience: 'Parents' },
+        masterSummary: { friction_points: [version] } }; } };
+  });
+  let calls = 0;
+  mock.method(globalThis, 'fetch', async (_url, options) => {
+    const messages = JSON.parse(options.body).messages;
+    const context = messages.find(item => item.content.startsWith('SAVED CHANNEL INTELLIGENCE'));
+    assert.ok(context.content.includes(version));
+    assert.ok(context.content.includes('Parents'));
+    assert.ok(!JSON.stringify(messages).includes('client-forged-channel'));
+    calls++;
+    return Response.json({ choices: [{ message: { content: JSON.stringify({
+      reply: 'Use a shorter intro for your audience', script: '# Updated', suggested_followups: []
+    }) } }] });
+  });
+  for (const [mode, currentScript] of [['edit', ''], ['chat', '# Draft'], ['edit', '# Draft']]) {
+    const res = response();
+    await handler({ user: { _id: 'owner-one' }, body: { requestMode: mode, currentScript,
+      channelContext: { niche: 'client-forged-channel' },
+      messages: [{ role: 'user', content: 'Help me improve my channel script' }] } }, res);
+    assert.equal(res.code, 200);
+    assert.equal(res.body.channelContext.status, 'available');
+    assert.equal(res.body.channelContext.channelTitle, 'Cooking');
+    assert.equal(res.body.scriptUpdated, mode === 'edit');
+    version = 'Updated channel weakness';
+  }
+  assert.equal(calls, 3);
+});
 
 test('script endpoint loads and saves sources under the authenticated owner and exports actual citations', async () => {
   const source = { id: 'S123456abcdef', url: 'https://example.org/actual-paper', title: 'Original paper', text: 'Real collected text', collectedAt: new Date().toISOString() };

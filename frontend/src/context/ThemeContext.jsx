@@ -20,7 +20,7 @@ export const ThemeProvider = ({ children }) => {
     return "light";
   });
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window === "undefined" || window.innerWidth < 1024);
 
   useEffect(() => {
     localStorage.setItem("theme", theme);
@@ -30,6 +30,13 @@ export const ThemeProvider = ({ children }) => {
       document.documentElement.classList.remove("dark");
     }
   }, [theme]);
+
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 1023px)");
+    const syncSidebar = event => setSidebarCollapsed(event.matches);
+    mobile.addEventListener("change", syncSidebar);
+    return () => mobile.removeEventListener("change", syncSidebar);
+  }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));

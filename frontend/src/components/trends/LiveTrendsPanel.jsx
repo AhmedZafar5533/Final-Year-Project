@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   IoPlayCircleOutline,
   IoWarningOutline,
@@ -78,7 +78,7 @@ const TrendItemCard = ({ item, showRelevance, onSelect }) => {
               </Badge>
               {isHot && (
                 <Badge variant="warning" size="sm">
-                  🔥 Hot
+                  Trending
                 </Badge>
               )}
             </div>
@@ -97,17 +97,17 @@ const TrendItemCard = ({ item, showRelevance, onSelect }) => {
           </div>
         </div>
 
-        <div className="space-y-1.5 mb-3">
+        <details className="mb-3 text-xs text-text-muted"><summary className="cursor-pointer py-1">Signal breakdown</summary><div className="space-y-1.5 mt-2">
           <ScoreBar label="Trend" value={trendScore} color="bg-primary-500" />
           {showRelevance && (
             <ScoreBar label="Relevance" value={trend.scores.relevance ?? 0} color="bg-success-500" />
           )}
           <ScoreBar label="Google" value={(trend.scores.google ?? 0) / 100} color="bg-warning-500" />
-        </div>
+        </div></details>
 
         {trend.tags && trend.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-2">
-            {trend.tags.slice(0, 6).map((tag) => (
+            {trend.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
                 className="px-2 py-0.5 bg-surface-200 dark:bg-dark-surface-light text-text-secondary dark:text-dark-text-muted text-xs rounded-full"
@@ -120,7 +120,7 @@ const TrendItemCard = ({ item, showRelevance, onSelect }) => {
 
         {trend.match && (
           <p className="text-xs text-text-light dark:text-dark-text-muted">
-            Matched via:{" "}
+            Matched by:{" "}
             {[
               trend.match.category && `category:${trend.match.category}`,
               trend.match.tags &&
@@ -137,7 +137,7 @@ const TrendItemCard = ({ item, showRelevance, onSelect }) => {
         onClick={handleSelect}
         className="w-full py-2 px-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
       >
-        <span>Explore Topic & Suggestions</span>
+        <span>Explore topic</span>
       </button>
     </div>
   );
@@ -154,7 +154,7 @@ const StatusDot = ({ status }) => (
 );
 
 const LiveTrendsPanel = ({ onSelectTrend }) => {
-  const { data, isLoading, error, run, loadCached } = useLiveTrends(true);
+  const { data, isLoading, error, run } = useLiveTrends(true);
   const { status: serviceStatus } = usePythonServiceHealth();
   const [region, setRegion] = useState("");
 
@@ -171,7 +171,7 @@ const LiveTrendsPanel = ({ onSelectTrend }) => {
           <StatusDot status={serviceStatus} />
           <span className="text-sm text-text-secondary dark:text-dark-text-muted flex items-center gap-1.5">
             <IoSparkles className="w-3.5 h-3.5 text-primary-500" />
-            Live Trend Intelligence Active
+            YouTube & Google Trends
           </span>
         </div>
 
@@ -205,10 +205,10 @@ const LiveTrendsPanel = ({ onSelectTrend }) => {
         <div className="text-center py-16 bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border">
           <IoTrendingUp className="w-10 h-10 text-primary-500 animate-pulse mx-auto mb-3" />
           <p className="font-semibold text-text-primary dark:text-dark-text text-base">
-            Synthesizing Real-Time Niche & Market Trends...
+            Finding trends…
           </p>
           <p className="text-xs text-text-muted dark:text-dark-text-muted mt-1">
-            Analyzing YouTube velocity, keyword clusters, and high-demand creator search topics.
+            Checking current topics on YouTube and Google.
           </p>
         </div>
       )}
@@ -249,7 +249,7 @@ const LiveTrendsPanel = ({ onSelectTrend }) => {
           {nicheTrends.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-text-primary dark:text-dark-text mb-3">
-                Niche Trends ({nicheTrends.length})
+                For your channel ({nicheTrends.length})
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {nicheTrends.map((item, i) => (
@@ -267,7 +267,7 @@ const LiveTrendsPanel = ({ onSelectTrend }) => {
           {generalTrends.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-text-primary dark:text-dark-text mb-3">
-                General Trending ({generalTrends.length})
+                Trending now ({generalTrends.length})
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {generalTrends.slice(0, 10).map((item, i) => (

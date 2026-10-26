@@ -4,7 +4,7 @@ import { IoHomeOutline, IoArrowBack, IoSearchOutline } from "react-icons/io5";
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background dark:bg-dark-bg px-4 py-12 relative overflow-hidden">
+    <div className="auth-shell min-h-screen flex items-center justify-center bg-background dark:bg-dark-bg px-4 py-12 relative overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary-200/30 dark:bg-primary-800/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-accent-200/30 dark:bg-accent-800/10 rounded-full blur-3xl pointer-events-none" />

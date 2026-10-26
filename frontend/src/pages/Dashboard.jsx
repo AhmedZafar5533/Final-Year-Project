@@ -5,7 +5,6 @@ import {
   IoHeartOutline,
   IoTimeOutline,
   IoRefresh,
-  IoSparkles,
   IoCalendarOutline,
   IoChevronDown,
 } from "react-icons/io5";
@@ -15,7 +14,7 @@ import PerformanceChart from "../components/dashboard/PerformanceChart";
 import EngagementChart from "../components/dashboard/EngagementChart";
 import VideoTable from "../components/dashboard/VideoTable";
 import QuickInsights from "../components/dashboard/QuickInsights";
-import TopPerformers from "../components/dashboard/TopPerformers";
+import PageHeader from "../components/common/PageHeader";
 import VideoDeepDiveModal from "../components/dashboard/VideoDeepDiveModal";
 import { DashboardSkeleton } from "../components/common/Loader";
 
@@ -52,7 +51,7 @@ const DateRangeSelector = memo(({ value, onChange }) => {
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        className="flex items-center gap-2 px-4 py-2.5 bg-surface-base text-text-heading rounded-xl border border-surface-border hover:border-primary-400 transition-colors text-sm font-medium shadow-sm"
+        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-dark-surface text-text-primary dark:text-dark-text rounded-lg border border-surface-300 dark:border-dark-border hover:border-primary-400 transition-colors text-sm font-medium"
       >
         <IoCalendarOutline className="w-4 h-4 text-text-light" />
         <span>{selectedLabel}</span>
@@ -68,7 +67,7 @@ const DateRangeSelector = memo(({ value, onChange }) => {
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           <div
             role="menu"
-            className="absolute right-0 mt-2 w-48 bg-surface-card rounded-xl border border-surface-border shadow-lg z-20 py-1"
+            className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-surface rounded-xl border border-surface-300 dark:border-dark-border shadow-lg z-20 py-1"
           >
             {dateRanges.map((range) => (
               <button
@@ -82,8 +81,8 @@ const DateRangeSelector = memo(({ value, onChange }) => {
                 }}
                 className={`w-full text-left px-4 py-2 text-sm transition-colors ${
                   value === range.value
-                    ? "bg-primary-150 text-primary-800 font-medium"
-                    : "text-text-body hover:bg-surface-base"
+                    ? "bg-primary-50 dark:bg-primary-500/15 text-primary-700 dark:text-primary-200 font-medium"
+                    : "text-text-secondary dark:text-dark-text-muted hover:bg-surface-100 dark:hover:bg-dark-surface-light"
                 }`}
               >
                 {range.label}
@@ -113,7 +112,7 @@ const Dashboard = () => {
         change: analytics?.viewsChange || 0,
         icon: IoEyeOutline,
         iconBg: "bg-primary-600",
-        sparklineColor: "#662843",
+        sparklineColor: "#357462",
         sparklineData: analytics?.viewsSparkline,
       },
       {
@@ -122,8 +121,8 @@ const Dashboard = () => {
         value: analytics?.totalSubscribers || 0,
         change: analytics?.subscribersChange || 0,
         icon: IoPeopleOutline,
-        iconBg: "bg-accent-700",
-        sparklineColor: "#835CAA",
+        iconBg: "bg-primary-600",
+        sparklineColor: "#5b8c84",
         sparklineData: analytics?.subscribersSparkline,
       },
       {
@@ -132,8 +131,8 @@ const Dashboard = () => {
         value: analytics?.engagementRate || 0,
         change: analytics?.engagementChange || 0,
         icon: IoHeartOutline,
-        iconBg: "bg-secondary-600",
-        sparklineColor: "#81837D",
+        iconBg: "bg-primary-600",
+        sparklineColor: "#85997a",
         format: "percentage",
         sparklineData: analytics?.engagementSparkline,
       },
@@ -143,8 +142,8 @@ const Dashboard = () => {
         value: analytics?.watchTimeHours || 0,
         change: analytics?.watchTimeChange || 0,
         icon: IoTimeOutline,
-        iconBg: "bg-warning-600",
-        sparklineColor: "#d97706",
+        iconBg: "bg-primary-600",
+        sparklineColor: "#a68a52",
         format: "hours",
         sparklineData: analytics?.watchTimeSparkline,
       },
@@ -161,57 +160,19 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-8  mx-auto">
-      {/* Header Section */}
-      <div className="bg-surface-card rounded-2xl p-6 lg:p-8 border border-surface-border shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2.5 mb-1">
-              <h1 className="text-2xl lg:text-3xl font-bold text-text-heading tracking-tight">
-                Analytics Dashboard
-              </h1>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-150 text-primary-800">
-                <IoSparkles className="w-3 h-3" />
-                Live
-              </span>
-            </div>
-            <p className="text-sm text-text-light">
-              Track your channel performance, audience engagement, and content insights
-            </p>
-          </div>
-
-          {/* Action Controls */}
-          <div className="flex flex-wrap items-center gap-3">
-            <DateRangeSelector value={dateRange} onChange={setDateRange} />
-
-            <button
-              type="button"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              aria-label="Refresh data"
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl shadow-md hover:bg-primary-800 hover:shadow-lg transition-all duration-200 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
-            >
-              <IoRefresh className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
-              <span className="text-sm font-semibold hidden sm:inline">
-                {isRefreshing ? "Refreshing…" : "Refresh"}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Last Updated */}
-        {lastUpdated && (
-          <p className="mt-3 text-xs text-text-light">
-            Last updated: {new Date(lastUpdated).toLocaleTimeString()}
-          </p>
-        )}
-      </div>
-
-      {/* Quick Insights Banner */}
-      <QuickInsights analytics={analytics} videos={videos} />
-
+    <div className="page-stack">
+      <PageHeader title="Overview" description="Your channel performance at a glance."
+        actions={<>
+          <DateRangeSelector value={dateRange} onChange={setDateRange} />
+          <button type="button" onClick={handleRefresh} disabled={isRefreshing} className="app-button-secondary" aria-label="Refresh data">
+            <IoRefresh className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            {isRefreshing ? "Refreshing…" : "Refresh"}
+          </button>
+        </>}
+      />
+      {analytics?.isDemo && <p className="section-note rounded-lg bg-surface-200/60 px-4 py-2.5">Sample data. Connect your YouTube channel in Settings to see your performance.</p>}
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {metrics.map((metric, index) => (
           <MetricCard key={metric.id} {...metric} index={index} />
         ))}
@@ -227,15 +188,9 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <VideoTable videos={videos} onSelectVideo={setSelectedVideo} />
-        </div>
-        <div>
-          <TopPerformers videos={videos?.slice(0, 5)} onSelectVideo={setSelectedVideo} />
-        </div>
-      </div>
+      <QuickInsights analytics={analytics} videos={videos} />
+      <VideoTable videos={videos} onSelectVideo={setSelectedVideo} />
+      {lastUpdated && <p className="text-xs text-text-muted">Updated {new Date(lastUpdated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>}
 
       {/* Video Deep Dive Modal */}
       {selectedVideo && (

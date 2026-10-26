@@ -1,4 +1,4 @@
-import { useState, forwardRef } from "react";
+import { useState, useId, forwardRef } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const Input = forwardRef(
@@ -19,13 +19,15 @@ const Input = forwardRef(
     },
     ref,
   ) => {
+    const generatedId = useId();
+    const inputId = props.id || generatedId;
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === "password";
     const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
     const getInputStyles = () => {
       let styles = `
-      w-full px-4 py-3 rounded-lg border transition-all duration-200
+      w-full px-3.5 py-2.5 text-sm rounded-lg border transition-all duration-200
       focus:outline-none focus:ring-2 focus:ring-offset-0
       placeholder-gray-400 dark:placeholder-dark-text-muted
       disabled:bg-gray-100 dark:disabled:bg-dark-surface-light disabled:cursor-not-allowed
@@ -52,7 +54,7 @@ const Input = forwardRef(
     return (
       <div className={`w-full ${containerClassName}`}>
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1.5">
+          <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1.5">
             {label}
             {required && <span className="text-error-500 ml-1">*</span>}
           </label>
@@ -66,6 +68,9 @@ const Input = forwardRef(
           )}
 
           <input
+            id={inputId}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={(error || helperText || success) ? `${inputId}-help` : undefined}
             ref={ref}
             type={inputType}
             disabled={disabled}
@@ -76,6 +81,7 @@ const Input = forwardRef(
           {isPassword && (
             <button
               type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text transition-colors"
             >
@@ -96,6 +102,7 @@ const Input = forwardRef(
 
         {(error || helperText || success) && (
           <p
+            id={`${inputId}-help`}
             className={`mt-1.5 text-sm ${
               error
                 ? "text-error-500"

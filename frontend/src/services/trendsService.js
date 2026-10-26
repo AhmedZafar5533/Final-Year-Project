@@ -139,11 +139,10 @@ export const trendsService = {
   /**
    * Interactive AI Script Studio Chatbot
    */
-  async chatScriptStudio({ idea, channelContext, messages, currentScript, sessionId, requestMode = 'auto', researchMode = 'auto' }) {
+  async chatScriptStudio({ idea, messages, currentScript, sessionId, requestMode = 'auto', researchMode = 'auto' }) {
     try {
       const response = await api.post("/youtube/script-studio/chat", {
         idea,
-        channelContext,
         messages,
         currentScript,
         sessionId,

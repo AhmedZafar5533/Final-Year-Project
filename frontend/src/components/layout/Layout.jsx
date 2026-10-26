@@ -10,21 +10,21 @@ const Layout = ({ children }) => {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-background dark:bg-dark-bg transition-colors duration-300">
+      <div className="app-shell min-h-screen bg-background dark:bg-dark-bg transition-colors duration-300">
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
           <div
-            className={`flex-1 flex flex-col h-screen overflow-y-auto transition-[margin-left] duration-300 ${EASE} motion-reduce:transition-none ${
-              sidebarCollapsed ? "lg:ml-[72px]" : "lg:ml-72"
+            className={`min-w-0 flex-1 flex flex-col h-screen overflow-x-hidden overflow-y-auto transition-[margin-left] duration-300 ${EASE} motion-reduce:transition-none ${
+              sidebarCollapsed ? "lg:ml-[72px]" : "lg:ml-60"
             }`}
           >
             <Header />
             <main
-              className={`flex-1 p-4 md:p-6 lg:p-8 transition-colors duration-300 ${
+              className={`app-main flex-1 min-w-0 transition-colors duration-300 ${
                 isDark ? "bg-dark-bg" : "bg-background"
               }`}
             >
-              {children}
+              <div className="page-content">{children}</div>
             </main>
           </div>
         </div>

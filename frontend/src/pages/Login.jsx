@@ -1,6 +1,7 @@
+import AuthAside from "../components/auth/AuthAside";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import {
   IoMailOutline,
   IoLockClosedOutline,
@@ -12,78 +13,6 @@ import {
   IoAlertCircle,
 } from "react-icons/io5";
 import { useAuth } from "../hooks/useAuth";
-
-// Animated geometric shapes
-const GeometricShape = ({ type, size, color, position, delay, rotation }) => {
-  const shapes = {
-    circle: (
-      <motion.div
-        className={`absolute rounded-full ${color}`}
-        style={{ width: size, height: size, ...position }}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{
-          scale: 1,
-          opacity: 1,
-          y: [0, -20, 0],
-        }}
-        transition={{
-          delay,
-          y: {
-            delay: delay + 1,
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-        }}
-      />
-    ),
-    square: (
-      <motion.div
-        className={`absolute ${color}`}
-        style={{ width: size, height: size, ...position }}
-        initial={{ scale: 0, opacity: 0, rotate: 0 }}
-        animate={{
-          scale: 1,
-          opacity: 1,
-          rotate: rotation || 45,
-          y: [0, 15, 0],
-        }}
-        transition={{
-          delay,
-          y: {
-            delay: delay + 1,
-            duration: 5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-        }}
-      />
-    ),
-    triangle: (
-      <motion.div
-        className={`absolute w-0 h-0 border-l-[${size / 2}px] border-l-transparent border-r-[${size / 2}px] border-r-transparent border-b-[${size}px] ${color}`}
-        style={{ ...position }}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{
-          scale: 1,
-          opacity: 1,
-          rotate: [0, 10, 0],
-        }}
-        transition={{
-          delay,
-          rotate: {
-            delay: delay + 1,
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-        }}
-      />
-    ),
-  };
-
-  return shapes[type] || null;
-};
 
 const Login = () => {
   const navigate = useNavigate();
@@ -157,154 +86,18 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Left Side - Geometric Art */}
-      <div className="hidden lg:flex flex-1 relative items-center justify-center overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-text">
-        {/* Geometric Shapes */}
-        <div className="absolute inset-0">
-          {/* Large shapes */}
-          <motion.div
-            initial={{ x: -200, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="absolute top-20 left-20 w-48 h-48 bg-gradient-to-br from-primary-400/40 to-primary-600/20 rounded-3xl rotate-12"
-          />
-          <motion.div
-            initial={{ y: 200, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="absolute bottom-32 left-32 w-32 h-32 bg-gradient-to-br from-accent-400/50 to-accent-600/20 rounded-full"
-          />
-          <motion.div
-            initial={{ x: 200, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-            className="absolute top-1/3 right-24 w-40 h-40 bg-gradient-to-br from-primary-300/30 to-accent-400/20 rounded-2xl -rotate-12"
-          />
-          <motion.div
-            initial={{ y: -200, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-            className="absolute bottom-20 right-32 w-24 h-24 bg-gradient-to-br from-accent-300/40 to-primary-400/20 rounded-xl rotate-45"
-          />
-
-          {/* Floating particles */}
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-white/30 rounded-full"
-              style={{
-                left: `${20 + i * 15}%`,
-                top: `${30 + (i % 3) * 20}%`,
-              }}
-              animate={{
-                y: [0, -30, 0],
-                opacity: [0.3, 0.8, 0.3],
-              }}
-              transition={{
-                duration: 3 + i * 0.5,
-                repeat: Infinity,
-                delay: i * 0.3,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Content overlay */}
-        <div className="relative z-10 text-center px-12 max-w-lg">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.3, type: "spring" }}
-            className="mb-8"
-          >
-            <div className="w-24 h-24 mx-auto bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center border border-white/20">
-              <IoSparkles className="w-12 h-12 text-white" />
-            </div>
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="text-4xl font-bold text-white mb-4"
-          >
-            Welcome Back!
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="text-xl text-white/70 mb-8"
-          >
-            Analytics, insights, and growth tools designed for modern creators
-          </motion.p>
-
-          {/* Feature pills */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
-            className="flex flex-wrap justify-center gap-3"
-          >
-            {[
-              "AI Insights",
-              "Real-time Data",
-              "Growth Tools",
-              "Trend Analysis",
-            ].map((feature, index) => (
-              <motion.span
-                key={feature}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1 + index * 0.1 }}
-                className="px-4 py-2 bg-white/10 border border-white/20 rounded-full text-sm text-white/80"
-              >
-                {feature}
-              </motion.span>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Bottom wave */}
-        <svg
-          className="absolute bottom-0 left-0 right-0"
-          viewBox="0 0 1440 120"
-          fill="none"
-        >
-          <motion.path
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, delay: 1 }}
-            d="M0 60L48 55C96 50 192 40 288 45C384 50 480 70 576 75C672 80 768 70 864 55C960 40 1056 20 1152 25C1248 30 1344 60 1392 75L1440 90V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0V60Z"
-            fill="url(#wave-gradient)"
-          />
-          <defs>
-            <linearGradient
-              id="wave-gradient"
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="0%"
-            >
-              <stop offset="0%" stopColor="rgba(255,255,255,0.05)" />
-              <stop offset="50%" stopColor="rgba(255,255,255,0.1)" />
-              <stop offset="100%" stopColor="rgba(255,255,255,0.05)" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+      <AuthAside />
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-16 py-12">
-        <motion.div
+      <div className="auth-form-panel flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-16 py-12">
+        <Motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
           className="w-full max-w-md"
         >
           {/* Logo */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -312,7 +105,7 @@ const Login = () => {
           >
             <Link to="/" className="inline-flex items-center gap-3 group">
               <div className="relative">
-                <motion.div
+                <Motion.div
                   animate={{ rotate: [0, 360] }}
                   transition={{
                     duration: 20,
@@ -353,10 +146,10 @@ const Login = () => {
                 </span>
               </div>
             </Link>
-          </motion.div>
+          </Motion.div>
 
           {/* Header */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -366,24 +159,24 @@ const Login = () => {
               Sign in
             </h1>
             <p className="text-text-muted text-lg">
-              Access your creator analytics dashboard
+              Continue to your workspace.
             </p>
-          </motion.div>
+          </Motion.div>
 
           {/* Error Message */}
           {error && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-6 p-4 bg-error-50 border border-error-200 rounded-xl flex items-center gap-3 text-error-700"
             >
               <IoAlertCircle className="w-5 h-5 flex-shrink-0" />
               <span className="text-sm font-medium">{error}</span>
-            </motion.div>
+            </Motion.div>
           )}
 
           {/* Google Login */}
-          <motion.button
+          <Motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -395,7 +188,7 @@ const Login = () => {
           >
             <IoLogoGoogle className="w-5 h-5 text-red-800" />
             <span>Continue with Google</span>
-          </motion.button>
+          </Motion.button>
 
           {/* Divider */}
           <div className="relative mb-8">
@@ -412,7 +205,7 @@ const Login = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
@@ -455,19 +248,19 @@ const Login = () => {
                 />
               </div>
               {validationErrors.email && (
-                <motion.p
+                <Motion.p
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-2 text-sm text-error-600 flex items-center gap-1"
                 >
                   <IoAlertCircle className="w-4 h-4" />
                   {validationErrors.email}
-                </motion.p>
+                </Motion.p>
               )}
-            </motion.div>
+            </Motion.div>
 
             {/* Password */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6 }}
@@ -532,25 +325,25 @@ const Login = () => {
                 </button>
               </div>
               {validationErrors.password && (
-                <motion.p
+                <Motion.p
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-2 text-sm text-error-600 flex items-center gap-1"
                 >
                   <IoAlertCircle className="w-4 h-4" />
                   {validationErrors.password}
-                </motion.p>
+                </Motion.p>
               )}
-            </motion.div>
+            </Motion.div>
 
             {/* Submit */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
               className="pt-2"
             >
-              <motion.button
+              <Motion.button
                 whileHover={{ scale: isLoading ? 1 : 1.01 }}
                 whileTap={{ scale: isLoading ? 1 : 0.99 }}
                 type="submit"
@@ -558,7 +351,7 @@ const Login = () => {
                 className="w-full py-4 bg-primary-700 hover:bg-primary-800 disabled:bg-primary-400 disabled:cursor-not-allowed text-white rounded-2xl font-semibold text-lg shadow-lg shadow-primary-900/30 hover:shadow-xl hover:shadow-primary-900/40 transition-all flex items-center justify-center gap-2"
               >
                 {isLoading ? (
-                  <motion.div
+                  <Motion.div
                     animate={{ rotate: 360 }}
                     transition={{
                       duration: 1,
@@ -573,12 +366,12 @@ const Login = () => {
                     <IoArrowForward className="w-5 h-5" />
                   </>
                 )}
-              </motion.button>
-            </motion.div>
+              </Motion.button>
+            </Motion.div>
           </form>
 
           {/* Sign Up */}
-          <motion.p
+          <Motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
@@ -591,8 +384,8 @@ const Login = () => {
             >
               Create an account
             </Link>
-          </motion.p>
-        </motion.div>
+          </Motion.p>
+        </Motion.div>
       </div>
     </div>
   );

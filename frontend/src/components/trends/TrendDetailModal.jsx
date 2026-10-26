@@ -172,10 +172,10 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
           {/* Synthesis / Market Insight */}
           <div className="p-5 rounded-2xl bg-primary-50/50 dark:bg-primary-950/20 border border-primary-200/60 dark:border-primary-900/40 space-y-2">
             <h3 className="text-[11px] font-semibold uppercase tracking-wider text-primary-800 dark:text-primary-300 flex items-center gap-1.5">
-              <IoBulbOutline className="w-4 h-4" /> Why This Trend Is Surging
+              <IoBulbOutline className="w-4 h-4" /> Why it matters
             </h3>
             <p className="text-sm text-text-secondary dark:text-dark-text leading-relaxed">
-              {trend.marketInsight || trend.description || "Surging YouTube algorithm interest driven by high viewer search volume and low competition density in educational breakdown formats."}
+              {trend.marketInsight || trend.description || "No additional context is available for this topic yet."}
             </p>
           </div>
 
@@ -183,14 +183,14 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
           <div className="space-y-4">
             <h3 className="text-base font-semibold tracking-tight text-text-primary dark:text-dark-text flex items-center gap-2">
               <IoSparkles className="w-4.5 h-4.5 text-warning-500" />
-              Strategic Suggestions for This Trend
+              Video ideas
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {/* Creative Angles */}
               <div className="p-4 rounded-2xl bg-white dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border space-y-2.5">
                 <h4 className="text-[11px] font-semibold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-1.5">
-                  <IoLayersOutline className="w-3.5 h-3.5" /> Recommended Video Angles
+                  <IoLayersOutline className="w-3.5 h-3.5" /> Angles to try
                 </h4>
                 <ul className="space-y-2 text-xs leading-relaxed text-text-secondary dark:text-dark-text-muted">
                   {trendSuggestions.angles.map((angle, idx) => (
@@ -205,7 +205,7 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
               {/* Title Ideas */}
               <div className="p-4 rounded-2xl bg-white dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border space-y-2.5">
                 <h4 className="text-[11px] font-semibold uppercase tracking-wider text-success-700 dark:text-success-400 flex items-center gap-1.5">
-                  <IoCheckmarkCircle className="w-3.5 h-3.5" /> Suggested Title Concepts
+                  <IoCheckmarkCircle className="w-3.5 h-3.5" /> Title ideas
                 </h4>
                 <ul className="space-y-2 text-xs">
                   {trendSuggestions.titleIdeas.map((title, idx) => (
@@ -222,13 +222,13 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
             <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-2.5 text-xs">
               <div className="font-semibold uppercase tracking-wider text-[11px] text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
                 <IoAlertCircleOutline className="w-3.5 h-3.5 text-amber-600" />
-                <span>Suggested 30-Second Opening Script Hook</span>
+                <span>Opening hook</span>
               </div>
               <p className="text-sm text-text-secondary dark:text-dark-text-muted italic pl-3 border-l-2 border-amber-400 dark:border-amber-600 leading-relaxed">
                 "{trendSuggestions.openingHook}"
               </p>
               <div className="pt-1 text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
-                <strong className="font-semibold">Target Audience Appeal: </strong>{trendSuggestions.targetAudienceAppeal}
+                <strong className="font-semibold">Why viewers might care: </strong>{trendSuggestions.targetAudienceAppeal}
               </div>
             </div>
           </div>
@@ -237,7 +237,7 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
           {hashtags.length > 0 && (
             <div className="space-y-2.5">
               <span className="text-[11px] font-semibold text-text-muted dark:text-dark-text-muted uppercase tracking-wider">
-                Hashtags & Key Keywords
+                Tags
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {hashtags.map((tag, idx) => (
@@ -264,7 +264,7 @@ export const TrendDetailModal = ({ trend, onClose, onDevelopScript }) => {
 
           <button
             onClick={handleDevelopInStudio}
-            className="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-primary-600/25 transition-all duration-200 hover:from-primary-700 hover:to-accent-700 hover:shadow-xl hover:shadow-primary-600/30 active:scale-[0.98]"
+            className="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary-600 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-primary-600/25 transition-all duration-200 hover:from-primary-700 hover:to-accent-700 hover:shadow-xl hover:shadow-primary-600/30 active:scale-[0.98]"
           >
             <IoSparkles className="w-4 h-4" />
             <span>Develop Script in AI Studio</span>

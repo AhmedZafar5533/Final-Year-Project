@@ -18,6 +18,7 @@ import { attachResearchIdentity } from '../services/research/identity.js';
 import { prepareIntelligenceResearch, scheduleAutomaticResearch, researchForScript } from '../services/research/queue.js';
 import ScriptWebResearch from '../models/ScriptWebResearch.js';
 import { collectScriptWebResearch, scriptResearchResponse } from '../services/research/scriptWebResearch.js';
+import { loadScriptChannelContext } from '../services/research/scriptChannelContext.js';
 import { classifyScriptRequest } from '../services/research/scriptIntent.js';
 import { embedScriptImages } from '../services/research/scriptImages.js';
 import { createResearchLogger } from '../services/research/logger.js';
@@ -1081,7 +1082,7 @@ export const analyzeChannelIntelligence = async (req, res) => {
 
 // 10. AI Script Studio Chatbot Endpoint
 export const handleScriptStudioChat = async (req, res) => {
-  const { idea, channelContext, messages = [], currentScript = '', sessionId, requestMode = 'auto', researchMode = 'auto' } = req.body;
+  const { idea, messages = [], currentScript = '', sessionId, requestMode = 'auto', researchMode = 'auto' } = req.body;
   const log = createResearchLogger('script', randomUUID().slice(0, 8));
 
   try {
@@ -1094,6 +1095,7 @@ export const handleScriptStudioChat = async (req, res) => {
       return res.status(400).json({ error: 'Invalid script session or draft.' });
     }
     log('request.started', { sessionId, mode: requestMode, researchMode });
+    const contextPromise = loadScriptChannelContext(req.user._id, idea?.researchRef);
     let intent = 'chat';
     try { intent = await classifyScriptRequest({ messages, currentScript, requestMode, log }); }
     catch { log('intent.fallback', { intent: 'chat', reason: 'Classification unavailable; draft protected' }); }
@@ -1108,8 +1110,10 @@ export const handleScriptStudioChat = async (req, res) => {
       try { previous = await ScriptWebResearch.findOne({ userId: req.user._id, sessionId, expiresAt: { $gt: new Date() } }).lean() || {}; }
       catch { /* New web collection can proceed without saved references. */ }
     }
+    const channelContext = await contextPromise;
+    log('channel.context', { status: channelContext.status, stale: channelContext.stale });
     const webResearchContext = await collectScriptWebResearch({
-      idea: researchContext?.idea || idea, messages, currentScript, previous, intent, researchMode, logger: log
+      channelContext, idea: researchContext?.idea || idea, messages, currentScript, previous, intent, researchMode, logger: log
     });
     if (sessionId) {
       try {
@@ -1153,7 +1157,9 @@ export const handleScriptStudioChat = async (req, res) => {
 
     const scriptUpdated = intent !== 'chat' && Boolean(response.script) && response.script !== currentScript;
     log('request.completed', { intent, scriptUpdated, sources: webResearch.sources.length, images: webResearch.images.length });
-    res.json({ ...response, intent, scriptUpdated, webResearch, researchApplied: scriptUpdated && response.researchUsed === true,
+    res.json({ ...response, intent, scriptUpdated, webResearch,
+      channelContext: { status: channelContext.status, channelTitle: channelContext.channelTitle,
+        analyzedAt: channelContext.analyzedAt, stale: channelContext.stale }, researchApplied: scriptUpdated && response.researchUsed === true,
       researchCompletedAt: scriptUpdated && response.researchUsed ? researchContext?.researchedAt : null,
       researchStale: Boolean(response.researchUsed && researchContext?.stale) });
   } catch (error) {

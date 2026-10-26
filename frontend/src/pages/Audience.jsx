@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, memo } from "react";
+import { createElement, useState, useEffect, useMemo, memo } from "react";
 import {
   IoPeople,
   IoMale,
@@ -30,68 +30,32 @@ import {
   Sector,
 } from "recharts";
 import Card from "../components/common/Card";
+import PageHeader from "../components/common/PageHeader";
+import { formatNumber } from "../utils/formatters";
 import { DashboardSkeleton } from "../components/common/Loader";
 import analyticsService from "../services/analyticsService";
 
 const COLORS = {
-  primary: "#662843",
-  accent: "#835CAA",
+  primary: "#357462",
+  accent: "#89a896",
   secondary: "#81837D",
-  dark: "#221726",
-  success: "#10B981",
+  dark: "#18332f",
+  success: "#c4aa72",
   warning: "#F59E0B",
-  cyan: "#06B6D4",
+  cyan: "#89a896",
 };
 
 const CHART_COLORS = [
-  "#a37322",
-  "#06B6D4",
-  "#10B981",
+  "#357462",
+  "#89a896",
+  "#c4aa72",
   "#F59E0B",
   "#EC4899",
   "#8B5CF6",
 ];
 
-const StatCard = memo(
-  ({ icon: Icon, label, value, subValue, gradient, delay = 0 }) => (
-    <div
-      className="relative overflow-hidden bg-surface-50 dark:bg-dark-surface rounded-2xl p-4 sm:p-6 border border-surface-300 dark:border-dark-border shadow-sm hover:shadow-xl dark:hover:shadow-black/30 transition-all duration-500 group animate-fade-in"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      {/* Background gradient blob */}
-      <div
-        className={`absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-20 blur-2xl group-hover:scale-150 transition-transform duration-700 ${gradient}`}
-      />
-
-      {/* Decorative circles */}
-      <div className="absolute top-4 right-4 w-20 h-20 border border-surface-200 dark:border-dark-border rounded-full opacity-30" />
-      <div className="absolute top-6 right-6 w-14 h-14 border border-surface-200 dark:border-dark-border rounded-full opacity-20" />
-
-      <div className="relative">
-        <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
-          <div
-            className={`p-2.5 sm:p-3 rounded-xl ${gradient} shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}
-          >
-            <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-          </div>
-          <span className="text-xs sm:text-sm font-medium text-text-muted dark:text-dark-text-muted leading-tight">
-            {label}
-          </span>
-        </div>
-        <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text-primary dark:text-dark-text tracking-tight">
-          {value}
-        </p>
-        {subValue && (
-          <div className="flex items-center gap-1.5 mt-2 text-success-600 dark:text-success-400">
-            <div className="p-1 bg-success-100 dark:bg-success-900/30 rounded-full">
-              <IoArrowUp className="w-3 h-3" />
-            </div>
-            <span className="text-sm font-semibold">{subValue}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  ),
+const StatCard = ({ icon: Icon, label, value }) => (
+  <div className="metric-card"><div className="flex items-center justify-between gap-2 text-text-muted"><span className="text-xs sm:text-sm">{label}</span>{createElement(Icon, { className: "w-4 h-4 shrink-0" })}</div><p className="metric-value mt-3">{value}</p></div>
 );
 
 const CustomTooltip = memo(({ active, payload, label }) => {
@@ -130,13 +94,15 @@ const renderActiveShape = (props) => {
 const Audience = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [overview, setOverview] = useState(null);
   const [activeGenderIndex, setActiveGenderIndex] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const demographics = await analyticsService.getDemographics();
+        const [demographics, metrics] = await Promise.all([analyticsService.getDemographics(), analyticsService.getOverview()]);
         setData(demographics);
+        setOverview(metrics);
       } catch (error) {
         console.error("Failed to load audience data:", error);
       } finally {
@@ -181,10 +147,7 @@ const Audience = () => {
   }, []);
 
   const subscriberData = useMemo(() => {
-    return viewsOverTime.map((item, i) => ({
-      date: item.date,
-      subscribers: Math.floor(40000 + i * 200 + ((i * 17) % 100)),
-    }));
+    return viewsOverTime.filter(item => Number.isFinite(item.subscribers)).map(item => ({ date: item.date, subscribers: item.subscribers }));
   }, [viewsOverTime]);
 
   if (isLoading) {
@@ -192,79 +155,29 @@ const Audience = () => {
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8 pb-8">
-      {/* Header */}
-      <div className="relative">
-        {/* Decorative glows — clipped so they never widen the page on mobile */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-accent-700/20 to-primary-900/20 rounded-full blur-3xl" />
-          <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-cyan-400/10 to-accent-700/10 rounded-full blur-2xl" />
-        </div>
-
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 sm:p-3 bg-accent-700 rounded-2xl shadow-lg flex-shrink-0">
-              <IoPeople className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-primary dark:text-dark-text">
-              Audience Analytics
-            </h1>
-          </div>
-          <p className="text-sm text-text-muted dark:text-dark-text-muted flex items-start sm:items-center gap-2 sm:ml-16">
-            <IoSparkles className="w-4 h-4 mt-0.5 sm:mt-0 text-accent-700 dark:text-accent-400 flex-shrink-0" />
-            <span>Understand who's watching your content and how they engage</span>
-          </p>
-        </div>
+    <div className="page-stack">
+      <PageHeader title="Audience" description="Get to know the people watching your videos." />
+      {overview?.isDemo && <p className="section-note rounded-lg bg-surface-200/60 px-4 py-2.5">Sample audience data. Connect your channel for your own audience breakdown.</p>}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard icon={IoPeople} label="Subscribers" value={overview ? formatNumber(overview.totalSubscribers) : "—"} />
+        <StatCard icon={IoMale} label="Male viewers" value={data?.gender?.find(item => item.type?.toLowerCase() === "male")?.percentage != null ? `${data.gender.find(item => item.type?.toLowerCase() === "male").percentage}%` : "—"} />
+        <StatCard icon={IoFemale} label="Female viewers" value={data?.gender?.find(item => item.type?.toLowerCase() === "female")?.percentage != null ? `${data.gender.find(item => item.type?.toLowerCase() === "female").percentage}%` : "—"} />
+        <StatCard icon={IoGlobe} label="Countries in sample" value={data?.topCountries?.length || "—"} />
       </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-        <StatCard
-          icon={IoPeople}
-          label="Total Audience"
-          value="45.2K"
-          subValue="+5.2% this month"
-          gradient="bg-gradient-to-br from-primary-600 to-primary-500"
-          delay={0}
-        />
-        <StatCard
-          icon={IoMale}
-          label="Male Viewers"
-          value="62%"
-          gradient="bg-gradient-to-br from-accent-700 to-accent-600"
-          delay={100}
-        />
-        <StatCard
-          icon={IoFemale}
-          label="Female Viewers"
-          value="35%"
-          gradient="bg-gradient-to-br from-pink-500 to-pink-600"
-          delay={200}
-        />
-        <StatCard
-          icon={IoGlobe}
-          label="Countries"
-          value="45+"
-          subValue="3 new this week"
-          gradient="bg-gradient-to-br from-success-500 to-success-600"
-          delay={300}
-        />
-      </div>
-
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Age Distribution */}
+        {/* Age groups */}
         <div className="bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border shadow-sm dark:shadow-black/20 overflow-hidden">
           <div className="flex items-center gap-3 p-6 border-b border-surface-200 dark:border-dark-border">
-            <div className="p-2.5 bg-primary-600 rounded-xl shadow-md">
+            <div className="panel-heading-icon">
               <IoStatsChart className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-text-primary dark:text-dark-text">
-                Age Distribution
+              <h3 className="text-base font-semibold text-text-primary dark:text-dark-text">
+                Age groups
               </h3>
               <p className="text-sm text-text-muted dark:text-dark-text-muted">
-                Viewer age breakdown
+                Share of viewers by age
               </p>
             </div>
           </div>
@@ -335,11 +248,11 @@ const Audience = () => {
               <IoPeople className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-text-primary dark:text-dark-text">
-                Gender Distribution
+              <h3 className="text-base font-semibold text-text-primary dark:text-dark-text">
+                Gender
               </h3>
               <p className="text-sm text-text-muted dark:text-dark-text-muted">
-                Audience gender breakdown
+                Share of viewers by gender
               </p>
             </div>
           </div>
@@ -398,15 +311,15 @@ const Audience = () => {
           </div>
         </div>
 
-        {/* Top Countries */}
+        {/* Top countries */}
         <div className="bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border shadow-sm dark:shadow-black/20 overflow-hidden">
           <div className="flex items-center gap-3 p-6 border-b border-surface-200 dark:border-dark-border">
             <div className="p-2.5 bg-gradient-to-br from-success-500 to-cyan-500 rounded-xl shadow-md">
               <IoEarth className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-text-primary dark:text-dark-text">
-                Top Countries
+              <h3 className="text-base font-semibold text-text-primary dark:text-dark-text">
+                Top countries
               </h3>
               <p className="text-sm text-text-muted dark:text-dark-text-muted">
                 Geographic distribution
@@ -453,15 +366,15 @@ const Audience = () => {
           </div>
         </div>
 
-        {/* Device Breakdown */}
+        {/* Devices */}
         <div className="bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border shadow-sm dark:shadow-black/20 overflow-hidden">
           <div className="flex items-center gap-3 p-6 border-b border-surface-200 dark:border-dark-border">
             <div className="p-2.5 bg-accent-600 rounded-xl shadow-md">
               <IoDesktop className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-text-primary dark:text-dark-text">
-                Device Breakdown
+              <h3 className="text-base font-semibold text-text-primary dark:text-dark-text">
+                Devices
               </h3>
               <p className="text-sm text-text-muted dark:text-dark-text-muted">
                 How viewers watch your content
@@ -486,7 +399,7 @@ const Audience = () => {
                         <div
                           className={`p-2.5 sm:p-3 rounded-xl ${gradient} shadow-lg group-hover:scale-110 transition-transform shrink-0`}
                         >
-                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                          {createElement(Icon, { className: "w-4 h-4 sm:w-5 sm:h-5 text-white" })}
                         </div>
                         <span className="font-semibold text-text-primary dark:text-dark-text truncate">
                           {device.type}
@@ -513,27 +426,23 @@ const Audience = () => {
       <div className="bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border shadow-sm dark:shadow-black/20 overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-surface-200 dark:border-dark-border gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-accent-700 rounded-xl shadow-md">
+            <div className="panel-heading-icon">
               <IoTrendingUp className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-text-primary dark:text-dark-text">
-                Subscriber Growth
+              <h3 className="text-base font-semibold text-text-primary dark:text-dark-text">
+                Subscriber activity
               </h3>
               <p className="text-sm text-text-muted dark:text-dark-text-muted">
-                Last 30 days performance
+                Daily net subscriber change
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-success-100 dark:bg-success-900/30 rounded-xl">
-            <IoTrendingUp className="w-4 h-4 text-success-600 dark:text-success-400" />
-            <span className="text-sm font-bold text-success-600 dark:text-success-400">
-              +12.5% growth
-            </span>
-          </div>
+
         </div>
         <div className="p-6">
           <div className="h-80">
+            {!subscriberData.length && <p className="text-sm text-text-muted">No subscriber activity available yet.</p>}
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={subscriberData}
@@ -571,7 +480,7 @@ const Audience = () => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "var(--color-text-muted)", fontSize: 12 }}
-                  tickFormatter={(value) => `${(value / 1000).toFixed(1)}K`}
+                  tickFormatter={(value) => formatNumber(value)}
                 />
                 <Tooltip
                   content={({ active, payload }) => {

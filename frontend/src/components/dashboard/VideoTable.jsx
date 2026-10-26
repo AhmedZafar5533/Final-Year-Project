@@ -7,7 +7,7 @@ import {
   IoSearch,
   IoChevronUp,
   IoChevronDown,
-  IoEllipsisVertical,
+  IoChevronForwardOutline,
 } from "react-icons/io5";
 import { formatNumber, formatDate } from "../../utils/formatters";
 
@@ -78,12 +78,12 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
       <div className="px-6 py-5 border-b border-surface-300 dark:border-dark-border">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-accent-700 rounded-xl shadow-md shadow-accent-700/20">
+            <div className="panel-heading-icon">
               <IoPlay className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold tracking-tight text-text-primary dark:text-dark-text">
-                Top Performing Videos
+              <h3 className="text-base font-semibold tracking-tight text-text-primary dark:text-dark-text">
+                Your videos
               </h3>
               <p className="text-sm text-text-muted dark:text-dark-text-muted">
                 {videos.length} video{videos.length === 1 ? "" : "s"} this period
@@ -106,8 +106,21 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
         </div>
       </div>
 
+      <div className="md:hidden relative divide-y divide-surface-200 dark:divide-dark-border">
+        <label className="flex items-center justify-between gap-3 px-4 py-3 text-xs text-text-muted"><span>Sort videos</span>
+          <select aria-label="Sort videos" value={sortConfig.key} onChange={event => setSortConfig({ key: event.target.value, direction: "desc" })} className="bg-transparent text-text-primary dark:text-dark-text rounded-md px-2 py-1">
+            {COLUMNS.map(column => <option key={column.key} value={column.key}>{column.label}</option>)}
+          </select>
+        </label>
+        {filteredAndSortedVideos.map(video => <button key={video.id} type="button" onClick={() => onSelectVideo?.(video)} className="w-full flex items-start gap-3 p-4 text-left hover:bg-surface-100 dark:hover:bg-dark-surface-light">
+          <img src={video.thumbnail || video.thumbnailUrl} alt="" className="w-20 h-12 shrink-0 object-cover rounded-md bg-surface-200" />
+          <span className="min-w-0"><span className="block text-sm font-medium leading-snug line-clamp-2 text-text-primary dark:text-dark-text">{video.title}</span><span className="block text-xs text-text-muted mt-2">{formatNumber(video.views)} views · {video.engagementRate}% engagement</span></span>
+        </button>)}
+        {!filteredAndSortedVideos.length && <p className="p-6 text-center text-sm text-text-muted">No videos match your search.</p>}
+      </div>
+
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="relative hidden md:block overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-surface-200 dark:bg-dark-surface-light">
@@ -238,11 +251,11 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
                 <td className="px-6 py-3.5">
                   <button
                     type="button"
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`More actions for ${video.title}`}
+                    onClick={(e) => { e.stopPropagation(); onSelectVideo?.(video); }}
+                    aria-label={`View details for ${video.title}`}
                     className="p-2 text-text-light dark:text-dark-text-muted hover:text-text-primary dark:hover:text-dark-text hover:bg-surface-200 dark:hover:bg-dark-surface-light rounded-lg transition-colors"
                   >
-                    <IoEllipsisVertical className="w-4 h-4" />
+                    <IoChevronForwardOutline className="w-4 h-4" />
                   </button>
                 </td>
               </tr>
@@ -272,12 +285,7 @@ const VideoTable = memo(({ videos = [], onSelectVideo }) => {
           <p className="text-sm text-text-muted dark:text-dark-text-muted">
             Showing {filteredAndSortedVideos.length} of {videos.length} videos
           </p>
-          <button
-            type="button"
-            className="text-sm font-semibold text-primary-900 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
-          >
-            View All Videos →
-          </button>
+
         </div>
       )}
     </div>

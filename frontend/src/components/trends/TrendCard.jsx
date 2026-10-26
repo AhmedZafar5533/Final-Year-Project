@@ -23,11 +23,11 @@ const TrendCard = ({ trend, onExplore }) => {
     Low: "neutral",
   };
 
-  const growthData = trend.growthData || [20, 35, 50, 65, 80, 95];
+  const growthData = trend.growthData || [];
   const chartData = growthData.map((value) => ({ value }));
   const hashtags = trend.hashtags || [];
-  const searchVolume = trend.searchVolume || "250K monthly searches";
-  const opportunityScore = trend.opportunityScore ?? 75;
+  const searchVolume = trend.searchVolume || "Search volume unavailable";
+  const opportunityScore = trend.opportunityScore ?? null;
 
   const scoreTone =
     opportunityScore >= 80
@@ -86,7 +86,7 @@ const TrendCard = ({ trend, onExplore }) => {
             type="button"
             onClick={() => onExplore?.(trend)}
             aria-label={`View growth trend for ${trend.topic}`}
-            className="w-24 h-16 shrink-0 rounded-lg transition-transform duration-300 group-hover:scale-105"
+            className={`${chartData.length ? "" : "hidden"} w-24 h-16 shrink-0 rounded-lg transition-transform duration-300 group-hover:scale-105`}
           >
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
@@ -119,7 +119,7 @@ const TrendCard = ({ trend, onExplore }) => {
         {/* Hashtags */}
         {hashtags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-5">
-            {hashtags.map((tag, index) => (
+            {hashtags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
                 onClick={() => onExplore?.(trend)}
@@ -131,15 +131,15 @@ const TrendCard = ({ trend, onExplore }) => {
           </div>
         )}
 
-        {/* Opportunity Score */}
-        <div
+        {/* Opportunity */}
+        {opportunityScore != null && <div
           className="mb-5 cursor-pointer"
           onClick={() => onExplore?.(trend)}
         >
           <div className="flex items-center justify-between mb-1.5">
             <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-text-muted dark:text-dark-text-muted">
               <IoTrendingUpOutline className="w-3.5 h-3.5" />
-              Opportunity Score
+              Opportunity
             </span>
             <span className={`text-sm font-bold tabular-nums ${scoreTone.text}`}>
               {opportunityScore}
@@ -149,10 +149,10 @@ const TrendCard = ({ trend, onExplore }) => {
           <div className="h-1.5 bg-surface-200 dark:bg-dark-surface-light rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full bg-gradient-to-r ${scoreTone.bar} transition-all duration-700 ease-out`}
-              style={{ width: isHovered || true ? `${opportunityScore}%` : "0%" }}
+              style={{ width: `${opportunityScore}%` }}
             />
           </div>
-        </div>
+        </div>}
 
         {/* Actions */}
         <div className="flex items-center gap-2">
@@ -162,7 +162,7 @@ const TrendCard = ({ trend, onExplore }) => {
             onClick={() => onExplore?.(trend)}
             className="flex-1"
           >
-            Explore Topic & Suggestions
+            Explore topic
           </Button>
           <button
             onClick={() => setIsBookmarked(!isBookmarked)}
@@ -220,7 +220,7 @@ const TrendCard = ({ trend, onExplore }) => {
             {(trend.relatedVideos || []).length > 0 && (
               <>
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary dark:text-dark-text mb-3">
-                  Related Videos Performing Well
+                  Related videos
                 </h4>
                 <div className="space-y-1.5">
                   {trend.relatedVideos.map((video, index) => (

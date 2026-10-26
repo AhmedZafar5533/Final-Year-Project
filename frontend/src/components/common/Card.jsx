@@ -14,9 +14,9 @@ const Card = ({
   return (
     <div
       className={`
-        bg-surface-50 dark:bg-dark-surface rounded-xl
-        ${bordered ? "border border-surface-300 dark:border-dark-border" : "shadow-sm border border-surface-200 dark:border-dark-border"}
-        ${hoverable ? "hover:shadow-lg dark:hover:shadow-black/30 transition-shadow duration-200" : ""}
+        bg-surface-50 dark:bg-dark-surface rounded-2xl
+        ${bordered ? "border border-surface-300 dark:border-dark-border" : "border border-surface-300 dark:border-dark-border"}
+        ${hoverable ? "hover:border-primary-300 dark:hover:border-primary-600 transition-shadow duration-200" : ""}
         ${className}
       `}
       {...props}
@@ -25,7 +25,7 @@ const Card = ({
         <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-surface-200 dark:border-dark-border">
           <div className="min-w-0">
             {title && (
-              <h3 className="text-base sm:text-lg font-semibold text-text-primary dark:text-dark-text">
+              <h3 className="text-base font-semibold text-text-primary dark:text-dark-text">
                 {title}
               </h3>
             )}

@@ -1,4 +1,4 @@
-import { useState, useMemo, memo, useCallback } from "react";
+import { createElement, useState, useMemo, memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   IoFlame,
@@ -17,41 +17,14 @@ import TrendCard from "../components/trends/TrendCard";
 import LiveTrendsPanel from "../components/trends/LiveTrendsPanel";
 import TrendDetailModal from "../components/trends/TrendDetailModal";
 import ScriptStudioModal from "../components/insights/ScriptStudioModal";
-import Badge from "../components/common/Badge";
+import PageHeader from "../components/common/PageHeader";
+import ViewTabs from "../components/common/ViewTabs";
 import { DashboardSkeleton } from "../components/common/Loader";
 import { useTrends } from "../hooks/useTrends";
 import { TREND_CATEGORIES } from "../utils/constants";
 
-const StatCard = memo(
-  ({
-    label,
-    value,
-    icon: IconComponent,
-    color,
-    bgColor,
-    darkColor,
-    darkBgColor,
-  }) => (
-    <div className="relative overflow-hidden bg-surface-50 dark:bg-dark-surface rounded-2xl p-4 sm:p-5 border border-surface-200 dark:border-dark-border shadow-sm hover:shadow-md dark:hover:shadow-black/30 transition-all duration-300 group">
-      <div
-        className="absolute -top-4 -right-4 w-20 h-20 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500"
-        style={{ backgroundColor: bgColor }}
-      />
-      <div className="relative">
-        <div className="flex items-center gap-2.5 sm:gap-3 mb-2">
-          <div className="p-2 sm:p-2.5 rounded-xl flex-shrink-0" style={{ backgroundColor: bgColor }}>
-            <IconComponent className="w-4 h-4" style={{ color }} />
-          </div>
-          <span className="text-xs sm:text-sm font-medium text-text-muted dark:text-dark-text-muted leading-tight">
-            {label}
-          </span>
-        </div>
-        <p className="text-2xl font-bold text-text-primary dark:text-dark-text">
-          {value}
-        </p>
-      </div>
-    </div>
-  ),
+const StatCard = ({ label, value, icon: Icon }) => (
+  <div className="metric-card"><div className="flex items-center justify-between gap-2 text-text-muted"><span className="text-xs sm:text-sm">{label}</span>{createElement(Icon, { className: "w-4 h-4 shrink-0" })}</div><p className="metric-value mt-3">{value}</p></div>
 );
 
 const Trends = () => {
@@ -73,8 +46,8 @@ const Trends = () => {
     if (searchQuery) {
       result = result.filter(
         (trend) =>
-          trend.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          trend.hashtags.some((tag) =>
+          (trend.topic || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (trend.hashtags || []).some((tag) =>
             tag.toLowerCase().includes(searchQuery.toLowerCase()),
           ),
       );
@@ -127,71 +100,12 @@ const Trends = () => {
   }
 
   return (
-    <div className="space-y-6 pb-8">
-      {/* Header */}
-      <div className="relative">
-        {/* Decorative glow — clipped so it never widens the page on mobile */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-10 -right-10 w-60 h-60 bg-gradient-to-br from-primary-300/20 to-accent-400/20 dark:from-primary-600/10 dark:to-accent-600/10 rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1 min-w-0">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="p-2.5 sm:p-3 bg-gradient-to-br from-success-500 to-success-600 dark:from-success-400 dark:to-success-500 rounded-2xl shadow-lg shadow-success-500/30 flex-shrink-0">
-                <IoTrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-primary dark:text-dark-text">
-                Trend Intelligence
-              </h1>
-              {stats.highTrends > 0 && (
-                <Badge variant="success" className="animate-pulse">
-                  {stats.highTrends} Hot Trends
-                </Badge>
-              )}
-            </div>
-            <p className="text-sm text-text-muted dark:text-dark-text-muted flex items-start sm:items-center gap-2 sm:ml-16">
-              <IoFlame className="w-4 h-4 mt-0.5 sm:mt-0 text-warning-500 dark:text-warning-400 flex-shrink-0" />
-              <span>Real-time YouTube & Google Trends analysis for creators</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center gap-2 p-1.5 bg-surface-100 dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border w-full sm:w-fit overflow-x-auto">
-        <button
-          onClick={() => setActiveTab("live")}
-          className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
-            activeTab === "live"
-              ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-              : "text-text-muted dark:text-dark-text-muted hover:text-text-primary dark:hover:text-dark-text hover:bg-surface-200 dark:hover:bg-dark-surface-light"
-          }`}
-        >
-          <IoRadioOutline className={`w-4 h-4 ${activeTab === "live" ? "animate-pulse" : ""}`} />
-          <span>Live YouTube & Google Trends</span>
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("catalog")}
-          className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
-            activeTab === "catalog"
-              ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-              : "text-text-muted dark:text-dark-text-muted hover:text-text-primary dark:hover:text-dark-text hover:bg-surface-200 dark:hover:bg-dark-surface-light"
-          }`}
-        >
-          <IoLayersOutline className="w-4 h-4" />
-          <span>Curated Market Trends</span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-surface-200 dark:bg-dark-surface-light text-text-secondary dark:text-dark-text-muted">
-            {trends.length}
-          </span>
-        </button>
-      </div>
-
+    <div className="page-stack">
+      <PageHeader title="Trends" description="Discover topics your audience could care about." />
+      <ViewTabs label="Trend views" value={activeTab} onChange={setActiveTab} panelId="trends-panel" tabs={[
+        { value: "live", label: "Live trends" }, { value: "catalog", label: "For your channel", count: trends.length },
+      ]} />
+      <div role="tabpanel" id="trends-panel" aria-labelledby={`trends-panel-tab-${activeTab}`} className="space-y-5">
       {activeTab === "live" ? (
         <LiveTrendsPanel onSelectTrend={handleExplore} />
       ) : (
@@ -199,7 +113,7 @@ const Trends = () => {
           {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
-          label="Total Trends"
+          label="Topics"
           value={stats.total}
           icon={IoTrendingUp}
           color="#3a7a4a"
@@ -208,7 +122,7 @@ const Trends = () => {
           darkBgColor="rgba(34,197,94,0.15)"
         />
         <StatCard
-          label="High Potential"
+          label="Strong signals"
           value={stats.highTrends}
           icon={IoFlame}
           color="#d6871c"
@@ -226,7 +140,7 @@ const Trends = () => {
           darkBgColor="rgba(99,102,241,0.15)"
         />
         <StatCard
-          label="Avg. Opportunity"
+          label="Average opportunity"
           value={`${stats.avgOpportunity}%`}
           icon={IoBookmarkOutline}
           color="#2a6275"
@@ -244,7 +158,7 @@ const Trends = () => {
             <IoSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-light dark:text-dark-text-muted" />
             <input
               type="text"
-              placeholder="Search trends or hashtags..."
+              placeholder="Search topics…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-surface-100 dark:bg-dark-surface-light border border-surface-300 dark:border-dark-border rounded-xl text-sm text-text-primary dark:text-dark-text placeholder:text-text-light dark:placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent transition-all"
@@ -421,6 +335,8 @@ const Trends = () => {
       )}
         </>
       )}
+
+      </div>
 
       {/* Trend Detail Modal */}
       {selectedTrend && (

@@ -31,11 +31,11 @@ const SENTIMENT_COLORS = {
 };
 
 const TABS = [
-  { id: "sentiment", label: "Sentiment Analysis", icon: IoSparkles },
+  { id: "sentiment", label: "Sentiment", icon: IoSparkles },
   { id: "intelligence", label: "AI Insights", icon: IoBulbOutline },
-  { id: "chapters", label: "Chapters & Timestamps", icon: IoTimeOutline },
-  { id: "transcript", label: "Full Transcript", icon: IoDocumentTextOutline },
-  { id: "comments", label: "Comment Threads", icon: IoChatbubblesOutline },
+  { id: "chapters", label: "Chapters", icon: IoTimeOutline },
+  { id: "transcript", label: "Transcript", icon: IoDocumentTextOutline },
+  { id: "comments", label: "Comments", icon: IoChatbubblesOutline },
 ];
 
 const SENTIMENT_FILTERS = ["ALL", "POSITIVE", "NEUTRAL", "NEGATIVE"];
@@ -429,7 +429,7 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
                       className="w-5 h-5 text-accent-600"
                       aria-hidden="true"
                     />
-                    DeepSeek Sentiment Analysis
+                    Viewer sentiment
                   </h3>
                   <p className="text-xs sm:text-sm text-text-muted dark:text-dark-text-muted">
                     Positive, neutral, and negative feedback across analyzed comments
@@ -656,7 +656,7 @@ export const VideoDeepDiveModal = ({ video, onClose }) => {
                     aria-label="Loading AI insights"
                   />
                   <p className="text-sm text-text-muted dark:text-dark-text-muted">
-                    Nova AI is synthesizing video intelligence and audience
+                    Analyzing this video and audience
                     perception…
                   </p>
                 </div>

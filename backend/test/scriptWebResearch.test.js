@@ -47,6 +47,20 @@ test('wording-only edits retain saved server evidence without fresh search or im
   assert.ok(request.messages[1].content.includes('Make the hook shorter'));
 });
 
+test('channel advice planning receives saved weaknesses and can skip external search', async () => {
+  const fetchMock = mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(new URL(url).hostname, 'script-planner.test');
+    const body = JSON.parse(options.body);
+    assert.ok(body.messages[1].content.includes('Long introductions'));
+    return json({ queries: [], imageQueries: [] });
+  });
+  const pack = await collectScriptWebResearch({ config, intent: 'chat',
+    channelContext: { status: 'available', strategy: { weaknesses: ['Long introductions'] } },
+    messages: [{ role: 'user', content: 'How should I improve my next script for my channel?' }] });
+  assert.equal(pack.status, 'not_needed');
+  assert.equal(fetchMock.mock.callCount(), 1);
+});
+
 test('script research collects actual page text and optional image metadata with stable references', async () => {
   const categories = [];
   mock.method(globalThis, 'fetch', async (value, options) => {

@@ -92,11 +92,11 @@ export const ToastProvider = ({ children }) => {
     <ToastContext.Provider value={toast}>
       {children}
       {createPortal(
-        <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+        <div className="app-shell"><div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
           {toasts.map((t) => (
             <Toast key={t.id} {...t} onClose={removeToast} />
           ))}
-        </div>,
+        </div></div>,
         document.body,
       )}
     </ToastContext.Provider>

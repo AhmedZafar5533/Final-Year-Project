@@ -1,945 +1,174 @@
-import { useState, useEffect, useMemo, useCallback, memo, createElement } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  IoSparkles,
-  IoCheckmarkCircle,
-  IoTrendingUp,
-  IoFlash,
-  IoRocket,
-  IoChevronDown,
-  IoBulb,
-  IoStar,
-  IoFlame,
-  IoRefresh,
-  IoChatbubblesOutline,
-  IoCompassOutline,
-  IoLayersOutline,
-  IoArrowForward,
-} from "react-icons/io5";
-import RecommendationCard from "../components/insights/RecommendationCard";
+import { IoRefresh, IoArrowForward, IoChevronDown, IoCheckmarkCircleOutline, IoTimeOutline } from "react-icons/io5";
+import PageHeader from "../components/common/PageHeader";
+import ViewTabs from "../components/common/ViewTabs";
+import Disclosure from "../components/common/Disclosure";
 import { DashboardSkeleton } from "../components/common/Loader";
+import RecommendationCard from "../components/insights/RecommendationCard";
+import ChannelCompetitorsPanel from "../components/insights/ChannelCompetitorsPanel";
+import CompetitorResearchPanel from "../components/insights/CompetitorResearchPanel";
 import trendsService from "../services/trendsService";
-import ScriptStudioModal from "../components/insights/ScriptStudioModal";
 import useRecommendations from "../hooks/useRecommendations";
 import useIdeaResearch from "../hooks/useIdeaResearch";
-import CompetitorResearchPanel from "../components/insights/CompetitorResearchPanel";
-import ChannelCompetitorsPanel from "../components/insights/ChannelCompetitorsPanel";
-const EMPTY_RECOMMENDATIONS = [];
 
-// ──────────────────────────────────────────────────────────────────────────
-// Small shared building blocks
-// ──────────────────────────────────────────────────────────────────────────
-
-const StatCard = memo(
-  ({ label, value, icon: Icon, gradient, lightBg, delay = 0 }) => (
-    <div
-      className="relative overflow-hidden bg-surface-50 dark:bg-dark-surface rounded-2xl p-4 sm:p-6 border border-surface-300 dark:border-dark-border shadow-sm hover:shadow-xl dark:hover:shadow-black/30 transition-all duration-500 group animate-fade-in"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <div
-        className={`absolute -top-10 -right-10 w-28 h-28 rounded-full opacity-30 blur-xl group-hover:scale-150 transition-transform duration-700 ${lightBg}`}
-      />
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-surface-300 dark:via-dark-border to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-      <div className="relative">
-        <div className="flex items-center gap-2.5 sm:gap-3 mb-2 sm:mb-3">
-          <div
-            className={`p-2 sm:p-2.5 rounded-xl ${gradient} shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0`}
-          >
-            {createElement(Icon, { className: "w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" })}
-          </div>
-          <span className="text-xs sm:text-sm font-medium text-text-muted dark:text-dark-text-muted leading-tight">
-            {label}
-          </span>
-        </div>
-        <p className="text-2xl sm:text-3xl font-bold text-text-primary dark:text-dark-text tracking-tight">
-          {value}
-        </p>
-      </div>
-    </div>
-  ),
-);
-
-// A paragraph clamped to N lines by default with a "Read more" toggle.
-// Used everywhere a single free-text field could otherwise run long
-// (executive synthesis, suggestion copy, hooks) so no one block dominates
-// the page — the reader opts into the extra detail instead of receiving
-// all of it at once.
-// Tailwind's JIT scanner needs full, static class names to find them, so
-// the clamp value is looked up rather than interpolated into the string.
-const LINE_CLAMP_CLASS = {
-  2: "line-clamp-2",
-  3: "line-clamp-3",
-  4: "line-clamp-4",
+const EMPTY = [];
+const TYPES = {
+  overlap: { label: "Trend + viewer interest", dot: "bg-primary-500" },
+  demand: { label: "Viewer request", dot: "bg-sky-500" },
+  trend: { label: "Trending topic", dot: "bg-amber-500" },
 };
 
-const ClampText = memo(({ text, lines = 2, className = "", toggleClassName = "" }) => {
+function researchStatus(job) {
+  if (!job) return null;
+  const labels = { queued: "Research queued", running: "Research in progress", completed: "Research ready", partial: "Partial research", failed: "Research needs attention" };
+  return `${labels[job.status] || "Research available"}${job.stale ? " · Out of date" : ""}`;
+}
+
+function IdeaCard({ idea, onLaunch, research, researchBusy, researchEnabled, onResearch, onViewResearch }) {
   const [expanded, setExpanded] = useState(false);
-  if (!text) return null;
-  const isLong = text.length > lines * 60;
-  const clampClass = LINE_CLAMP_CLASS[lines] || LINE_CLAMP_CLASS[2];
-  return (
-    <div>
-      <p className={`${className} ${!expanded && isLong ? clampClass : ""}`}>{text}</p>
-      {isLong && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className={`mt-1 flex items-center gap-0.5 text-[11px] font-semibold hover:underline ${toggleClassName}`}
-        >
-          {expanded ? "Show less" : "Read more"}
-          <IoChevronDown className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
-        </button>
-      )}
+  const type = TYPES[idea.recommendation_type];
+  const reason = idea.why_it_will_perform || idea.overlap_rationale || idea.audience_demand_source || idea.angle || idea.hook;
+  const status = researchStatus(research);
+  const fields = [
+    ["Suggested hook", idea.hook], ["Angle", idea.angle], ["Format", idea.suggested_format],
+    ["Why this idea", idea.why_it_will_perform], ["Viewer interest", idea.audience_demand_source],
+    ["Trend evidence", idea.trend_source], ["Connection", idea.overlap_rationale],
+  ].filter(([, value]) => value);
+  return <article className="idea-card">
+    <div className="idea-meta">
+      {type && <span className="idea-category"><span className={`h-1.5 w-1.5 rounded-full ${type.dot}`} />{type.label}</span>}
+      {idea.suggested_format && <span>{idea.suggested_format}</span>}
     </div>
-  );
-});
-
-// Per-type icon + tint, in the same "colored chip" language already used
-// by InsightCard on this page — this is the pattern most dashboard
-// products (Linear, Stripe, Notion, Vercel) use for a card header: a
-// small tinted icon square, a title, and a muted meta line underneath.
-const ideaTypeConfig = {
-  overlap: {
-    icon: IoStar,
-    label: "Trend × Demand Overlap",
-    gradient: "from-warning-400 to-warning-600",
-    ring: "hover:ring-warning-200 dark:hover:ring-warning-800",
-    glow: "bg-warning-400/25",
-    text: "text-warning-600 dark:text-warning-400",
-  },
-  demand: {
-    icon: IoChatbubblesOutline,
-    label: "Audience Demand",
-    gradient: "from-sky-400 to-sky-600",
-    ring: "hover:ring-sky-200 dark:hover:ring-sky-800",
-    glow: "bg-sky-400/25",
-    text: "text-sky-600 dark:text-sky-400",
-  },
-  trend: {
-    icon: IoFlame,
-    label: "Market Trend",
-    gradient: "from-rose-400 to-rose-600",
-    ring: "hover:ring-rose-200 dark:hover:ring-rose-800",
-    glow: "bg-rose-400/25",
-    text: "text-rose-600 dark:text-rose-400",
-  },
-};
-
-// One recommended-video card. Same tight row layout as before — the
-// richness here comes from depth and color, not from more content:
-// a gradient icon chip (matching the page's own StatCard treatment), a
-// soft ambient glow that appears on hover, a colored ring keyed to the
-// idea's type, and a gradient hairline divider (the same device
-// RecommendationCard uses lower on this page) instead of a flat border.
-// ─────────────────────────────────────────────────────────────────────────
-// VARIANT B — "Signal"
-// Confident, color-forward — closest in spirit to your current dashboard
-// (StatCard glows, gradient chips) but tightened: a top accent bar for
-// instant type recognition, quote-styled hook, and a full-width gradient
-// CTA that reads as clearly clickable rather than a bare icon circle.
-// ─────────────────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────────────────
-// VARIANT A — "Editorial Minimal"
-// Quiet surface, no gradient wash, structure carried by a left rule and a
-// small numeric/index treatment instead of color blocks. Reads like a
-// research-note or analyst brief rather than a marketing tile — good if
-// the goal is to feel authoritative and calm next to the stat-heavy rest
-// of the dashboard, rather than competing with it for attention.
-// ─────────────────────────────────────────────────────────────────────────
-
-// ─────────────────────────────────────────────────────────────────────────
-// VARIANT C — "Brief"
-// Dense and structured, closer to a spec sheet than a marketing card.
-// Best when a user is scanning 8–12 of these at once and needs to compare
-// fast: potential + format sit in a single metrics strip up top, the type
-// badge is a small colored pill (not a full icon chip) to save vertical
-// space, and the footer is a compact split action bar.
-// ─────────────────────────────────────────────────────────────────────────
-
-// ─────────────────────────────────────────────────────────────────────────
-// VARIANT D — "Ranked Score"
-//
-// Grounded in how the strongest 2026 dashboards (Vercel, Attio, Linear)
-// actually behave: color is reserved for meaning, not decoration, and an
-// AI-native surface leads with a *ranking/score*, not a mood-board card.
-// These ideas ARE a ranked list — ranking is real content here, so a
-// numbered index is information, not a generic "01/02/03" tell.
-//
-// - Base card is near-monochrome (surface + border only).
-// - The ONE colored thing per card is the type dot + a live SVG ring that
-//   visualizes the potential score — replacing the vague "High Potential"
-//   text badge with an actual number you can compare across cards.
-// - Index number is oversized, low-opacity, set behind the header — a
-//   quiet watermark, not a competing focal point.
-// - Hook is set in a serif italic as a proper "dek" under the headline,
-//   which also differentiates this card visually from the rest of the
-//   sans-only dashboard.
-// ─────────────────────────────────────────────────────────────────────────
-
-// Turns whatever shape `estimated_potential` comes in (a percentage
-// string, a word like "High", or nothing) into a 0–100 score so it can
-// drive the ring. Falls back to a sensible mid-high default.
-const potentialToScore = (value) => {
-  if (!value) return 78;
-  const numMatch = String(value).match(/(\d+)/);
-  if (numMatch) return Math.max(0, Math.min(100, parseInt(numMatch[1], 10)));
-  const v = String(value).toLowerCase();
-  if (v.includes("very high") || v.includes("critical")) return 94;
-  if (v.includes("high")) return 82;
-  if (v.includes("medium") || v.includes("moderate")) return 62;
-  if (v.includes("low")) return 40;
-  return 78;
-};
-
-const typeDotColor = {
-  overlap: "bg-warning-500",
-  demand: "bg-sky-500",
-  trend: "bg-rose-500",
-};
-
-const typeRingColor = {
-  overlap: "#f59e0b", // warning-500
-  demand: "#0ea5e9", // sky-500
-  trend: "#f43f5e", // rose-500
-};
-
-const ScoreRing = ({ score, color }) => {
-  const size = 44;
-  const stroke = 3.5;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-
-  return (
-    <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          strokeWidth={stroke}
-          className="stroke-surface-200 dark:stroke-dark-border"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="transition-all duration-700 ease-out"
-        />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[11px] font-bold text-text-primary dark:text-dark-text">{score}</span>
-      </div>
+    <div className="space-y-2">
+      <h3>{idea.title}</h3>
+      {reason && <p className="idea-reason">{reason}</p>}
     </div>
-  );
-};
-
-const IdeaCard = memo(({ idea, onLaunch, index = 0, research, researchBusy, researchEnabled, onResearch, onViewResearch }) => {
-  const [showEvidence, setShowEvidence] = useState(false);
-  const type = ideaTypeConfig[idea.recommendation_type];
-  const dotColor = typeDotColor[idea.recommendation_type] || "bg-primary-500";
-  const ringColor = typeRingColor[idea.recommendation_type] || "#6366f1";
-  const score = useMemo(() => potentialToScore(idea.estimated_potential), [idea.estimated_potential]);
-
-  const hasEvidence =
-    idea.audience_demand_source || idea.trend_source || idea.overlap_rationale || idea.why_it_will_perform;
-
-  return (
-    <div className="group relative flex flex-col h-full overflow-hidden bg-white dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border transition-all duration-300 hover:border-surface-300 dark:hover:border-dark-text-muted/40 hover:shadow-lg dark:hover:shadow-black/20">
-      {/* Oversized index watermark — quiet, behind the content */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-3 right-2 text-[64px] font-black leading-none text-surface-100 dark:text-dark-surface-light select-none"
-      >
-        {String(index + 1).padStart(2, "0")}
-      </span>
-
-      <div className="relative flex flex-col flex-1 p-4">
-        {/* Header — type dot + label on the left, score ring on the right */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-1.5 min-w-0 pt-1">
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
-            <span className="text-[11px] font-semibold text-text-muted dark:text-dark-text-muted truncate">
-              {type?.label || "Recommendation"}
-            </span>
-          </div>
-          <ScoreRing score={score} color={ringColor} />
-        </div>
-
-        {/* Headline */}
-        <h4 className="mt-2.5 font-bold tracking-tight text-text-primary dark:text-dark-text text-[15px] leading-snug line-clamp-2">
-          {idea.title}
-        </h4>
-
-        {/* Hook, set as a serif dek — the one deliberate typographic
-            contrast on the card */}
-        {idea.hook && (
-          <p className="mt-1.5 font-serif italic text-[13px] text-text-secondary dark:text-dark-text-muted leading-relaxed line-clamp-2">
-            {idea.hook}
-          </p>
-        )}
-
-        {idea.suggested_format && (
-          <p className="mt-2 text-[11px] font-medium text-text-muted dark:text-dark-text-muted">
-            {idea.suggested_format}
-          </p>
-        )}
-
-        {hasEvidence && (
-          <div className="mt-3">
-            <button
-              type="button"
-              onClick={() => setShowEvidence((v) => !v)}
-              className="flex items-center gap-1 text-[11px] font-semibold text-text-primary dark:text-dark-text hover:opacity-70 transition-opacity"
-            >
-              {showEvidence ? "Hide reasoning" : "Show reasoning"}
-              <IoChevronDown className={`w-3 h-3 transition-transform ${showEvidence ? "rotate-180" : ""}`} />
-            </button>
-
-            {showEvidence && (
-              <ul className="mt-2.5 space-y-2 text-[11px] leading-relaxed border-l border-surface-200 dark:border-dark-border pl-3">
-                {idea.audience_demand_source && (
-                  <li className="text-text-secondary dark:text-dark-text-muted">
-                    <span className="font-semibold text-text-primary dark:text-dark-text">Demand.</span>{" "}
-                    {idea.audience_demand_source}
-                  </li>
-                )}
-                {idea.trend_source && (
-                  <li className="text-text-secondary dark:text-dark-text-muted">
-                    <span className="font-semibold text-text-primary dark:text-dark-text">Trend.</span>{" "}
-                    {idea.trend_source}
-                  </li>
-                )}
-                {idea.overlap_rationale && (
-                  <li className="text-text-secondary dark:text-dark-text-muted">
-                    <span className="font-semibold text-text-primary dark:text-dark-text">Overlap.</span>{" "}
-                    {idea.overlap_rationale}
-                  </li>
-                )}
-                {idea.why_it_will_perform && (
-                  <li className="text-text-secondary dark:text-dark-text-muted">
-                    <span className="font-semibold text-text-primary dark:text-dark-text">Why.</span>{" "}
-                    {idea.why_it_will_perform}
-                  </li>
-                )}
-              </ul>
-            )}
-          </div>
-        )}
-
-        <div className="mt-4 mb-3 border-t border-surface-100 dark:border-dark-border pt-3 text-xs space-y-2">
-          <p className="text-text-muted" role="status">
-            {!researchEnabled ? "Refresh recommendations to enable competitor research." :
-              research ? (research.status === "running" ? "Researching: " + research.stage + "…" :
-                research.status === "queued" ? "Research queued" :
-                research.status === "partial" ? "Partial research available" :
-                research.status === "failed" ? "Research needs attention" : "Competitor research ready") :
-              "Check competitors and potential content gaps"}
-            {research?.stale && " · Out of date"}
-          </p>
-          <button type="button" disabled={!researchEnabled || researchBusy}
-            onClick={() => research ? onViewResearch(idea, research) : onResearch(idea)}
-            className="font-semibold text-primary-700 dark:text-primary-300 underline disabled:opacity-50">
-            {researchBusy ? "Queuing…" : research ? "View research" : "Research competitors"}
-          </button>
-        </div>
-
-        {/* Footer — the type color appears exactly once more here, on the
-            action itself, tying the ring / dot / CTA together */}
-        <div className="mt-auto pt-4 flex items-center justify-between border-t border-surface-100 dark:border-dark-border/60">
-          <span className="text-[11px] text-text-muted dark:text-dark-text-muted">Score {score}/100</span>
-          <button
-            onClick={() => onLaunch(idea)}
-            aria-label={`Develop "${idea.title}" in AI Script Studio`}
-            className="flex items-center gap-1 text-xs font-bold text-text-primary dark:text-dark-text group-hover:gap-2 transition-all"
-            style={{ color: ringColor }}
-          >
-            Script this
-            <IoArrowForward className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
+    {status && <div className="idea-research-status" data-attention={research.stale || ["failed", "partial"].includes(research.status)} role="status">
+      {["running", "queued"].includes(research.status) ? <IoTimeOutline className="shrink-0" /> : <IoCheckmarkCircleOutline className="shrink-0" />}
+      <button type="button" onClick={() => onViewResearch(idea, research)} className="text-left hover:underline">{status}</button>
+    </div>}
+    <div className="idea-card-footer">
+      <button type="button" onClick={() => onLaunch(idea)} className="app-button" aria-label={`Draft script for ${idea.title}`}>
+        Draft script <IoArrowForward aria-hidden="true" />
+      </button>
+      <button type="button" className="app-button-quiet" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
+        {expanded ? "Less detail" : "View idea"}<IoChevronDown className={`transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />
+      </button>
     </div>
-  );
-});
+    {expanded && <div className="idea-details">
+      <dl>{fields.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+        {idea.estimated_potential && <div><dt>Estimated potential</dt><dd>{idea.estimated_potential} · AI estimate</dd></div>}
+      </dl>
+      <button type="button" disabled={!researchEnabled || researchBusy} className="app-button-secondary"
+        onClick={() => research ? onViewResearch(idea, research) : onResearch(idea)}>
+        {researchBusy ? "Queuing…" : research ? "View research" : "Research competitors"}
+      </button>
+      {!researchEnabled && <p className="mt-2 text-xs text-text-muted">Refresh insights to enable research for this idea.</p>}
+    </div>}
+  </article>;
+}
 
-const ContentTipCard = memo(({ tip }) => {
-  const [showActions, setShowActions] = useState(false);
-  return (
-    <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-dark-surface border border-surface-200 dark:border-dark-border shadow-xs hover:border-primary-300 dark:hover:border-primary-700 transition-all space-y-2.5">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
-          <IoCheckmarkCircle className="w-4 h-4 text-success-500 flex-shrink-0" />
-          <span className="truncate">{tip.category}</span>
-        </span>
-        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-accent-100 dark:bg-accent-950/40 text-accent-700 dark:text-accent-300 whitespace-nowrap flex-shrink-0">
-          {tip.priority}
-        </span>
-      </div>
+function Strategy({ niche, summary, recommendations, recommendationsError }) {
+  const friction = summary?.growth_friction_points || summary?.friction_points || EMPTY;
+  const roadmap = summary?.strategic_growth_roadmap || summary?.growth_roadmap || EMPTY;
+  const tips = summary?.content_quality_suggestions || EMPTY;
+  return <div className="space-y-5">
+    <section className="app-panel space-y-4">
+      <div><h2 className="section-heading">Channel summary</h2>{niche?.primary_niche && <p className="section-note mt-1">{niche.primary_niche}</p>}</div>
+      <p className="text-sm leading-7 text-text-secondary">{summary?.executive_overview || "Refresh insights to build your channel strategy."}</p>
+      {niche && <dl className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-surface-200 dark:border-dark-border text-sm">
+        {[["Audience", niche.target_audience], ["Tone", niche.content_tone]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt className="text-xs text-text-muted mb-1">{label}</dt><dd>{value}</dd></div>)}
+        {niche.niche_positioning_statement && <div className="sm:col-span-2"><dt className="text-xs text-text-muted mb-1">Positioning</dt><dd className="leading-relaxed">{niche.niche_positioning_statement}</dd></div>}
+        {!!niche.content_pillars?.length && <div className="sm:col-span-2"><dt className="text-xs text-text-muted mb-2">Topics</dt><dd className="flex flex-wrap gap-2">{niche.content_pillars.map((pillar, index) => <span key={index} className="idea-category">{pillar}</span>)}</dd></div>}
+      </dl>}
+    </section>
+    {!!summary?.high_performing_patterns?.length && <Disclosure title="What's working" description="Patterns in your strongest videos">
+      <ul className="space-y-3 text-sm leading-relaxed text-text-secondary">{summary.high_performing_patterns.map((pattern, index) => <li key={index} className="flex gap-3"><IoCheckmarkCircleOutline className="mt-1 shrink-0 text-primary-500" />{pattern}</li>)}</ul>
+    </Disclosure>}
+    {!!friction.length && <Disclosure title="What to improve" description={`${friction.length} areas to focus on`}>
+      <ul className="list-disc pl-5 space-y-3 text-sm leading-relaxed text-text-secondary">{friction.map((item, index) => <li key={index}>{typeof item === "string" ? item : item.point || item.description}</li>)}</ul>
+    </Disclosure>}
+    {!!roadmap.length && <Disclosure title="Next steps" description="Your channel growth plan" defaultOpen>
+      <ol className="space-y-5">{roadmap.map((step, index) => <li key={index} className="flex gap-4">
+        <span className="h-7 w-7 shrink-0 rounded-full bg-primary-50 dark:bg-primary-500/15 text-primary-700 dark:text-primary-200 text-xs font-semibold flex items-center justify-center">{index + 1}</span>
+        <div className="text-sm leading-relaxed"><h3 className="font-semibold">{typeof step === "string" ? `Step ${index + 1}` : step.phase || step.title || `Step ${index + 1}`}</h3>
+          <p className="text-text-muted mt-1">{typeof step === "string" ? step : step.objective || step.actions?.join(" · ") || step.description}</p></div>
+      </li>)}</ol>
+    </Disclosure>}
+    {!!tips.length && <Disclosure title="Content improvements" description="Hooks, pacing, thumbnails, and engagement">
+      <div className="divide-y divide-surface-200 dark:divide-dark-border">{tips.map((tip, index) => <div key={index} className="py-4 first:pt-0 last:pb-0 space-y-2">
+        <h3 className="font-semibold text-sm">{tip.category}</h3><p className="text-sm leading-relaxed text-text-secondary">{tip.suggestion}</p>
+        {tip.metric_target && <p className="text-xs text-text-muted">Target: {tip.metric_target}</p>}
+        {!!tip.action_items?.length && <ul className="list-disc pl-5 text-sm text-text-muted space-y-1">{tip.action_items.map((action, i) => <li key={i}>{action}</li>)}</ul>}
+      </div>)}</div>
+    </Disclosure>}
+    <RecommendationCard recommendations={recommendations?.contentTips} suggestedTags={recommendations?.suggestedTags} isPlaceholder={Boolean(recommendationsError)} />
+  </div>;
+}
 
-      <ClampText
-        text={tip.suggestion}
-        lines={2}
-        className="text-xs sm:text-sm text-text-primary dark:text-dark-text font-medium leading-relaxed"
-        toggleClassName="text-primary-600 dark:text-primary-400"
-      />
-
-      <div className="flex items-center justify-between pt-2 border-t border-surface-200 dark:border-dark-border text-xs gap-2">
-        <span className="text-text-muted dark:text-dark-text-muted font-semibold truncate">
-          Goal: <span className="text-success-600 dark:text-success-400 font-bold">{tip.metric_target}</span>
-        </span>
-        {tip.action_items?.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setShowActions((v) => !v)}
-            className="flex items-center gap-0.5 text-[11px] font-semibold text-primary-600 dark:text-primary-400 hover:underline flex-shrink-0"
-          >
-            {showActions ? "Hide steps" : `${tip.action_items.length} steps`}
-            <IoChevronDown className={`w-3 h-3 transition-transform ${showActions ? "rotate-180" : ""}`} />
-          </button>
-        )}
-      </div>
-
-      {showActions && tip.action_items?.length > 0 && (
-        <div className="space-y-1 pt-1">
-          {tip.action_items.map((act, i) => (
-            <div key={i} className="flex items-center gap-1.5 text-xs text-text-secondary dark:text-dark-text-muted">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary-500 flex-shrink-0" />
-              <span>{act}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-});
-
-// ──────────────────────────────────────────────────────────────────────────
-
-const Insights = () => {
+export default function Insights() {
   const navigate = useNavigate();
   const [channelIntel, setChannelIntel] = useState(() => trendsService.getCachedIntelligence());
-  const [loadingIntel, setLoadingIntel] = useState(() => !trendsService.getCachedIntelligence());
-  const [reanalyzing, setReanalyzing] = useState(false);
-
-  const [insights, setInsights] = useState([]);
-  const [isLoading, setIsLoading] = useState(() => !trendsService.getCachedIntelligence());
-  const [appliedInsights] = useState([]);
-
-  // Recommendations tab filter: 'all' | 'overlap' | 'demand' | 'trend'
-  const [recTab, setRecTab] = useState("all");
-  // Active idea selected for AI Script Studio modal
-  const [selectedIdea, setSelectedIdea] = useState(null);
+  const [loading, setLoading] = useState(() => !trendsService.getCachedIntelligence());
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
+  const [view, setView] = useState("ideas");
+  const [filter, setFilter] = useState("all");
+  const [showAll, setShowAll] = useState(false);
   const [selectedResearch, setSelectedResearch] = useState(null);
-  const { jobs: researchJobs, start: startResearch, record: recordResearch,
-    busyKey: researchBusyKey, error: researchError } = useIdeaResearch(channelIntel?._id, channelIntel?.researchRevision);
+  const { recommendations, error: recommendationsError } = useRecommendations();
+  const { jobs, start, record, busyKey, error: researchError } = useIdeaResearch(channelIntel?._id, channelIntel?.researchRevision);
+  const fetchIntelligence = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    setError("");
+    try {
+      const data = await trendsService.getChannelIntelligence(refresh);
+      if (data) setChannelIntel(data);
+    } catch (err) { setError(err.response?.data?.error || "Couldn't refresh insights. Try again."); }
+    finally { setLoading(false); setRefreshing(false); }
+  }, []);
+  useEffect(() => { fetchIntelligence(); }, [fetchIntelligence]);
+  const summary = channelIntel?.masterSummary;
+  const overlap = summary?.overlap_recommendations || EMPTY;
+  const demand = summary?.demand_recommendations || EMPTY;
+  const trend = summary?.trend_recommendations || EMPTY;
+  const ideas = useMemo(() => {
+    const categorized = [...overlap.map(item => ({ ...item, recommendation_type: "overlap" })), ...demand.map(item => ({ ...item, recommendation_type: "demand" })), ...trend.map(item => ({ ...item, recommendation_type: "trend" }))];
+    return categorized.length ? categorized : summary?.next_video_recommendations || EMPTY;
+  }, [overlap, demand, trend, summary]);
+  const filtered = filter === "all" ? ideas : ideas.filter(idea => idea.recommendation_type === filter);
+  const visible = showAll ? filtered : filtered.slice(0, 3);
   const closeResearch = useCallback(() => setSelectedResearch(null), []);
   const viewResearch = useCallback((idea, job) => setSelectedResearch({ id: job._id, title: idea.title }), []);
-  const researchIdea = useCallback(async idea => {
-    const job = await startResearch(idea.ideaKey);
-    if (job) setSelectedResearch({ id: job._id, title: idea.title });
-  }, [startResearch]);
-
-  const {
-    recommendations,
-    error: recommendationsError,
-  } = useRecommendations();
-
-  const fetchIntelligence = useCallback(async (refresh = false) => {
-    try {
-      if (refresh) {
-        setReanalyzing(true);
-      } else if (!trendsService.getCachedIntelligence()) {
-        setLoadingIntel(true);
-      }
-
-      const data = await trendsService.getChannelIntelligence(refresh);
-      if (data) {
-        setChannelIntel(data);
-      }
-    } catch (err) {
-      console.warn("Failed to fetch channel intelligence:", err.message);
-    } finally {
-      setLoadingIntel(false);
-      setReanalyzing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchIntelligence();
-  }, [fetchIntelligence]);
-
-  useEffect(() => {
-    const loadInsights = async () => {
-      try {
-        const data = await trendsService.getInsights();
-        setInsights(data);
-      } catch (error) {
-        console.error("Failed to load insights:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadInsights();
-  }, [channelIntel]);
-
-  const niche = channelIntel?.niche;
-  const masterSummary = channelIntel?.masterSummary;
-
-  // Recommendations lists
-  const overlapRecs = masterSummary?.overlap_recommendations || EMPTY_RECOMMENDATIONS;
-  const demandRecs = masterSummary?.demand_recommendations || EMPTY_RECOMMENDATIONS;
-  const trendRecs = masterSummary?.trend_recommendations || EMPTY_RECOMMENDATIONS;
-
-  const allRecs = useMemo(() => {
-    return [
-      ...overlapRecs.map((r) => ({ ...r, recommendation_type: "overlap" })),
-      ...demandRecs.map((r) => ({ ...r, recommendation_type: "demand" })),
-      ...trendRecs.map((r) => ({ ...r, recommendation_type: "trend" })),
-    ];
-  }, [overlapRecs, demandRecs, trendRecs]);
-
-  const displayedRecs = useMemo(() => {
-    if (recTab === "overlap") return overlapRecs.map((r) => ({ ...r, recommendation_type: "overlap" }));
-    if (recTab === "demand") return demandRecs.map((r) => ({ ...r, recommendation_type: "demand" }));
-    if (recTab === "trend") return trendRecs.map((r) => ({ ...r, recommendation_type: "trend" }));
-    return allRecs;
-  }, [recTab, allRecs, overlapRecs, demandRecs, trendRecs]);
-
-  const stats = useMemo(
-    () => ({
-      total: allRecs.length || insights.length,
-      applied: appliedInsights.length,
-      highPriority: overlapRecs.length,
-      potentialImpact: "+48%",
-    }),
-    [allRecs, insights, appliedInsights, overlapRecs],
-  );
-
-  const handleLaunchStudio = useCallback(
-    (idea) => navigate("/studio", { state: { idea: {
-      ...idea,
-      researchRef: channelIntel?._id && idea.ideaKey
-        ? { intelligenceId: channelIntel._id, ideaKey: idea.ideaKey } : undefined,
-    } } }),
-    [navigate, channelIntel?._id],
-  );
-
-  if (isLoading && loadingIntel) {
-    return <DashboardSkeleton />;
-  }
-
-  return (
-    <div className="space-y-6 sm:space-y-8 pb-8">
-      {/* Header */}
-      <div className="relative">
-        {/* Decorative glows — clipped so they never widen the page on mobile */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-warning-400/20 to-accent-700/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -top-10 left-1/3 w-40 h-40 bg-gradient-to-br from-primary-900/10 to-accent-700/10 rounded-full blur-2xl" />
+  const researchIdea = useCallback(async idea => { const job = await start(idea.ideaKey); if (job) viewResearch(idea, job); }, [start, viewResearch]);
+  const launch = idea => navigate("/studio", { state: { idea: { ...idea, researchRef: channelIntel?._id && idea.ideaKey ? { intelligenceId: channelIntel._id, ideaKey: idea.ideaKey } : undefined } } });
+  if (loading) return <DashboardSkeleton />;
+  return <div className="page-stack">
+    <PageHeader title="Insights" description="Find your next video idea and turn it into a script." eyebrow={channelIntel?.channelTitle}
+      actions={<button type="button" onClick={() => fetchIntelligence(true)} disabled={refreshing} className="app-button-secondary compact-action" aria-label="Refresh insights"><IoRefresh className={refreshing ? "animate-spin" : ""} /><span className="hidden sm:inline">{refreshing ? "Refreshing…" : "Refresh insights"}</span></button>} />
+    {(error || researchError) && <p role="alert" className="rounded-xl border border-error-200 dark:border-error-800 bg-error-50 dark:bg-error-950/20 p-4 text-sm text-error-700 dark:text-error-300">{error || researchError}</p>}
+    {channelIntel?.isDemo && <p className="section-note rounded-lg bg-surface-200/60 px-4 py-2.5">Sample insights. Connect your YouTube channel in Settings for your own recommendations.</p>}
+    <ViewTabs label="Insights views" value={view} onChange={setView} panelId="insights-panel" tabs={[
+      { value: "ideas", label: "Video ideas", count: ideas.length }, { value: "strategy", label: "Channel strategy" }, { value: "competitors", label: "Competitors" },
+    ]} />
+    <div role="tabpanel" id="insights-panel" aria-labelledby={`insights-panel-tab-${view}`}>
+      {view === "ideas" && <div className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="section-heading">Your next videos</h2></div>
+          <label className="sm:hidden"><span className="sr-only">Filter video ideas</span><select value={filter} onChange={event => { setFilter(event.target.value); setShowAll(false); }} className="bg-white dark:bg-dark-surface rounded-lg border border-surface-300 dark:border-dark-border px-3 py-2 text-xs"><option value="all">All ideas</option><option value="overlap">Trend + interest</option><option value="demand">Viewer requests</option><option value="trend">Trending</option></select></label><div className="app-filters hidden sm:flex" role="group" aria-label="Filter video ideas">{[["all", "All ideas"], ["overlap", "Trend + interest"], ["demand", "Viewer requests"], ["trend", "Trending"]].map(([value, label]) => <button key={value} type="button" aria-pressed={filter === value} onClick={() => { setFilter(value); setShowAll(false); }}>{label}</button>)}</div>
         </div>
-
-        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-2 min-w-0">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="p-2.5 sm:p-3 bg-gradient-to-br from-warning-500 to-warning-600 rounded-2xl shadow-lg shadow-warning-500/30 text-white flex-shrink-0">
-                <IoSparkles className="w-5 h-5 sm:w-6 sm:h-6" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-primary dark:text-dark-text">
-                Channel Intelligence & Strategy
-              </h1>
-              {stats.highPriority > 0 && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300">
-                  <IoStar className="w-3 h-3 text-warning-500" />
-                  {stats.highPriority} Overlaps
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-text-muted dark:text-dark-text-muted flex items-center gap-2 sm:ml-14">
-              <IoBulb className="w-4 h-4 text-warning-500 dark:text-warning-400 flex-shrink-0" />
-              Niche synthesis, viewer demand validation, and AI script generation
-            </p>
-          </div>
-
-          <button
-            onClick={() => fetchIntelligence(true)}
-            disabled={reanalyzing}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold shadow-md transition-all active:scale-95 disabled:opacity-50 w-full lg:w-fit flex-shrink-0"
-          >
-            <IoRefresh className={`w-4 h-4 flex-shrink-0 ${reanalyzing ? "animate-spin" : ""}`} />
-            <span>{reanalyzing ? "Re-analyzing…" : "Re-analyze Channel Strategy"}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ── Channel Niche & Persona Banner ── */}
-      {niche && (
-        <div className="relative overflow-hidden p-5 sm:p-7 bg-gradient-to-br from-primary-900/10 via-surface-50 to-accent-900/10 dark:from-dark-surface dark:via-dark-surface-light dark:to-dark-surface rounded-3xl border border-primary-200/60 dark:border-dark-border shadow-sm">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-3 flex-1 min-w-0">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-primary-600 text-white shadow-sm">
-                  Detected Niche
-                </span>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-black text-text-primary dark:text-dark-text">
-                  {niche.primary_niche}
-                </h2>
-                {channelIntel.channelTitle && (
-                  <span className="text-xs text-text-muted dark:text-dark-text-muted truncate">
-                    • {channelIntel.channelTitle}
-                  </span>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm text-text-secondary dark:text-dark-text-muted">
-                <div>
-                  <strong className="text-text-primary dark:text-dark-text">Audience: </strong>
-                  {niche.target_audience}
-                </div>
-                <div>
-                  <strong className="text-text-primary dark:text-dark-text">Tone: </strong>
-                  {niche.content_tone}
-                </div>
-              </div>
-
-              {niche.niche_positioning_statement && (
-                <p className="text-xs sm:text-sm text-text-muted dark:text-dark-text-muted italic border-l-2 border-primary-500 pl-3 py-0.5 line-clamp-2">
-                  "{niche.niche_positioning_statement}"
-                </p>
-              )}
-            </div>
-
-            {niche.content_pillars?.length > 0 && (
-              <div className="lg:w-64 flex-shrink-0 space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
-                  <IoLayersOutline className="w-4 h-4 text-primary-600" />
-                  Content Pillars
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {niche.content_pillars.map((pillar, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-dark-surface border border-surface-300 dark:border-dark-border text-primary-700 dark:text-primary-300 shadow-xs"
-                    >
-                      {pillar}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {channelIntel && <ChannelCompetitorsPanel intelligenceId={channelIntel._id} landscape={channelIntel.competitorLandscape}
-        isDemo={channelIntel.isDemo} onUpdated={landscape => {
-          trendsService.updateCompetitorLandscape(channelIntel._id, landscape);
-          setChannelIntel(previous => ({ ...previous, competitorLandscape: landscape }));
-        }} />}
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-        <StatCard
-          label="Next Video Ideas"
-          value={stats.total}
-          icon={IoSparkles}
-          gradient="bg-gradient-to-br from-primary-900 to-accent-700"
-          lightBg="bg-primary-200"
-          delay={0}
-        />
-        <StatCard
-          label="Overlap Crossovers"
-          value={overlapRecs.length}
-          icon={IoStar}
-          gradient="bg-gradient-to-br from-warning-500 to-warning-600"
-          lightBg="bg-warning-200"
-          delay={100}
-        />
-        <StatCard
-          label="Audience Demands"
-          value={demandRecs.length}
-          icon={IoChatbubblesOutline}
-          gradient="bg-gradient-to-br from-sky-500 to-sky-600"
-          lightBg="bg-sky-200"
-          delay={200}
-        />
-        <StatCard
-          label="Potential Impact"
-          value={stats.potentialImpact}
-          icon={IoRocket}
-          gradient="bg-gradient-to-br from-accent-700 to-primary-600"
-          lightBg="bg-accent-200"
-          delay={300}
-        />
-      </div>
-
-      {/* ── Master Channel Strategy Roadmap ── */}
-      {masterSummary && (
-        <div className="p-5 sm:p-6 bg-surface-50 dark:bg-dark-surface rounded-3xl border border-surface-300 dark:border-dark-border shadow-sm space-y-5 sm:space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-accent-600 text-white shadow-md flex-shrink-0">
-              <IoCompassOutline className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-base sm:text-lg font-bold text-text-primary dark:text-dark-text">
-                Master Strategy & Growth Roadmap
-              </h3>
-              <p className="text-xs sm:text-sm text-text-muted dark:text-dark-text-muted">
-                Synthesized from top videos, friction analysis, and algorithm velocity
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Executive Overview */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-1.5">
-                <IoSparkles className="w-4 h-4" />
-                Executive Synthesis
-              </h4>
-              <ClampText
-                text={masterSummary.executive_overview}
-                lines={3}
-                className="text-xs sm:text-sm text-text-secondary dark:text-dark-text leading-relaxed"
-                toggleClassName="text-primary-600 dark:text-primary-400"
-              />
-              {masterSummary.high_performing_patterns?.length > 0 && (
-                <div className="pt-2 border-t border-surface-200 dark:border-dark-border">
-                  <span className="text-[11px] font-bold text-text-muted uppercase">Winning Patterns</span>
-                  <ul className="mt-1 space-y-1 text-xs text-text-secondary dark:text-dark-text-muted">
-                    {masterSummary.high_performing_patterns.map((pat, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-success-500 font-bold flex-shrink-0">✓</span> <span>{pat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Growth Friction Points */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-rose-50/40 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-300 flex items-center gap-1.5">
-                <IoFlash className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                Friction Points
-              </h4>
-              <ul className="space-y-2 text-xs sm:text-sm text-rose-950 dark:text-rose-200">
-                {(masterSummary.growth_friction_points || masterSummary.friction_points || [
-                  "Dense mathematical terminology at the midpoint can cause minor drop-off if not immediately tethered to a physical metaphor.",
-                  "Audience frequently confuses electromagnetic force shielding with gravitational spacetime manipulation.",
-                ]).map((fric, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-rose-500 font-bold flex-shrink-0">•</span>
-                    <span>{typeof fric === "string" ? fric : fric.point || fric.description}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Strategic Growth Roadmap */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-sky-50/40 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/40 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
-                <IoTrendingUp className="w-4 h-4 text-sky-600 flex-shrink-0" />
-                3-Step Roadmap
-              </h4>
-              <div className="space-y-3">
-                {(masterSummary.strategic_growth_roadmap || masterSummary.growth_roadmap || [
-                  { phase: "Phase 1: High Conviction Crossovers", objective: "Target the Trend × Demand Overlap topics to maximize initial 48-hour CTR." },
-                  { phase: "Phase 2: Retention & Visual Pacing", objective: "Inject 3D animated tensor diagrams to eliminate mid-video drop-off." },
-                  { phase: "Phase 3: Ecosystem & Micro-Content", objective: "Release 60-second equation breakdowns as YouTube Shorts." },
-                ]).map((step, i) => {
-                  const isString = typeof step === "string";
-                  const title = isString ? `Step ${i + 1}` : step.phase || step.title || `Phase ${i + 1}`;
-                  const detail = isString ? step : step.objective || step.actions?.join(" • ") || step.description;
-
-                  return (
-                    <div key={i} className="text-xs sm:text-sm">
-                      <div className="flex items-center gap-2 font-bold text-sky-900 dark:text-sky-200">
-                        <span className="w-5 h-5 rounded-full bg-sky-200 dark:bg-sky-800 text-sky-900 dark:text-sky-200 flex items-center justify-center text-[11px] font-bold flex-shrink-0">
-                          {i + 1}
-                        </span>
-                        <span>{title}</span>
-                      </div>
-                      <p className="text-xs text-text-secondary dark:text-dark-text-muted mt-1 ml-7">{detail}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Content Quality Suggestions ── */}
-      <div className="p-5 sm:p-6 bg-gradient-to-br from-surface-50 via-surface-100/50 to-primary-50/20 dark:from-dark-surface dark:via-dark-surface-light dark:to-dark-surface rounded-3xl border border-surface-300 dark:border-dark-border shadow-sm space-y-5 sm:space-y-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 rounded-xl bg-primary-600 text-white shadow-md flex-shrink-0">
-              <IoSparkles className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-base sm:text-lg font-bold text-text-primary dark:text-dark-text">
-                Content Quality & Retention
-              </h3>
-              <p className="text-xs sm:text-sm text-text-muted dark:text-dark-text-muted">
-                Hooks, pacing, thumbnails, and engagement
-              </p>
-            </div>
-          </div>
-
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 flex-shrink-0">
-            Nova AI Audit
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-          {(masterSummary?.content_quality_suggestions || [
-            {
-              category: "Hook & Opening Pacing",
-              priority: "High Impact",
-              metric_target: ">70% retention at 0:45",
-              suggestion: "Eliminate static channel intros; open directly with the central paradox or visual thought experiment within the first 8 seconds.",
-              action_items: ["Cut static logos from 0:00-0:15", "Use high-contrast visual teaser of climax at 0:03"],
-            },
-            {
-              category: "Visual Clarity & Diagrams",
-              priority: "Critical",
-              metric_target: "+12% watch time on technical sections",
-              suggestion: "When introducing complex field equations (e.g. stress-energy tensor), overlay a color-coded 3D geometry breakdown on split screen.",
-              action_items: ["Color-code variables (red for mass, blue for curvature)", "Avoid text walls; use 3D particle nodes"],
-            },
-            {
-              category: "Thumbnail & Title Synergy",
-              priority: "High Impact",
-              metric_target: "+3.5% Click-Through Rate",
-              suggestion: "Ensure the thumbnail focal point directly matches the visual promise of the title without duplicating the exact text.",
-              action_items: ["Use 1 focal subject with high luminosity contrast", "Keep thumbnail text under 3 words"],
-            },
-            {
-              category: "Comment Section Engagement",
-              priority: "Community Growth",
-              metric_target: "+40% top comment replies",
-              suggestion: "Pin an authoritative technical follow-up comment within 1 hour of upload to anchor viewer discussion and clarify common student queries.",
-              action_items: ["Pin top clarification comment", "Feature top viewer question in next episode intro"],
-            },
-          ]).map((tip, idx) => (
-            <ContentTipCard key={idx} tip={tip} />
-          ))}
-        </div>
-      </div>
-
-      {/* ── Categorized Next Video Recommendations ── */}
-      <div className="space-y-5 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-          <div className="min-w-0">
-            <h2 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-dark-text flex items-center gap-2">
-              <IoSparkles className="w-5 h-5 sm:w-6 sm:h-6 text-warning-500 flex-shrink-0" />
-              Strategic Next Video Recommendations
-            </h2>
-            <p className="text-xs sm:text-sm text-text-muted dark:text-dark-text-muted">
-              By trend momentum, viewer demand, and high-conviction crossovers
-            </p>
-          </div>
-
-          <span className="text-xs font-semibold text-primary-700 dark:text-primary-300 flex-shrink-0">
-            Click a card to launch AI Script Studio
-          </span>
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2 p-1.5 bg-surface-100 dark:bg-dark-surface rounded-2xl border border-surface-200 dark:border-dark-border w-full sm:w-fit overflow-x-auto">
-          <button
-            onClick={() => setRecTab("all")}
-            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
-              recTab === "all"
-                ? "bg-primary-600 text-white shadow-md shadow-primary-600/20"
-                : "text-text-muted hover:text-text-primary dark:hover:text-dark-text"
-            }`}
-          >
-            All ({allRecs.length})
-          </button>
-
-          <button
-            onClick={() => setRecTab("overlap")}
-            className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
-              recTab === "overlap"
-                ? "bg-warning-500 text-white shadow-md shadow-warning-500/20"
-                : "text-warning-700 dark:text-warning-400 hover:bg-warning-50 dark:hover:bg-warning-950/20"
-            }`}
-          >
-            <IoStar className="w-3.5 h-3.5" />
-            Overlap ({overlapRecs.length})
-          </button>
-
-          <button
-            onClick={() => setRecTab("demand")}
-            className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
-              recTab === "demand"
-                ? "bg-sky-600 text-white shadow-md shadow-sky-600/20"
-                : "text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/20"
-            }`}
-          >
-            <IoChatbubblesOutline className="w-3.5 h-3.5" />
-            Demand ({demandRecs.length})
-          </button>
-
-          <button
-            onClick={() => setRecTab("trend")}
-            className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
-              recTab === "trend"
-                ? "bg-rose-600 text-white shadow-md shadow-rose-600/20"
-                : "text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20"
-            }`}
-          >
-            <IoFlame className="w-3.5 h-3.5" />
-            Trend ({trendRecs.length})
-          </button>
-        </div>
-
-        {/* Recommendations Cards Grid */}
-        {displayedRecs.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
-            {displayedRecs.map((idea, index) => (
-              <IdeaCard key={idea.ideaKey || idea.id || index} idea={idea} index={index} onLaunch={handleLaunchStudio}
-                research={researchJobs[idea.ideaKey]} researchBusy={researchBusyKey === idea.ideaKey}
-                researchEnabled={Boolean(channelIntel?._id && channelIntel?.researchRevision && idea.ideaKey)}
-                onResearch={researchIdea} onViewResearch={viewResearch} />
-            ))}
-          </div>
-        ) : (
-          <div className="p-10 text-center bg-surface-50 dark:bg-dark-surface rounded-3xl border border-surface-200 dark:border-dark-border">
-            <p className="text-text-muted">No recommendations available in this category.</p>
-          </div>
-        )}
-      </div>
-
-      {/* AI Script Studio Modal */}
-      {researchError && <p role="alert" className="text-sm text-error-600">{researchError}</p>}
-      {selectedResearch && <CompetitorResearchPanel researchId={selectedResearch.id} title={selectedResearch.title}
-        onClose={closeResearch} onUpdated={recordResearch} />}
-
-      {selectedIdea && (
-        <ScriptStudioModal idea={{ ...selectedIdea, researchRef: channelIntel?._id && selectedIdea.ideaKey
-          ? { intelligenceId: channelIntel._id, ideaKey: selectedIdea.ideaKey } : undefined }}
-          channelNiche={niche} onClose={() => setSelectedIdea(null)} />
-      )}
-
-      {/* Recommendations */}
-      <RecommendationCard
-        recommendations={recommendations?.contentTips}
-        suggestedTags={recommendations?.suggestedTags}
-        isPlaceholder={Boolean(recommendationsError)}
-      />
+        {visible.length ? <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">{visible.map((idea, index) => <IdeaCard key={idea.ideaKey || idea.id || index} idea={idea} onLaunch={launch}
+          research={jobs[idea.ideaKey]} researchBusy={busyKey === idea.ideaKey} researchEnabled={Boolean(channelIntel?._id && channelIntel?.researchRevision && idea.ideaKey)} onResearch={researchIdea} onViewResearch={viewResearch} />)}</div>
+          : <div className="app-panel py-12 text-center"><h3 className="font-semibold">No ideas here yet</h3><p className="section-note mt-2">{filter === "all" ? "Refresh insights to find ideas for your channel." : "Try another category to see more ideas."}</p></div>}
+        {filtered.length > 3 && <button type="button" className="app-button-secondary" aria-expanded={showAll} onClick={() => setShowAll(value => !value)}>{showAll ? "Show fewer ideas" : `View all ${filtered.length} ideas`}<IoChevronDown className={showAll ? "rotate-180" : ""} /></button>}
+        <p className="text-xs text-text-muted leading-relaxed">Ideas are AI suggestions. Open an idea to review its reasoning and research before recording.</p>
+      </div>}
+      {view === "strategy" && <Strategy niche={channelIntel?.niche} summary={summary} recommendations={recommendations} recommendationsError={recommendationsError} />}
+      {view === "competitors" && <ChannelCompetitorsPanel intelligenceId={channelIntel?._id} landscape={channelIntel?.competitorLandscape} isDemo={channelIntel?.isDemo} onUpdated={landscape => {
+        trendsService.updateCompetitorLandscape(channelIntel._id, landscape);
+        setChannelIntel(previous => ({ ...previous, competitorLandscape: landscape }));
+      }} />}
     </div>
-  );
-};
-
-export default memo(Insights);
+    {selectedResearch && <CompetitorResearchPanel researchId={selectedResearch.id} title={selectedResearch.title} onClose={closeResearch} onUpdated={record} />}
+  </div>;
+}

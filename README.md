@@ -191,6 +191,22 @@ patterns are adapted in `research_service/` with attribution.
 
 ### Script Studio web references and images
 
+Script Studio and the idea script modal automatically use the signed-in creator's
+saved channel analysis for generation, questions, and follow-up edits. This includes
+niche, audience and voice, content pillars, strengths and weaknesses, growth advice,
+recommendations, sampled video performance and audience questions, saved niche trends,
+and a compact competitor overview. Linked ideas use their owner's linked analysis;
+blank sessions use the latest completed analysis owned by that user. Demo analysis
+is never presented as the creator's channel data.
+
+Each request reads the current saved analysis without rerunning channel analysis
+or fetching YouTube analytics. Selected fields and collection limits keep the context
+compact. The workspace shows which channel analysis was supplied and its date;
+analysis older than 24 hours is labeled for refresh. Run channel analysis in Insights
+to add or update this context. Missing data and database outages leave scripting
+available with a visible context status. Saved channel trends and AI interpretations
+are historical context, rather than live measurements or independently verified facts.
+
 Script Studio and the idea's script modal use the same configured web search
 providers directly during generation and follow-up requests. This does not require
 waiting for a competitor research job. Keep SearXNG and the Python page collector

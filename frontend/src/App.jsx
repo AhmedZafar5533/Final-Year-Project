@@ -1,7 +1,7 @@
 import { lazy, Suspense, Component } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 // Layout
 import Layout from "./components/layout/Layout";
@@ -86,21 +86,21 @@ class ErrorBoundary extends Component {
 const AuthLoader = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background dark:bg-dark-bg">
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="flex flex-col items-center"
       >
         {/* Logo with breathing glow */}
-        <motion.div
+        <Motion.div
           className="relative mb-10"
           initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           {/* Outer breathing glow ring */}
-          <motion.div
+          <Motion.div
             animate={{
               opacity: [0.15, 0.35, 0.15],
               scale: [0.92, 1.08, 0.92],
@@ -114,7 +114,7 @@ const AuthLoader = () => {
           />
 
           {/* Inner soft glow */}
-          <motion.div
+          <Motion.div
             animate={{
               opacity: [0.25, 0.5, 0.25],
               scale: [0.97, 1.05, 0.97],
@@ -129,7 +129,7 @@ const AuthLoader = () => {
           />
 
           {/* Logo container — gentle float */}
-          <motion.div
+          <Motion.div
             animate={{
               y: [0, -3, 0],
               rotate: [0, 1.5, 0, -1.5, 0],
@@ -176,7 +176,7 @@ const AuthLoader = () => {
                 }}
               />
               {/* Bar chart lines */}
-              <motion.path
+              <Motion.path
                 d="M8 14V12M12 14V9M16 14V11"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -190,21 +190,21 @@ const AuthLoader = () => {
                 }}
               />
             </svg>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
 
         {/* Brand name */}
-        <motion.p
+        <Motion.p
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="text-sm font-semibold tracking-widest uppercase text-primary-600/70 dark:text-primary-400/60 mb-8 select-none"
         >
           Only Creators
-        </motion.p>
+        </Motion.p>
 
         {/* Smooth shimmer progress bar */}
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, scaleX: 0.7 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -220,8 +220,8 @@ const AuthLoader = () => {
                 "oc-shimmer-slide 1.6s cubic-bezier(0.4,0,0.2,1) infinite",
             }}
           />
-        </motion.div>
-      </motion.div>
+        </Motion.div>
+      </Motion.div>
 
       {/* Keyframes injected once */}
       <style>{`
@@ -264,7 +264,7 @@ const PublicRoute = ({ children }) => {
     return <AuthLoader />;
   }
 
-  return !isAuthenticated ? children : <Navigate to="/dashboard" replace />;
+  return !isAuthenticated ? <div className="auth-shell">{children}</div> : <Navigate to="/dashboard" replace />;
 };
 
 function App() {

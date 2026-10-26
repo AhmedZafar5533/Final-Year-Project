@@ -29,7 +29,6 @@ import ScriptManuscript from "../components/insights/ScriptManuscript";
 import { exportScriptMarkdown } from "../utils/scriptVisuals";
 
 const STORAGE_KEY = "onlycreators_script_history";
-const FONT_LINK_ID = "script-studio-display-font";
 
 // A small, fixed palette of "folder tab" colors used to give each saved
 // script a consistent, at-a-glance identity in the sidebar — like colored
@@ -65,12 +64,12 @@ function loadScriptHistory() {
 
         // If we have valid scripts, filter out leftover unedited empty placeholders
         const hasRealScripts = cleaned.some(
-          (s) => s.title !== "New AI Script Draft" || (s.messages && s.messages.length > 1)
+          (s) => s.title !== "Untitled script" || (s.messages && s.messages.length > 1)
         );
         const finalHistory = hasRealScripts
           ? cleaned.filter(
               (s) =>
-                s.title !== "New AI Script Draft" ||
+                s.title !== "Untitled script" ||
                 (s.messages && s.messages.length > 1) ||
                 (s.scriptContent && !s.scriptContent.includes("Specify your topic"))
             )
@@ -103,22 +102,6 @@ function getTabColor(id) {
     hash |= 0;
   }
   return TAB_COLORS[Math.abs(hash) % TAB_COLORS.length];
-}
-
-// Injects the display + mono typefaces once per app session (no external
-// <link> in the static HTML shell, so we bring them in lazily here).
-// Fraunces carries the editorial/title-page voice; IBM Plex Mono stands in
-// for the typewriter register scripts and slug lines are traditionally set in.
-function useDisplayFont() {
-  useEffect(() => {
-    if (document.getElementById(FONT_LINK_ID)) return;
-    const link = document.createElement("link");
-    link.id = FONT_LINK_ID;
-    link.rel = "stylesheet";
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap";
-    document.head.appendChild(link);
-  }, []);
 }
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -180,7 +163,6 @@ const ScriptStudio = () => {
   const navigate = useNavigate();
   const passedIdea = location.state?.idea;
 
-  useDisplayFont();
 
   const [history, setHistory] = useState(loadScriptHistory);
   const [activeSessionId, setActiveSessionId] = useState(null);
@@ -195,16 +177,11 @@ const ScriptStudio = () => {
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [requestMode, setRequestMode] = useState("auto");
-  const [mobilePane, setMobilePane] = useState("draft");
+  const [mobilePane, setMobilePane] = useState("chat");
   const activeResearchSession = history.find(session => session.id === activeSessionId);
   const { job: scriptResearch, availableUpdate: researchUpdateAvailable } =
     useScriptResearch(activeResearchSession?.idea, activeResearchSession?.researchCompletedAt);
-  const [suggestedFollowups, setSuggestedFollowups] = useState([
-    "Punch up the opening hook for higher retention",
-    "Add 3 visual B-roll cues for theoretical sections",
-    "Shorten pacing to fit under 12 minutes",
-    "Write a high-converting pinned comment callout",
-  ]);
+  const [suggestedFollowups, setSuggestedFollowups] = useState([]);
   const [copied, setCopied] = useState(false);
 
   const chatEndRef = useRef(null);
@@ -274,7 +251,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       const filtered = prev.filter(
         (s) =>
           !(
-            s.title === "New AI Script Draft" &&
+            s.title === "Untitled script" &&
             (!s.scriptContent || s.scriptContent.includes("Specify your topic")) &&
             (!s.messages || s.messages.length <= 1)
           )
@@ -293,11 +270,6 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     trendsService
       .chatScriptStudio({
         idea,
-        channelContext: {
-          niche: "Science & Technology",
-          audience: "Curious enthusiasts",
-          tone: "Authoritative and engaging",
-        },
         messages: newMessages,
         currentScript: "",
         sessionId,
@@ -327,6 +299,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                   scriptContent: generatedScript,
                   researchCompletedAt: data.researchCompletedAt,
                   webResearch: data.webResearch,
+                  channelContext: data.channelContext,
                 }
               : s
           );
@@ -354,11 +327,11 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
   };
 
   const handleCreateNewSession = () => {
-    // If the active session is already a fresh untouched "New AI Script Draft", reuse it
+    // If the active session is already a fresh untouched "Untitled script", reuse it
     const active = history.find((s) => s.id === activeSessionId);
     if (
       active &&
-      active.title === "New AI Script Draft" &&
+      active.title === "Untitled script" &&
       (!active.scriptContent || active.scriptContent.includes("Specify your topic")) &&
       (!active.messages || active.messages.length <= 1)
     ) {
@@ -369,7 +342,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     // If another untouched blank draft exists in history, switch to it
     const existingBlank = history.find(
       (s) =>
-        s.title === "New AI Script Draft" &&
+        s.title === "Untitled script" &&
         (!s.scriptContent || s.scriptContent.includes("Specify your topic")) &&
         (!s.messages || s.messages.length <= 1)
     );
@@ -380,17 +353,17 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
 
     const newSession = {
       id: `script-session-${Date.now()}`,
-      title: "New AI Script Draft",
+      title: "Untitled script",
       updatedAt: new Date().toISOString(),
       messages: [
         {
           role: "assistant",
           content:
-            "Welcome to AI Script Studio! What topic or video idea would you like to write a YouTube production script for today?",
+            "What would you like your next video to be about?",
         },
       ],
       scriptContent:
-        "# YouTube Production Script Draft\n\n*Specify your topic or prompt on the right pane to start generating your script with Nova AI.*",
+        "",
     };
 
     const updated = [newSession, ...history];
@@ -442,7 +415,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     }
   };
 
-  const syncActiveSessionToHistory = (newScript, newMessages, newTitle, researchCompletedAt, webResearch) => {
+  const syncActiveSessionToHistory = (newScript, newMessages, newTitle, researchCompletedAt, webResearch, channelContext) => {
     if (!activeSessionId) return;
 
     setHistory((prev) => {
@@ -456,6 +429,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
             messages: newMessages !== undefined ? newMessages : s.messages,
             researchCompletedAt: researchCompletedAt || s.researchCompletedAt,
             webResearch: webResearch || s.webResearch,
+            channelContext: channelContext || s.channelContext,
           };
         }
         return s;
@@ -483,18 +457,13 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     // Dynamic session title from first user prompt
     let titleToSet;
     const currentSession = history.find((s) => s.id === activeSessionId);
-    if (currentSession && (currentSession.title === "New AI Script Draft" || !currentSession.title)) {
+    if (currentSession && (["Untitled script", "New AI Script Draft"].includes(currentSession.title) || !currentSession.title)) {
       titleToSet = text.slice(0, 35) + (text.length > 35 ? "…" : "");
     }
 
     try {
       const data = await trendsService.chatScriptStudio({
         idea: currentSession?.idea || { title: titleToSet || currentSession?.title || text },
-        channelContext: {
-          niche: "Science & Technology",
-          audience: "Curious enthusiasts",
-          tone: "Engaging and authoritative",
-        },
         messages: updatedMessages,
         currentScript: scriptContent,
         sessionId: activeSessionId,
@@ -518,7 +487,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       const finalMessages = [...updatedMessages, assistantMsg];
       setChatMessages(finalMessages);
 
-      syncActiveSessionToHistory(nextScript, finalMessages, titleToSet, data.researchCompletedAt, data.webResearch);
+      syncActiveSessionToHistory(nextScript, finalMessages, titleToSet, data.researchCompletedAt, data.webResearch, data.channelContext);
     } catch (err) {
       console.error("Chat script error:", err);
       const fallbackAssistantMsg = {
@@ -553,11 +522,12 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
   };
 
   const wordCount = useMemo(() => {
-    if (!scriptContent) return 0;
+    if (!scriptContent || scriptContent.includes("Specify your topic")) return 0;
     return scriptContent.trim().split(/\s+/).length;
   }, [scriptContent]);
 
-  const estimatedMinutes = Math.max(1, Math.round(wordCount / 140));
+  const estimatedMinutes = wordCount ? Math.max(1, Math.round(wordCount / 140)) : 0;
+  const hasDraft = Boolean(scriptContent.trim() && !scriptContent.includes("Specify your topic"));
 
   const filteredHistory = useMemo(() => {
     if (!historySearch.trim()) return history;
@@ -570,7 +540,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
     // `h-[100dvh]` (dynamic viewport height) instead of a fixed vh avoids the
     // classic mobile-browser bug where the address bar chrome causes the
     // layout to jump or clip content when it shows/hides.
-    <div className="h-[calc(100dvh-5rem)] flex flex-col lg:flex-row gap-3 sm:gap-4 pb-3 sm:pb-4 overflow-hidden min-h-0">
+    <div className="studio-layout flex flex-col lg:flex-row gap-4 overflow-hidden min-h-0">
       <style>{`
         .font-display { font-family: "Fraunces", ui-serif, Georgia, serif; }
         .font-mono-label { font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; }
@@ -664,7 +634,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
       <div
         className={`ss-drawer flex flex-col bg-surface-50 dark:bg-dark-surface rounded-2xl border border-surface-300 dark:border-dark-border overflow-hidden flex-shrink-0 min-h-0
           fixed inset-y-0 left-0 z-50 w-[85vw] max-w-xs rounded-l-none
-          lg:static lg:z-auto lg:w-80 lg:max-w-none lg:rounded-2xl lg:h-full
+          lg:static lg:z-auto lg:w-60 lg:max-w-none lg:rounded-2xl lg:h-full
           ${sidebarOpen ? "flex" : "hidden lg:flex"}`}
       >
         <div className="p-4 border-b border-surface-200 dark:border-dark-border space-y-3 flex-shrink-0">
@@ -674,7 +644,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="font-display text-base font-semibold text-text-primary dark:text-dark-text truncate leading-tight">
-                Script Library
+                Scripts
               </h2>
               <p className="font-mono-label text-[0.65rem] uppercase tracking-wide text-text-muted dark:text-dark-text-muted">
                 {numberFormatter.format(history.length)} {history.length === 1 ? "draft" : "drafts"}
@@ -703,7 +673,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               type="text"
               name="script-search"
               autoComplete="off"
-              placeholder="Search past scripts…"
+              placeholder="Search scripts…"
               value={historySearch}
               onChange={(e) => setHistorySearch(e.target.value)}
               className="w-full pl-9 pr-8 py-2 bg-white dark:bg-dark-surface-light border border-surface-200 dark:border-dark-border rounded-lg text-xs text-text-primary dark:text-dark-text placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 transition-shadow"
@@ -726,7 +696,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
             className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg border-2 border-dashed border-surface-300 dark:border-dark-border text-text-secondary dark:text-dark-text-muted hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50/50 dark:hover:bg-primary-950/20 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-surface"
           >
             <IoAdd className="w-4 h-4" aria-hidden="true" />
-            <span>Start a new script</span>
+            <span>New script</span>
           </button>
         </div>
 
@@ -818,23 +788,23 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               </h1>
               <p className="font-mono-label text-[0.62rem] sm:text-[0.65rem] uppercase tracking-wide text-text-muted dark:text-dark-text-muted flex items-center gap-1.5">
                 {chatLoading && <IoRadioButtonOn className="w-2 h-2 text-rose-500 animate-pulse flex-shrink-0" aria-hidden="true" />}
-                <span className="truncate">{chatLoading ? "Researching and drafting" : "Nova AI Scriptwriting Engine"}</span>
+                <span className="truncate">{chatLoading ? "Researching and drafting" : "Script Studio"}</span>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            {scriptContent && (
+            {hasDraft && (
               <>
                 <button
                   type="button"
                   onClick={handleDownloadScript}
                   aria-label="Export script as Markdown file"
-                  title="Export .md"
+                  title="Download"
                   className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-semibold border border-surface-300 dark:border-dark-border bg-transparent text-text-primary dark:text-dark-text hover:bg-surface-100 dark:hover:bg-dark-surface-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                 >
                   <IoDownloadOutline className="w-4 h-4" aria-hidden="true" />
-                  <span className="hidden sm:inline">Export .md</span>
+                  <span className="hidden sm:inline">Download</span>
                 </button>
 
                 <button
@@ -851,7 +821,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                   ) : (
                     <>
                       <IoCopyOutline className="w-4 h-4" aria-hidden="true" />
-                      <span className="hidden sm:inline">Copy Script</span>
+                      <span className="hidden sm:inline">Copy</span>
                       <span className="sm:hidden hidden xs:inline">Copy</span>
                     </>
                   )}
@@ -869,25 +839,13 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
         <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 overflow-hidden">
           {/* Script Viewer — styled as a bound page */}
           <div className={`md:col-span-7 ${mobilePane === "draft" ? "flex" : "hidden md:flex"} flex-col min-h-0 border-b md:border-b-0 md:border-r border-surface-200 dark:border-dark-border overflow-hidden`}>
-            <div className="flex items-center justify-between gap-2 px-4 sm:px-5 py-2.5 sm:py-3 border-b border-surface-200 dark:border-dark-border bg-surface-50/60 dark:bg-dark-surface-light/30 flex-shrink-0">
-              <span className="font-mono-label text-[0.65rem] sm:text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-text-secondary dark:text-dark-text-muted flex items-center gap-1.5">
-                <IoDocumentTextOutline className="w-3.5 h-3.5" aria-hidden="true" />
-                <span className="hidden xs:inline">Production Draft</span>
-                <span className="xs:hidden">Draft</span>
-              </span>
-              <span className="font-mono-label text-[0.62rem] sm:text-[0.68rem] text-text-muted dark:text-dark-text-muted flex items-center gap-1 tabular-nums flex-shrink-0">
-                <IoTimeOutline className="w-3.5 h-3.5" aria-hidden="true" />
-                {numberFormatter.format(wordCount)} words · ~{estimatedMinutes}&nbsp;min
-              </span>
-            </div>
-
-            <ScriptWorkspace key={activeSessionId} research={activeResearchSession?.webResearch} loading={chatLoading}
+            <ScriptWorkspace channelContext={activeResearchSession?.channelContext} key={activeSessionId} wordCount={wordCount} estimatedMinutes={estimatedMinutes} research={activeResearchSession?.webResearch} loading={chatLoading}
               onResearch={mode => handleSendMessage(mode === 'images' ? 'Find relevant images for this video and show their original source pages. Do not change the script.' :
                 'Find authoritative web references for the facts in this video. Do not change the script.', { requestMode: 'chat', researchMode: mode })}>
               <div className="script-page max-w-[720px] mx-auto p-5 sm:p-8 md:p-10 space-y-2 break-words">
-                {scriptContent ? <ScriptManuscript text={scriptContent} research={activeResearchSession?.webResearch} /> : <div className="flex flex-col items-center justify-center min-h-64 text-center space-y-4 text-text-muted">
+                {hasDraft ? <ScriptManuscript text={scriptContent} research={activeResearchSession?.webResearch} /> : <div className="flex flex-col items-center justify-center min-h-64 text-center space-y-4 text-text-muted">
                   <IoDocumentTextOutline className="w-12 h-12 opacity-40" /><h2 className="font-display text-xl">Your next video starts here</h2>
-                  <p className="text-sm max-w-sm leading-relaxed">Ask a question, research a topic, or tell Nova to write a script. Your draft and references have their own space.</p>
+                  <p className="text-sm max-w-sm leading-relaxed">Describe your video in chat. Your script will appear here.</p>
                 </div>}
               </div>
             </ScriptWorkspace>
@@ -898,7 +856,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
             <div className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 border-b border-surface-200 dark:border-dark-border flex-shrink-0">
               <IoChatbubbleEllipsesOutline className="w-3.5 h-3.5 text-primary-600 dark:text-primary-400 flex-shrink-0" aria-hidden="true" />
               <span className="font-mono-label text-[0.65rem] sm:text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-text-secondary dark:text-dark-text-muted">
-                Collaborate with Nova
+                Assistant
               </span>
             </div>
 
@@ -924,9 +882,9 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
                           : "bg-white dark:bg-dark-surface border border-surface-200 dark:border-dark-border text-text-primary dark:text-dark-text rounded-bl-sm shadow-sm"
                       }`}
                     >
-                      {!isUser && (
+                      {!isUser && msg.scriptUpdated === true && (
                         <div className="font-mono-label text-[0.6rem] uppercase tracking-wide text-primary-600 dark:text-primary-400 mb-1">
-                          {msg.scriptUpdated === true ? "Draft updated" : msg.intent === "chat" ? "Answer · draft unchanged" : "Nova"}
+                          {msg.scriptUpdated === true ? "Draft updated" : "Assistant"}
                         </div>
                       )}
                       {isUser ? <p className="whitespace-pre-wrap">{msg.content}</p> : <ScriptChatContent content={msg.content} research={activeResearchSession?.webResearch} />}
@@ -951,7 +909,7 @@ Format: ${idea.suggested_format || "12-15 minutes"}`;
               </button>}
             </div>}
             {suggestedFollowups.length > 0 && (
-              <div className="p-2.5 sm:p-3 border-t border-surface-200 dark:border-dark-border flex gap-2 overflow-x-auto overscroll-x-contain flex-shrink-0">
+              <div className="studio-suggestions p-2.5 sm:p-3 border-t border-surface-200 dark:border-dark-border flex gap-2 overflow-x-auto overscroll-x-contain flex-shrink-0">
                 {suggestedFollowups.map((sug, i) => (
                   <button
                     key={i}
